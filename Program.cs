@@ -178,6 +178,8 @@ namespace BatRun
         private ButtonMapping? directInputMapping;
         private List<ButtonMapping> directInputMappings;
 
+        private SDLGameControllerDB? sdlDb;
+
         public Program()
         {
             if (configPath == null)
@@ -212,9 +214,13 @@ namespace BatRun
             this.Hide();
 
             logger.Log("Starting BatRun");
+            
+            // Initialize RetroBat path first
+            InitializeRetrobatPath();
+            
+            // Then initialize controllers with the correct path
             InitializeControllers();
             InitializeTrayIcon();
-            InitializeRetrobatPath();
 
             // Initialisation de DInputHandler
             dInputHandler = new DInputHandler(logger);
@@ -267,6 +273,17 @@ namespace BatRun
                 return;
             }
 
+            // Initialiser la base de données SDL
+            sdlDb = new SDLGameControllerDB(logger);
+            if (!string.IsNullOrEmpty(retrobatPath))
+            {
+                sdlDb.LoadDatabase(retrobatPath);
+            }
+            else
+            {
+                logger.LogError("RetroBat path is not set");
+            }
+
             int numJoysticks = SDL.SDL_NumJoysticks();
             logger.LogInfo($"Found {numJoysticks} joysticks");
 
@@ -287,26 +304,26 @@ namespace BatRun
                 
                 if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
                 {
+                    // C'est une manette XInput
                     IntPtr controller = SDL.SDL_GameControllerOpen(i);
                     if (controller != IntPtr.Zero)
                     {
                         controllers.Add(new GameController(controller, i));
                         logger.LogInfo($"Controller {i} initialized successfully");
 
-                        // Créer automatiquement le mapping pour les manettes XInput/SDL
                         IntPtr joystick = SDL.SDL_GameControllerGetJoystick(controller);
                         if (joystick != IntPtr.Zero)
                         {
                             string controllerName = SDL.SDL_JoystickName(joystick);
                             string deviceGuid = SDL.SDL_JoystickGetGUID(joystick).ToString();
 
-                            // Vérifier si un mapping existe déjà pour cette manette
+                            // Vérifier si un mapping personnalisé existe déjà
                             var existingMapping = directInputMapping.Controllers.FirstOrDefault(c =>
                                 c.JoystickName == controllerName && c.DeviceGuid == deviceGuid);
 
                             if (existingMapping == null)
                             {
-                                // Créer un nouveau mapping avec les boutons par défaut
+                                // Créer un nouveau mapping avec les boutons par défaut pour XInput
                                 var newMapping = new ControllerConfig
                                 {
                                     JoystickName = controllerName,
@@ -319,19 +336,89 @@ namespace BatRun
                                 };
 
                                 directInputMapping.Controllers.Add(newMapping);
-                                logger.LogInfo($"Created default mapping for XInput/SDL controller: {controllerName}");
+                                logger.LogInfo($"Created default mapping for XInput controller: {controllerName}");
                             }
                         }
-                    }
-                    else
-                    {
-                        var error = SDL.SDL_GetError();
-                        logger.LogError($"Error initializing controller {i}: {error}", new Exception(error));
                     }
                 }
                 else
                 {
-                    logger.LogInfo($"Device {i} is not a compatible game controller");
+                    // C'est une manette DirectInput
+                    IntPtr joystick = SDL.SDL_JoystickOpen(i);
+                    if (joystick != IntPtr.Zero)
+                    {
+                        try
+                        {
+                            string controllerName = SDL.SDL_JoystickName(joystick);
+                            var sdlGuid = SDL.SDL_JoystickGetGUID(joystick);
+                            string rawGuid = sdlGuid.ToString();
+                            
+                            // Convertir le GUID au format SDL2 (32 caractères hex)
+                            byte[] guidBytes = new byte[16];
+                            sdlGuid.ToByteArray().CopyTo(guidBytes, 0);
+                            string sdlGuidStr = "03000000" + BitConverter.ToString(guidBytes).Replace("-", "").ToLower().Substring(8);
+
+                            logger.LogInfo($"DirectInput controller found: {controllerName}");
+                            logger.LogInfo($"Raw GUID: {rawGuid}");
+                            logger.LogInfo($"SDL GUID: {sdlGuidStr}");
+
+                            // Vérifier si un mapping personnalisé existe déjà
+                            var existingMapping = directInputMapping.Controllers.FirstOrDefault(c =>
+                                c.JoystickName == controllerName && c.DeviceGuid == rawGuid);
+
+                            if (existingMapping == null)
+                            {
+                                // Chercher d'abord par GUID dans la base de données SDL
+                                var sdlMapping = sdlDb?.FindMappingByGuid(sdlGuidStr);
+                                if (sdlMapping == null)
+                                {
+                                    // Si pas trouvé par GUID, essayer par nom
+                                    sdlMapping = sdlDb?.FindMappingByName(controllerName);
+                                }
+
+                                if (sdlMapping != null)
+                                {
+                                    logger.LogInfo($"Found SDL mapping for {controllerName}");
+                                    logger.LogInfo($"SDL DB GUID: {sdlMapping.Guid}");
+                                    if (sdlMapping.HasBackAndStartButtons)
+                                    {
+                                        // Créer un nouveau mapping basé sur la DB SDL
+                                        var newMapping = new ControllerConfig
+                                        {
+                                            JoystickName = controllerName,
+                                            DeviceGuid = rawGuid,
+                                            Mappings = new Dictionary<string, string>
+                                            {
+                                                { "Hotkey", $"Button {sdlMapping.ButtonMappings["back"]}" },
+                                                { "StartButton", $"Button {sdlMapping.ButtonMappings["start"]}" }
+                                            }
+                                        };
+
+                                        directInputMapping.Controllers.Add(newMapping);
+                                        logger.LogInfo($"Created mapping from SDL DB for {controllerName}:");
+                                        logger.LogInfo($"  Back: Button {sdlMapping.ButtonMappings["back"]}");
+                                        logger.LogInfo($"  Start: Button {sdlMapping.ButtonMappings["start"]}");
+                                    }
+                                    else
+                                    {
+                                        logger.LogInfo($"SDL mapping found but missing back/start buttons for {controllerName}");
+                                    }
+                                }
+                                else
+                                {
+                                    logger.LogInfo($"No SDL mapping found for {controllerName} with GUID {sdlGuidStr}");
+                                }
+                            }
+                            else
+                            {
+                                logger.LogInfo($"Using existing custom mapping for {controllerName}");
+                            }
+                        }
+                        finally
+                        {
+                            SDL.SDL_JoystickClose(joystick);
+                        }
+                    }
                 }
             }
 
@@ -391,6 +478,7 @@ namespace BatRun
         private async Task PollControllersAsync(CancellationToken cancellationToken)
         {
             const int POLL_INTERVAL_MS = 100;
+            int lastJoystickCount = SDL.SDL_NumJoysticks();
 
             SDL.SDL_JoystickEventState(SDL.SDL_ENABLE);
 
@@ -402,54 +490,67 @@ namespace BatRun
 
                     SDL.SDL_PumpEvents();
 
-                    SDL.SDL_Event sdlEvent;
-                    while (SDL.SDL_PollEvent(out sdlEvent) == 1)
+                    // Vérifier si le nombre de joysticks a changé
+                    int currentJoystickCount = SDL.SDL_NumJoysticks();
+                    if (currentJoystickCount != lastJoystickCount)
                     {
-                        if (sdlEvent.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED)
+                        logger.LogInfo($"Number of joysticks changed from {lastJoystickCount} to {currentJoystickCount}");
+                        lastJoystickCount = currentJoystickCount;
+
+                        // Parcourir tous les joysticks pour détecter les nouveaux
+                        for (int i = 0; i < currentJoystickCount; i++)
                         {
-                            int index = sdlEvent.cdevice.which;
-                            if (SDL.SDL_IsGameController(index) == SDL.SDL_bool.SDL_TRUE)
+                            if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
                             {
-                                IntPtr controller = SDL.SDL_GameControllerOpen(index);
+                                // XInput controller
+                                IntPtr controller = SDL.SDL_GameControllerOpen(i);
                                 if (controller != IntPtr.Zero)
                                 {
-                                    controllers.Add(new GameController(controller, index));
-                                    logger.LogInfo($"Controller {index} reconnected and initialized");
+                                    controllers.Add(new GameController(controller, i));
+                                    logger.LogInfo($"Controller {i} connected and initialized");
 
-                                    // Créer automatiquement le mapping pour la nouvelle manette XInput/SDL
                                     IntPtr joystick = SDL.SDL_GameControllerGetJoystick(controller);
                                     if (joystick != IntPtr.Zero)
                                     {
+                                        InitializeController(joystick, true);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // DirectInput controller
+                                IntPtr joystick = SDL.SDL_JoystickOpen(i);
+                                if (joystick != IntPtr.Zero)
+                                {
+                                    try
+                                    {
                                         string controllerName = SDL.SDL_JoystickName(joystick);
-                                        string deviceGuid = SDL.SDL_JoystickGetGUID(joystick).ToString();
+                                        var sdlGuid = SDL.SDL_JoystickGetGUID(joystick);
+                                        string rawGuid = sdlGuid.ToString();
 
+                                        // Vérifier si ce contrôleur est déjà initialisé
                                         var existingMapping = directInputMapping?.Controllers.FirstOrDefault(c =>
-                                            c.JoystickName == controllerName && c.DeviceGuid == deviceGuid);
+                                            c.JoystickName == controllerName && c.DeviceGuid == rawGuid);
 
                                         if (existingMapping == null)
                                         {
-                                            var newMapping = new ControllerConfig
-                                            {
-                                                JoystickName = controllerName,
-                                                DeviceGuid = deviceGuid,
-                                                Mappings = new Dictionary<string, string>
-                                                {
-                                                    { "Hotkey", "Back" },
-                                                    { "StartButton", "Start" }
-                                                }
-                                            };
-
-                                            directInputMapping?.Controllers.Add(newMapping);
-                                            string jsonPath = Path.Combine(AppContext.BaseDirectory, "buttonMappings.json");
-                                            var json = JsonConvert.SerializeObject(directInputMapping, Formatting.Indented);
-                                            File.WriteAllText(jsonPath, json);
-                                            logger.LogInfo($"Created default mapping for new XInput/SDL controller: {controllerName}");
+                                            InitializeController(joystick, false);
+                                            SaveControllerMappings();
                                         }
+                                    }
+                                    finally
+                                    {
+                                        SDL.SDL_JoystickClose(joystick);
                                     }
                                 }
                             }
                         }
-                        else if (sdlEvent.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED)
+                    }
+
+                    SDL.SDL_Event sdlEvent;
+                    while (SDL.SDL_PollEvent(out sdlEvent) == 1)
+                    {
+                        if (sdlEvent.type == SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED)
                         {
                             IntPtr removedController = (IntPtr)sdlEvent.cdevice.which;
                             var controller = controllers.FirstOrDefault(c => c.Handle == removedController);
@@ -543,6 +644,93 @@ namespace BatRun
                 {
                     logger.LogError($"Error during polling: {ex.Message}", ex);
                 }
+            }
+        }
+
+        private void InitializeController(IntPtr joystick, bool isXInput)
+        {
+            string controllerName = SDL.SDL_JoystickName(joystick);
+            var sdlGuid = SDL.SDL_JoystickGetGUID(joystick);
+            string rawGuid = sdlGuid.ToString();
+
+            // Convert GUID for DirectInput controllers
+            string sdlGuidStr = rawGuid;
+            if (!isXInput)
+            {
+                byte[] guidBytes = new byte[16];
+                sdlGuid.ToByteArray().CopyTo(guidBytes, 0);
+                sdlGuidStr = "03000000" + BitConverter.ToString(guidBytes).Replace("-", "").ToLower().Substring(8);
+            }
+
+            logger.LogInfo($"{(isXInput ? "XInput" : "DirectInput")} controller connected: {controllerName}");
+            if (!isXInput)
+            {
+                logger.LogInfo($"Raw GUID: {rawGuid}");
+                logger.LogInfo($"SDL GUID: {sdlGuidStr}");
+            }
+
+            // Check if mapping already exists
+            var existingMapping = directInputMapping?.Controllers.FirstOrDefault(c =>
+                c.JoystickName == controllerName && c.DeviceGuid == rawGuid);
+
+            if (existingMapping == null)
+            {
+                if (isXInput)
+                {
+                    // Create default XInput mapping
+                    var newMapping = new ControllerConfig
+                    {
+                        JoystickName = controllerName,
+                        DeviceGuid = rawGuid,
+                        Mappings = new Dictionary<string, string>
+                        {
+                            { "Hotkey", "Back" },
+                            { "StartButton", "Start" }
+                        }
+                    };
+                    directInputMapping?.Controllers.Add(newMapping);
+                    logger.LogInfo($"Created default mapping for XInput controller: {controllerName}");
+                    SaveControllerMappings(); // Sauvegarder immédiatement après l'ajout d'une manette XInput
+                }
+                else
+                {
+                    // Try to find SDL mapping for DirectInput controller
+                    var sdlMapping = sdlDb?.FindMappingByGuid(sdlGuidStr);
+                    if (sdlMapping == null)
+                    {
+                        sdlMapping = sdlDb?.FindMappingByName(controllerName);
+                    }
+
+                    if (sdlMapping != null && sdlMapping.HasBackAndStartButtons)
+                    {
+                        var newMapping = new ControllerConfig
+                        {
+                            JoystickName = controllerName,
+                            DeviceGuid = rawGuid,
+                            Mappings = new Dictionary<string, string>
+                            {
+                                { "Hotkey", $"Button {sdlMapping.ButtonMappings["back"]}" },
+                                { "StartButton", $"Button {sdlMapping.ButtonMappings["start"]}" }
+                            }
+                        };
+                        directInputMapping?.Controllers.Add(newMapping);
+                        logger.LogInfo($"Created mapping from SDL DB for {controllerName}");
+                        SaveControllerMappings(); // Sauvegarder immédiatement après l'ajout d'une manette DirectInput
+                    }
+                }
+            }
+        }
+
+        private void SaveControllerMappings()
+        {
+            if (directInputMapping?.Controllers.Any() == true)
+            {
+                string exePath = AppContext.BaseDirectory;
+                string parentPath = Path.GetDirectoryName(exePath) ?? exePath;
+                string jsonPath = Path.Combine(parentPath, "buttonMappings.json");
+                var json = JsonConvert.SerializeObject(directInputMapping, Formatting.Indented);
+                File.WriteAllText(jsonPath, json);
+                logger.LogInfo("Controller mappings saved to JSON");
             }
         }
 
@@ -1203,11 +1391,11 @@ namespace BatRun
             {
                 Text = culture.Name.StartsWith("fr-") 
                     ? $"BatRun\n\n" +
-                      $"Version: 1.0\n" +
+                      $"Version: 1.1\n" +
                       "Développé par AI pour Aynshe\n\n" +
                       "Un lanceur pour RetroBat avec Hotkey select/back+start."
                     : $"BatRun\n\n" +
-                      $"Version: 1.0\n" +
+                      $"Version: 1.1\n" +
                       "Developed by AI for Aynshe\n\n" +
                       "A launcher for RetroBat with Hotkey select/back+start.",
                 Dock = DockStyle.Top,
