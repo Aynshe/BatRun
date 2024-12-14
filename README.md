@@ -1,7 +1,9 @@
 # BatRun
 Launcher for RetroBat with Hotkey gamepad select/back+start xinput or dinput  /  -publish self contained-
 
-1.1 : Add mapping automatic also in Dinput - "source : gamecontrollerdb in RetroBat" "But the BatRun plugin startup is slower..."
+1.1 : 
+
+- Added mapping automatic also in Dinput - "source : gamecontrollerdb in RetroBat" "But the BatRun plugin startup is slower..."
 
 - Added a minimized mode for arcade terminals that do not have explorer.exe running, allows the windowed interface to be executed
 
