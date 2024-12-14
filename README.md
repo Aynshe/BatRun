@@ -7,6 +7,8 @@ Launcher for RetroBat with Hotkey gamepad select/back+start xinput or dinput  / 
 
 - Added a minimized mode for arcade terminals that do not have explorer.exe running, allows the windowed interface to be executed
 
+***to check: increase in RAM load over time...***
+
 Having no other Dinput Joystick than my old "SideWinder Game Pad Pro USB version 1.0", I am not able to test.
 Also, I do not know if it is my old Dinput controller, I sometimes need to insist a little on the hotkey command.
 
