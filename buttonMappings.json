@@ -1,0 +1,8 @@
+{
+    "JoystickName": "SideWinder Game Pad Pro USB version 1.0",
+    "Guid": "your-guid-here",
+    "Mappings": {
+        "Hotkey": "Back",
+        "Start": "Start"
+    }
+}
