@@ -500,6 +500,8 @@ namespace BatRun
                         // Parcourir tous les joysticks pour détecter les nouveaux
                         for (int i = 0; i < currentJoystickCount; i++)
                         {
+                            logger.LogInfo($"Initializing controller {i}");
+                            
                             if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
                             {
                                 // XInput controller
@@ -1067,155 +1069,22 @@ namespace BatRun
             logger.LogInfo("Controller polling started");
         }
 
-        private async Task SetEmulationStationFocus()
-        {
-            // Read values from the INI file
-            int focusDuration = config.ReadInt("Focus", "FocusDuration", 30000);
-            int focusInterval = config.ReadInt("Focus", "FocusInterval", 5000);
-            int elapsedTime = 0;
-
-            logger.LogInfo($"Starting focus sequence for EmulationStation (Duration: {focusDuration}ms, Interval: {focusInterval}ms)");
-
-            while (elapsedTime < focusDuration)
-            {
-                try 
-                {
-                    // Complete focus sequence
-                    var process = Process.GetProcessesByName("emulationstation").FirstOrDefault();
-                    IntPtr hWnd = process?.MainWindowHandle ?? IntPtr.Zero;
-                    
-                    if (hWnd != IntPtr.Zero)
-                    {
-                        // Check if process is not null before accessing its Id
-                        if (process != null)
-                        {
-                            // Allow focus change for this process
-                            NativeMethods.AllowSetForegroundWindow(process.Id);
-
-                            // Get thread IDs
-                            uint foregroundThread = NativeMethods.GetWindowThreadProcessId(
-                                NativeMethods.GetForegroundWindow(), IntPtr.Zero);
-                            uint appThread = NativeMethods.GetCurrentThreadId();
-
-                            // Attach threads for focus
-                            bool threadAttached = false;
-                            if (foregroundThread != appThread)
-                            {
-                                threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
-                            }
-
-                            try
-                            {
-                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
-                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
-                                NativeMethods.BringWindowToTop(hWnd);
-                                NativeMethods.SetForegroundWindow(hWnd);
-                                
-                                logger.LogInfo($"Focus applied to EmulationStation (attempt {elapsedTime/focusInterval + 1}/{focusDuration/focusInterval})");
-                            }
-                            finally
-                            {
-                                // Detach threads if necessary
-                                if (threadAttached)
-                                {
-                                    NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            logger.LogError("Process is null, cannot set foreground window.");
-                        }
-                    }
-                    else
-                    {
-                        logger.LogInfo("EmulationStation window handle not found");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError("Error setting focus to EmulationStation", ex);
-                }
-
-                await Task.Delay(focusInterval);
-                elapsedTime += focusInterval;
-            }
-
-            logger.LogInfo("End of focus sequence for EmulationStation");
-
-            await RestoreWindowsAfterEmulationStation();
-        }
-
         private void InitializeTrayIcon()
         {
-            var strings = LocalizedStrings.GetStrings();
-
-            try
+            trayIcon = new NotifyIcon()
             {
-                string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
-                Icon? appIcon = null;
+                Icon = new Icon("Assets/icon.ico"),
+                Visible = true,
+                ContextMenuStrip = new ContextMenuStrip()
+            };
 
-                if (File.Exists(iconPath))
-                {
-                    appIcon = new Icon(iconPath);
-                }
-                else
-                {
-                    logger.LogError($"Icon file not found at: {iconPath}");
-                    appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-                }
+            trayIcon.ContextMenuStrip.Items.Add("Ouvrir MainForm", null, (sender, e) => ShowMainForm());
+            trayIcon.ContextMenuStrip.Items.Add("Quitter", null, (sender, e) => Application.Exit());
 
-                trayIcon = new NotifyIcon
-                {
-                    Icon = appIcon,
-                    Text = "BatRun",
-                    Visible = true
-                };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error loading tray icon: {ex.Message}", ex);
-                // Fallback to default icon
-                trayIcon = new NotifyIcon
-                {
-                    Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                    Text = "BatRun",
-                    Visible = true
-                };
-            }
-
-            var contextMenu = new ContextMenuStrip();
-            
-            // Groupe principal
-            contextMenu.Items.Add(strings.OpenBatRun, null, (s, e) => SafeExecute(ShowMainForm));
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add(strings.OpenEmulationStation, null, (s, e) => SafeExecute(LaunchEmulationStation));
-            contextMenu.Items.Add(strings.LaunchBatGui, null, (s, e) => SafeExecute(LaunchBatGui));
-            contextMenu.Items.Add(new ToolStripSeparator());
-            
-            // Groupe Configuration
-            var configMenuItem = new ToolStripMenuItem(strings.Configuration);
-            configMenuItem.DropDownItems.Add(strings.GeneralSettings, null, (s, e) => SafeExecute(ShowConfigWindow));
-            configMenuItem.DropDownItems.Add(strings.ControllerMappings, null, (s, e) => SafeExecute(OpenMappingConfiguration));
-            contextMenu.Items.Add(configMenuItem);
-            
-            // Groupe Aide
-            var helpMenuItem = new ToolStripMenuItem(strings.Help);
-            helpMenuItem.DropDownItems.Add(strings.ViewLogs, null, (s, e) => SafeExecute(OpenLogFile));
-            helpMenuItem.DropDownItems.Add(strings.ViewErrorLogs, null, (s, e) => SafeExecute(OpenErrorLogFile));
-            helpMenuItem.DropDownItems.Add(strings.About, null, (s, e) => SafeExecute(() => ShowAbout(null, EventArgs.Empty)));
-            contextMenu.Items.Add(helpMenuItem);
-            
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add(strings.Exit, null, (s, e) => SafeExecute(Application.Exit));
-
-            trayIcon.ContextMenuStrip = contextMenu;
-            
-            // Modifier le comportement du double-clic pour afficher la fenêtre principale
-            trayIcon.MouseDoubleClick += (s, e) => SafeExecute(ShowMainForm);
+            trayIcon.DoubleClick += (sender, e) => ShowMainForm();
         }
 
-        public void SafeExecute(Action action)
+        private void SafeExecute(Action action)
         {
             try
             {
@@ -1584,37 +1453,83 @@ namespace BatRun
             }
         }
 
-        private async Task StartEmulationStation()
+        private async Task SetEmulationStationFocus()
         {
-            const int maxWaitTime = 30; // Temps maximum d'attente en secondes
+            // Read values from the INI file
+            int focusDuration = config.ReadInt("Focus", "FocusDuration", 30000);
+            int focusInterval = config.ReadInt("Focus", "FocusInterval", 5000);
             int elapsedTime = 0;
-            int checkInterval = 1000; // Vérification toutes les secondes
 
-            while (elapsedTime < maxWaitTime)
+            logger.LogInfo($"Starting focus sequence for EmulationStation (Duration: {focusDuration}ms, Interval: {focusInterval}ms)");
+
+            while (elapsedTime < focusDuration)
             {
-                if (IsEmulationStationRunning())
+                try 
                 {
-                    // Lancer EmulationStation
-                    LaunchEmulationStation();
-                    return; // Sortir de la méthode si EmulationStation a été lancé
+                    // Complete focus sequence
+                    var process = Process.GetProcessesByName("emulationstation").FirstOrDefault();
+                    IntPtr hWnd = process?.MainWindowHandle ?? IntPtr.Zero;
+                    
+                    if (hWnd != IntPtr.Zero)
+                    {
+                        // Check if process is not null before accessing its Id
+                        if (process != null)
+                        {
+                            // Allow focus change for this process
+                            NativeMethods.AllowSetForegroundWindow(process.Id);
+
+                            // Get thread IDs
+                            uint foregroundThread = NativeMethods.GetWindowThreadProcessId(
+                                NativeMethods.GetForegroundWindow(), IntPtr.Zero);
+                            uint appThread = NativeMethods.GetCurrentThreadId();
+
+                            // Attach threads for focus
+                            bool threadAttached = false;
+                            if (foregroundThread != appThread)
+                            {
+                                threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
+                            }
+
+                            try
+                            {
+                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
+                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
+                                NativeMethods.BringWindowToTop(hWnd);
+                                NativeMethods.SetForegroundWindow(hWnd);
+                                
+                                logger.LogInfo($"Focus applied to EmulationStation (attempt {elapsedTime/focusInterval + 1}/{focusDuration/focusInterval})");
+                            }
+                            finally
+                            {
+                                // Detach threads if necessary
+                                if (threadAttached)
+                                {
+                                    NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            logger.LogError("Process is null, cannot set foreground window.");
+                        }
+                    }
+                    else
+                    {
+                        logger.LogInfo("EmulationStation window handle not found");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error setting focus to EmulationStation", ex);
                 }
 
-                // Log de la tentative
-                logger.LogInfo($"EmulationStation non trouvé, nouvelle tentative dans {checkInterval / 1000} secondes...");
-                await Task.Delay(checkInterval); // Attendre avant de vérifier à nouveau
-                elapsedTime += checkInterval / 1000; // Convertir en secondes
+                await Task.Delay(focusInterval);
+                elapsedTime += focusInterval;
             }
 
-            logger.LogError("[ERREUR] EmulationStation n'a pas pu être démarré après 30 secondes.");
-        }
+            logger.LogInfo("End of focus sequence for EmulationStation");
 
-        private void LogEmulationStationPolling()
-        {
-            if (!_emulationStationPollingLogged)
-            {
-                logger.LogInfo("EmulationStation is running, suspending polling");
-                _emulationStationPollingLogged = true;
-            }
+            await RestoreWindowsAfterEmulationStation();
         }
 
         private void LoadDirectInputMappings()
@@ -1667,58 +1582,14 @@ namespace BatRun
         [STAThread]
         static void Main()
         {
-            Logger? logger = null;
-            try 
-            {
-                // Setup global exception handling
-                AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
-                Application.ThreadException += ApplicationOnThreadException;
-                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Logger logger = new Logger("BatRun.log");
+            IniFile config = new IniFile("config.ini");
+            IBatRunProgram mainProgram = new Program(); // Assurez-vous que MainProgram implémente IBatRunProgram
 
-                // Initialize logger as early as possible
-                logger = new Logger("BatRun.log");
-                logger.LogInfo("Application starting");
-
-                // Prevent multiple instances of the application
-                bool createdNew;
-                using (Mutex mutex = new Mutex(true, "BatRun", out createdNew))
-                {
-                    if (!createdNew)
-                    {
-                        logger.LogInfo("Another instance is already running");
-                        MessageBox.Show("Another instance of BatRun is already running.", 
-                            "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    // Configure the Windows Forms application
-                    Application.SetHighDpiMode(HighDpiMode.SystemAware);
-                    Application.EnableVisualStyles();
-                    Application.SetCompatibleTextRenderingDefault(false);
-
-                    // Create and run the main application
-                    var program = new Program();
-                    program.mainForm = new MainForm(program, logger, program.config);
-                    
-                    // Configure to keep the application running even without a visible window
-                    program.ShowInTaskbar = false;
-                    program.Visible = false;
-
-                    // Start controller polling in the background
-                    program.StartPolling();
-
-                    // Run the application message loop
-                    Application.Run(program);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogFatalError("Unhandled exception in Main", ex);
-            }
-            finally 
-            {
-                logger?.LogInfo("Application closing");
-            }
+            // Lancer l'application avec MainForm
+            MainForm mainForm = new MainForm(mainProgram, logger, config);
+            Application.Run(mainForm);
+            InitializeTrayIcon();
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
