@@ -7,11 +7,17 @@ namespace BatRun
     public class Logger
     {
         private readonly string logFilePath;
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private readonly bool isEnglishCulture;
+        private readonly bool isLoggingEnabled;
 
         public Logger(string logFileName = "BatRun.log")
         {
+            // Lire la configuration du logging
+            var configPath = Path.Combine(AppContext.BaseDirectory, "config.ini");
+            var config = new IniFile(configPath);
+            isLoggingEnabled = config.ReadBool("Logging", "EnableLogging", true);
+            
             // Check the system culture
             var culture = System.Globalization.CultureInfo.CurrentUICulture;
             
@@ -41,15 +47,17 @@ namespace BatRun
             }
 
             // Write a header message to indicate a new startup
-            string startupMessage = isEnglishCulture 
-                ? $"--- Application startup {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---" 
-                : $"--- Démarrage de l'application {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---";
-            
-            Log(startupMessage, "INIT");
+           // string startupMessage = isEnglishCulture 
+           //     ? $"--- Application startup {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---" 
+            //    : $"--- Démarrage de l'application {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---";
+           // 
+           // Log(startupMessage, "INIT");
         }
 
         public void Log(string message, string type = "INFO")
         {
+            if (!isLoggingEnabled) return; // Ne pas logger si désactivé
+            
             // Translate certain log types if necessary
             if (!isEnglishCulture)
             {

@@ -97,9 +97,10 @@ namespace BatRun
                 }
 
                 // Write default values
-                WriteValue("Focus", "FocusDuration", "15000");  // miliseconds
-                WriteValue("Focus", "FocusInterval", "5000");   // miliseconds
-                WriteValue("Windows", "MinimizeWindows", "true"); // Minimize windows by default
+                WriteValue("Focus", "FocusDuration", "15000");
+                WriteValue("Focus", "FocusInterval", "5000");
+                WriteValue("Windows", "MinimizeWindows", "true");
+                WriteValue("Logging", "EnableLogging", "false");
             }
         }
 
@@ -1013,31 +1014,52 @@ namespace BatRun
                     string retrobatPath = GetRetrobatPath();
                     if (!string.IsNullOrEmpty(retrobatPath))
                     {
+                        // Créer et afficher le splash sur le thread UI
+                        HotkeySplashForm? splash = null;
+                        await Task.Run(() =>
+                        {
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                splash = new HotkeySplashForm();
+                                splash.Show();
+                                Application.DoEvents(); // Forcer le rendu
+                            });
+                        });
+
+                        // Attendre avec le splash visible
+                        await Task.Delay(2500);
+
                         MinimizeActiveWindows();
 
-                        ProcessStartInfo startInfo = new ProcessStartInfo();
-                        startInfo.FileName = retrobatPath;
-                        startInfo.UseShellExecute = false;
+                        // Lancer RetroBat
+                        ProcessStartInfo startInfo = new ProcessStartInfo
+                        {
+                            FileName = retrobatPath,
+                            UseShellExecute = false
+                        };
                         Process.Start(startInfo);
 
-                        // Wait for EmulationStation to start
+                        // Fermer le splash de manière sûre
+                        if (splash != null)
+                        {
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                splash.Close();
+                                splash.Dispose();
+                            });
+                        }
+
+                        // Attendre que EmulationStation démarre
                         await Task.Delay(2000);
 
-                        // Find the EmulationStation process
                         var esProcess = Process.GetProcessesByName("emulationstation").FirstOrDefault();
                         if (esProcess != null)
                         {
-                            // Subscribe to the EmulationStation exit event
                             esProcess.EnableRaisingEvents = true;
                             esProcess.Exited += async (sender, args) =>
                             {
-                                // Immediately restore the windows
-                                await Task.Run(() => 
-                                {
-                                    RestoreActiveWindows().Wait();
-                                });
-                                // logger.LogInfo("EmulationStation has closed, resuming polling.");
-                                StartPolling(); // Make sure this method resumes controller polling.
+                                await Task.Run(() => RestoreActiveWindows().Wait());
+                                StartPolling();
                             };
 
                             await CheckIntroSettings();
@@ -1523,11 +1545,11 @@ namespace BatRun
             {
                 Text = culture.Name.StartsWith("fr-") 
                     ? $"BatRun\n\n" +
-                      $"Version: 1.1\n" +
+                      $"Version: 1.2\n" +
                       "Développé par AI pour Aynshe\n\n" +
                       "Un lanceur pour RetroBat avec Hotkey select/back+start."
                     : $"BatRun\n\n" +
-                      $"Version: 1.1\n" +
+                      $"Version: 1.2\n" +
                       "Developed by AI for Aynshe\n\n" +
                       "A launcher for RetroBat with Hotkey select/back+start.",
                 Dock = DockStyle.Top,
@@ -1811,7 +1833,7 @@ namespace BatRun
                 logger = new Logger("BatRun.log");
                 logger.LogInfo("Application starting");
 
-                // Prevent multiple instances of the application
+                // Prevent multiple instances
                 bool createdNew;
                 using (Mutex mutex = new Mutex(true, "BatRun", out createdNew))
                 {
@@ -1823,23 +1845,36 @@ namespace BatRun
                         return;
                     }
 
-                    // Configure the Windows Forms application
                     Application.SetHighDpiMode(HighDpiMode.SystemAware);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
 
-                    // Create and run the main application
+                    // Créer et afficher le splash screen
+                    var splash = new SplashForm();
+                    splash.Show();
+                    splash.UpdateStatus("Initializing...");
+
+                    // Créer le programme principal
                     var program = new Program();
                     program.mainForm = new MainForm(program, logger, program.config);
                     
-                    // Configure to keep the application running even without a visible window
+                    // Configurer le programme
                     program.ShowInTaskbar = false;
                     program.Visible = false;
 
-                    // Start controller polling in the background
+                    // Démarrer le polling en arrière-plan
+                    splash.UpdateStatus("Starting controller service...");
                     program.StartPolling();
 
-                    // Run the application message loop
+                    // Attendre un peu pour montrer le splash
+                    Thread.Sleep(2000);
+                    splash.UpdateStatus("Ready!");
+                    Thread.Sleep(500);
+
+                    // Fermer le splash et démarrer l'application
+                    splash.Close();
+                    splash.Dispose();
+                    
                     Application.Run(program);
                 }
             }

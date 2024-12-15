@@ -40,6 +40,8 @@ namespace BatRun
             this.groupBoxWindows = new System.Windows.Forms.GroupBox();
             this.checkBoxMinimizeWindows = new System.Windows.Forms.CheckBox();
             this.checkBoxStartWithWindows = new System.Windows.Forms.CheckBox();
+            this.checkBoxEnableLogging = new System.Windows.Forms.CheckBox();
+            this.checkBoxStartupRegistry = new System.Windows.Forms.CheckBox();
             
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
@@ -57,7 +59,7 @@ namespace BatRun
             this.groupBoxFocus.Controls.Add(this.labelFocusDuration);
             this.groupBoxFocus.Location = new System.Drawing.Point(12, 12);
             this.groupBoxFocus.Name = "groupBoxFocus";
-            this.groupBoxFocus.Size = new System.Drawing.Size(360, 100);
+            this.groupBoxFocus.Size = new System.Drawing.Size(380, 100);
             this.groupBoxFocus.TabIndex = 0;
             this.groupBoxFocus.TabStop = false;
             this.groupBoxFocus.Text = "Focus Settings";
@@ -115,9 +117,11 @@ namespace BatRun
             // groupBoxWindows
             this.groupBoxWindows.Controls.Add(this.checkBoxStartWithWindows);
             this.groupBoxWindows.Controls.Add(this.checkBoxMinimizeWindows);
+            this.groupBoxWindows.Controls.Add(this.checkBoxEnableLogging);
+            this.groupBoxWindows.Controls.Add(this.checkBoxStartupRegistry);
             this.groupBoxWindows.Location = new System.Drawing.Point(12, 118);
             this.groupBoxWindows.Name = "groupBoxWindows";
-            this.groupBoxWindows.Size = new System.Drawing.Size(360, 85);
+            this.groupBoxWindows.Size = new System.Drawing.Size(380, 110);
             this.groupBoxWindows.TabIndex = 1;
             this.groupBoxWindows.TabStop = false;
             this.groupBoxWindows.Text = "Windows Settings";
@@ -136,28 +140,46 @@ namespace BatRun
             this.checkBoxStartWithWindows.Name = "checkBoxStartWithWindows";
             this.checkBoxStartWithWindows.Size = new System.Drawing.Size(180, 19);
             this.checkBoxStartWithWindows.TabIndex = 1;
-            this.checkBoxStartWithWindows.Text = "Start with Windows";
+            this.checkBoxStartWithWindows.Text = "Start with Windows (Shortcut)";
+            this.checkBoxStartWithWindows.CheckedChanged += new System.EventHandler(this.CheckBoxStartup_CheckedChanged);
+
+            // checkBoxEnableLogging
+            this.checkBoxEnableLogging.AutoSize = true;
+            this.checkBoxEnableLogging.Location = new System.Drawing.Point(15, 75);
+            this.checkBoxEnableLogging.Name = "checkBoxEnableLogging";
+            this.checkBoxEnableLogging.Size = new System.Drawing.Size(180, 19);
+            this.checkBoxEnableLogging.TabIndex = 2;
+            this.checkBoxEnableLogging.Text = "Enable logging (requires restart)";
+
+            // checkBoxStartupRegistry
+            this.checkBoxStartupRegistry.AutoSize = true;
+            this.checkBoxStartupRegistry.Location = new System.Drawing.Point(200, 50);
+            this.checkBoxStartupRegistry.Name = "checkBoxStartupRegistry";
+            this.checkBoxStartupRegistry.Size = new System.Drawing.Size(180, 19);
+            this.checkBoxStartupRegistry.TabIndex = 3;
+            this.checkBoxStartupRegistry.Text = "Start with Windows (Registry)";
+            this.checkBoxStartupRegistry.CheckedChanged += new System.EventHandler(this.CheckBoxStartup_CheckedChanged);
 
             // buttonSave
-            this.buttonSave.Location = new System.Drawing.Point(216, 209);
+            this.buttonSave.Location = new System.Drawing.Point(236, 235);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(75, 23);
             this.buttonSave.TabIndex = 2;
             this.buttonSave.Text = "Save";
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
 
             // buttonCancel
-            this.buttonCancel.Location = new System.Drawing.Point(297, 209);
+            this.buttonCancel.Location = new System.Drawing.Point(317, 235);
             this.buttonCancel.Name = "buttonCancel";
             this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 3;
             this.buttonCancel.Text = "Cancel";
-            this.buttonCancel.Click += new System.EventHandler(this.buttonCancel_Click);
+            this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
 
             // ConfigurationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(384, 244);
+            this.ClientSize = new System.Drawing.Size(405, 265);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.groupBoxWindows);
@@ -190,6 +212,8 @@ namespace BatRun
         private System.Windows.Forms.GroupBox groupBoxWindows;
         private System.Windows.Forms.CheckBox checkBoxMinimizeWindows;
         private System.Windows.Forms.CheckBox checkBoxStartWithWindows;
+        private System.Windows.Forms.CheckBox checkBoxEnableLogging;
+        private System.Windows.Forms.CheckBox checkBoxStartupRegistry;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonCancel;
     }

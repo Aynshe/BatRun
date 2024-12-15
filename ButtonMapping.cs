@@ -10,7 +10,7 @@ namespace BatRun
 {
     public class ButtonMapping
     {
-        public List<ControllerConfig> Controllers { get; set; } = new List<ControllerConfig>();
+        public List<ControllerConfig> Controllers { get; set; } = [];
 
         public void LoadMappings(string jsonPath)
         {
@@ -61,6 +61,6 @@ namespace BatRun
     {
         public string JoystickName { get; set; } = string.Empty;
         public string DeviceGuid { get; set; } = string.Empty;
-        public Dictionary<string, string> Mappings { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Mappings { get; set; } = [];
     }
 }

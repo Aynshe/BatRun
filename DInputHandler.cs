@@ -16,7 +16,7 @@ namespace BatRun
         {
             this.logger = logger;
             directInput = new DirectInput();
-            joysticks = new List<Joystick>();
+            joysticks = [];
             InitializeJoysticks();
         }
 
