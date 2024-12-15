@@ -48,7 +48,7 @@ A launcher for RetroBat that allows you to use a controller button combination (
 
 ## Support
 
-- [RetroBat Discord](https://discord.com/invite/k8mg99cY6F)
+- [RetroBat Discord](https://discord.com/invite/k8mg99cY6F)  "Aynshe"
 - [Source Code](https://github.com/Aynshe/BatRun)
 
 ## Credits
@@ -99,7 +99,7 @@ Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manett
 
 ## Support
 
-- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F)
+- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F)  "Aynshe"
 - [Code Source](https://github.com/Aynshe/BatRun)
 
 ## Crédits
