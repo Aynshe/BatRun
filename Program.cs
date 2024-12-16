@@ -7,6 +7,8 @@ using System.Text;
 using BatRun; // Ajout de l'espace de noms
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SharpDX.XInput;
+using SharpDX.DirectInput;
 
 namespace BatRun
 {
@@ -757,6 +759,62 @@ namespace BatRun
                                         if (isHotkeyPressed && isStartPressed)
                                         {
                                             logger.LogInfo($"Hotkey combination detected for {joystickName}");
+                                            
+                                            // Vérifier si la vibration est activée
+                                            bool enableVibration = config.ReadBool("Controller", "EnableVibration", true);
+                                            
+                                            if (enableVibration)
+                                            {
+                                                // Faire vibrer la manette
+                                                try 
+                                                {
+                                                    // Pour les manettes XInput
+                                                    if (hotkeyValue == "Back" && startValue == "Start")
+                                                    {
+                                                        // Tester chaque index de manette XInput possible
+                                                        foreach (UserIndex index in Enum.GetValues(typeof(UserIndex)))
+                                                        {
+                                                            try
+                                                            {
+                                                                var xinputController = new Controller(index);
+                                                                if (xinputController.IsConnected)
+                                                                {
+                                                                    // Vérifier si c'est la bonne manette en comparant l'état des boutons
+                                                                    var state = xinputController.GetState();
+                                                                    bool isCorrectController = 
+                                                                        ((state.Gamepad.Buttons & GamepadButtonFlags.Back) != 0) && 
+                                                                        ((state.Gamepad.Buttons & GamepadButtonFlags.Start) != 0);
+
+                                                                    if (isCorrectController)
+                                                                    {
+                                                                        var vibration = new Vibration
+                                                                        {
+                                                                            LeftMotorSpeed = 65535,
+                                                                            RightMotorSpeed = 65535
+                                                                        };
+                                                                        xinputController.SetVibration(vibration);
+                                                                        
+                                                                        await Task.Delay(500);
+                                                                        xinputController.SetVibration(new Vibration());
+                                                                        
+                                                                        logger.LogInfo($"XInput controller rumble activated on index {index}");
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            catch (Exception ex)
+                                                            {
+                                                                logger.LogError($"Error checking XInput controller at index {index}: {ex.Message}");
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    logger.LogError($"Error activating rumble: {ex.Message}");
+                                                }
+                                            }
+
                                             await LaunchRetrobat();
                                         }
                                     }
@@ -1545,11 +1603,11 @@ namespace BatRun
             {
                 Text = culture.Name.StartsWith("fr-") 
                     ? $"BatRun\n\n" +
-                      $"Version: 1.2\n" +
+                      $"Version: 1.3\n" +
                       "Développé par AI pour Aynshe\n\n" +
                       "Un lanceur pour RetroBat avec Hotkey select/back+start."
                     : $"BatRun\n\n" +
-                      $"Version: 1.2\n" +
+                      $"Version: 1.3\n" +
                       "Developed by AI for Aynshe\n\n" +
                       "A launcher for RetroBat with Hotkey select/back+start.",
                 Dock = DockStyle.Top,
