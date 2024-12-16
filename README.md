@@ -6,49 +6,70 @@ Having no other Dinput Joystick than my old "SideWinder Game Pad Pro USB version
 I do not know if it is my old Dinput controller, I sometimes need to insist a little on the hotkey.
 *the code is certainly not very clean... .!
 _____________________________________________________________________________________________________________________________________________________
-# BatRun v1.2
+
+# BatRun v1.3
 
 A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat from any Windows application.
 
+## New Features in Version 1.3
+
+- 🚀 **Added controller vibration when pressing Hotkey + Start** (works with XInput, DirectInput not tested, potential incompatibility with some Bluetooth controllers).
+- 🖥 **Automatic startup via scheduled task** (works if `explorer.exe` is not the default Shell on Windows startup).
+
+### CPU Load Notes:
+- On a processor like the i5-9600: CPU load is below 1%.
+- Tested on an i7-3770K: load varies between 2% and 5%.
+- No immediate solution to optimize this; additional tests may be required.
+
 ## Features
 
-- 🎮 XInput and DirectInput controller support
-- 🔄 Customizable button mapping
-- 🪟 Automatic window minimization (optional)
-- 🚀 Automatic startup with Windows (Registry or shortcut)
-- 📝 Logging system for troubleshooting
+- 🎮 Support for **XInput** and **DirectInput** controllers.
+- 🔄 Customizable button mapping.
+- 🪟 Optional automatic window minimization.
+- 🚀 Automatic startup with Windows (via **Registry**, **shortcut**, or **scheduled task**).
+- 📝 Logging system for troubleshooting.
 
 ## Installation
 
-1. Download the latest release from the [Releases](https://github.com/Aynshe/BatRun/releases) page
-2. Extract the archive
-3. Run `BatRun.exe`
+1. Download the latest version from the [Releases](https://github.com/Aynshe/BatRun/releases) page.
+2. Extract the archive.
+3. Run `BatRun.exe`.
 
 ## Configuration
 
 ### General Settings
-- **Focus Duration**: Duration the focus process is active (starts after the video duration configured from BatGui and if enabled)
-- **Focus Interval**: Time between focus attempts
-- **Minimize Windows**: Enable/disable window minimization
-- **Start with Windows**: Automatic startup (Registry or shortcut)
-- **Enable Logging**: Enable/disable logging
 
-### Controller Setup (optional - if controller is not configured)
-1. Open BatRun
-2. Go to Configuration > Controller Mappings
-3. Select your controller
-4. Configure Hotkey and Start buttons
-5. Save settings
+- **Focus Duration**: Duration for which the focus process remains active (starts after the configured video duration from BatGui, if enabled).
+- **Focus Interval**: Interval between focus attempts for EmulationStation.
+- **Start with Windows**: Automatic startup (via **Registry**, **shortcut**, or **scheduled task**).
+- **Enable controller vibration** : Enables/disable rumblee (if supported by your controller).
+- **Minimize Windows**: Enables/disables window minimization.
+- **Enable Logging**: Enables/disables logging.
+
+### Controller Configuration
+
+1. Open **BatRun**.
+2. Go to **Configuration > Controller Mappings**.
+3. Select your controller.
+4. Configure the Hotkey and Start buttons.
+5. Save.
+
+### Auto Startup Configuration with Scheduled Task
+
+1. Launch `BatRun.exe`.
+2. Go to **Configuration > Startup Settings**.
+3. Select **your choice**.
+4. Save.
 
 ## Usage
 
-1. Launch BatRun (icon appears in system tray)
-2. Press Hotkey + Start buttons simultaneously on your controller
-3. RetroBat launches automatically
+1. Launch BatRun (an icon will appear in the taskbar).
+2. Simultaneously press the **Hotkey + Start** buttons on your controller.
+3. RetroBat will automatically launch with a confirmation vibration (if supported by your controller).
 
 ## Support
 
-- [RetroBat Discord](https://discord.com/invite/k8mg99cY6F)  "Aynshe"
+- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F) “Aynshe”
 - [Source Code](https://github.com/Aynshe/BatRun)
 
 ## Credits
@@ -57,49 +78,69 @@ Developed by AI for Aynshe
 
 _____________________________________________________________________________________________________________________________________________________
 
-# BatRun v1.2
+# BatRun v1.3
 
 Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manette (Hotkey + Start) pour lancer RetroBat depuis n'importe quelle application Windows.
 
+## Nouveautés de la version 1.3
+
+- 🚀 **Ajout de la vibration manette lors de la combinaison Hotkey + Start** (fonctionne avec XInput, DirectInput non testé, incompatibilité possible avec certaines manettes Bluetooth).
+- 🖥 **Démarrage automatique via tâche planifiée** (compatible si `explorer.exe` n'est pas le Shell par défaut au démarrage de Windows).
+
+### Remarque sur la charge CPU :
+- Sur un processeur type i5-9600 : charge CPU inférieure à 1%.
+- Testé avec un i7-3770K : charge variant entre 2% et 5%.
+- Aucune solution immédiate pour optimiser cela ; des tests supplémentaires pourraient être nécessaires.
+
 ## Fonctionnalités
 
-- 🎮 Support des manettes XInput et DirectInput
+- 🎮 Support des manettes **XInput** et **DirectInput**
 - 🔄 Configuration personnalisable des boutons
 - 🪟 Minimisation automatique des fenêtres (optionnel)
-- 🚀 Démarrage automatique avec Windows (via Registre ou raccourci)
+- 🚀 Démarrage automatique avec Windows (via **Registre**, **raccourci**, ou **tâche planifiée**)
 - 📝 Système de logs pour le dépannage
 
 ## Installation
 
-1. Téléchargez la dernière version depuis la page [Releases](https://github.com/Aynshe/BatRun/releases)
-2. Extrayez l'archive
-3. Lancez `BatRun.exe`
+1. Téléchargez la dernière version depuis la page [Releases](https://github.com/Aynshe/BatRun/releases).
+2. Extrayez l'archive.
+3. Lancez `BatRun.exe`.
 
 ## Configuration
 
 ### Configuration Générale
-- **Focus Duration** : Durée pendant laquelle le processus focus est actif (débute apres la durée de la vidéo configurée depuis BatGui et si activée)
-- **Focus Interval** : Intervalle entre les tentatives de focus de emulationstation
-- **Minimize Windows** : Active/désactive la minimisation des fenêtres
-- **Start with Windows** : Démarrage automatique (via Registre ou raccourci)
-- **Enable Logging** : Active/désactive les logs
 
-### Configuration des Manettes (optionnel - si la manette n'est pas configurée)
-1. Ouvrez BatRun
-2. Allez dans Configuration > Controller Mappings
-3. Sélectionnez votre manette
-4. Configurez les boutons Hotkey et Start
-5. Sauvegardez
+- **Focus Duration** : Durée pendant laquelle le processus focus est actif (débute après la durée de la vidéo configurée depuis BatGui, si activée).
+- **Focus Interval** : Intervalle entre les tentatives de focus de EmulationStation.
+- **Start with Windows** : Démarrage automatique (via **Registre**, **raccourci**, ou **tâche planifiée**).
+- **Minimize Windows** : Active/désactive la minimisation des fenêtres.
+- **Enable controller vibration** : Active/désactive la vibration (si supportée par votre manette).
+- **Enable Logging** : Active/désactive les logs.
+
+### Configuration des Manettes
+
+1. Ouvrez **BatRun**.
+2. Allez dans **Configuration > Controller Mappings**.
+3. Sélectionnez votre manette.
+4. Configurez les boutons Hotkey et Start.
+5. Sauvegardez.
+
+### Configuration du démarrage automatique avec tâche planifiée
+
+1. Lancez `BatRun.exe`.
+2. Allez dans **Configuration > Startup Settings**.
+3. Sélectionnez **votre choix**.
+4. Sauvegardez.
 
 ## Utilisation
 
-1. Lancez BatRun (une icône apparaît dans la barre des tâches)
-2. Appuyez simultanément sur les boutons Hotkey + Start de votre manette
-3. RetroBat se lance automatiquement
+1. Lancez BatRun (une icône apparaît dans la barre des tâches).
+2. Appuyez simultanément sur les boutons **Hotkey + Start** de votre manette.
+3. RetroBat se lance automatiquement, accompagné d’une vibration de confirmation (si supportée par votre manette).
 
 ## Support
 
-- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F)  "Aynshe"
+- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F)  “Aynshe”
 - [Code Source](https://github.com/Aynshe/BatRun)
 
 ## Crédits
