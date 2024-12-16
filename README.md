@@ -17,8 +17,8 @@ A launcher for RetroBat that allows you to use a controller button combination (
 - 🖥 **Automatic startup via scheduled task** (works if `explorer.exe` is not the default Shell on Windows startup).
 
 ### CPU Load Notes:
-- On a processor like the i5-9600: CPU load is below 1%.
-- Tested on an i7-3770K: load varies between 2% and 5%.
+- On a processor like the i5-9600 (Win11) : CPU load is below 1%.
+- Tested on an i7-3770K (Win10) : load varies between 2% and 5%.
 - No immediate solution to optimize this; additional tests may be required.
 
 ## Features
@@ -88,8 +88,8 @@ Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manett
 - 🖥 **Démarrage automatique via tâche planifiée** (compatible si `explorer.exe` n'est pas le Shell par défaut au démarrage de Windows).
 
 ### Remarque sur la charge CPU :
-- Sur un processeur type i5-9600 : charge CPU inférieure à 1%.
-- Testé avec un i7-3770K : charge variant entre 2% et 5%.
+- Sur un processeur type i5-9600 (Win11) : charge CPU inférieure à 1%.
+- Testé avec un i7-3770K (Win10) : charge variant entre 2% et 5%.
 - Aucune solution immédiate pour optimiser cela ; des tests supplémentaires pourraient être nécessaires.
 
 ## Fonctionnalités
