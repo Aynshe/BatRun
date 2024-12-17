@@ -1,0 +1,212 @@
+# French translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: fr\n"
+
+# Interface principale
+msgid "Open BatRun"
+msgstr "Ouvrir BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Lancer RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Lancer BatGui"
+
+# Configuration
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "General Settings"
+msgstr "Paramètres généraux"
+
+msgid "Controller Mappings"
+msgstr "Configuration des manettes"
+
+# Menu Aide
+msgid "Help"
+msgstr "Aide"
+
+msgid "Help & Support"
+msgstr "Aide & Support"
+
+msgid "View Logs"
+msgstr "Voir les logs"
+
+msgid "View Error Logs"
+msgstr "Voir les logs d'erreurs"
+
+msgid "About"
+msgstr "À propos"
+
+msgid "Exit"
+msgstr "Quitter"
+
+# Formulaire de configuration
+msgid "Focus Settings"
+msgstr "Paramètres de focus"
+
+msgid "Focus Duration:"
+msgstr "Durée du focus :"
+
+msgid "Focus Interval:"
+msgstr "Intervalle de focus :"
+
+msgid "Windows Settings"
+msgstr "Paramètres Windows"
+
+msgid "Start with Windows:"
+msgstr "Démarrer avec Windows :"
+
+msgid "Minimize active windows on launch"
+msgstr "Minimiser les fenêtres actives au lancement"
+
+msgid "Enable controller vibration"
+msgstr "Activer la vibration des manettes"
+
+msgid "Enable logging (requires restart)"
+msgstr "Activer les logs (nécessite un redémarrage)"
+
+# Configuration des manettes
+msgid "Select Controller:"
+msgstr "Sélectionner une manette :"
+
+msgid "Hotkey Button:"
+msgstr "Bouton Hotkey :"
+
+msgid "Start Button:"
+msgstr "Bouton Start :"
+
+msgid "Detect"
+msgstr "Détecter"
+
+msgid "Reset Current"
+msgstr "Réinitialiser"
+
+msgid "Reset All"
+msgstr "Tout réinitialiser"
+
+# Boutons communs
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+# Messages
+msgid "Settings saved successfully!"
+msgstr "Paramètres enregistrés avec succès !"
+
+msgid "Error"
+msgstr "Erreur"
+
+msgid "Success"
+msgstr "Succès"
+
+msgid "Initializing..."
+msgstr "Initialisation..."
+
+msgid "Ready!"
+msgstr "Prêt !"
+
+msgid "Launching RetroBat..."
+msgstr "Lancement de RetroBat..."
+
+# Messages d'erreur
+msgid "Controller not found"
+msgstr "Contrôleur non trouvé"
+
+msgid "Failed to save settings"
+msgstr "Échec de l'enregistrement des paramètres"
+
+msgid "Failed to load settings"
+msgstr "Échec du chargement des paramètres"
+
+msgid "Button detection timeout"
+msgstr "Délai de détection du bouton dépassé"
+
+msgid "[ERREUR] EmulationStation failed to start"
+msgstr "EmulationStation n'a pas pu démarrer"
+
+msgid "Starting controller service..."
+msgstr "Démarrage du service de contrôleur..."
+
+# À propos
+msgid "About BatRun"
+msgstr "À propos de BatRun"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Version {0}"
+msgstr "Version {0}"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Développé par IA pour Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "Un lanceur pour RetroBat avec la combinaison Hotkey select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Rejoignez-nous sur Discord"
+
+msgid "Source code on GitHub"
+msgstr "Code source sur GitHub"
+
+msgid "BatRun Configuration"
+msgstr "Configuration de BatRun"
+
+# Messages de mise à jour
+msgid "Check for Updates"
+msgstr "Vérifier les mises à jour"
+
+msgid "Checking for Updates"
+msgstr "Recherche de mises à jour"
+
+msgid "Checking for updates..."
+msgstr "Recherche de mises à jour..."
+
+msgid "Update Available"
+msgstr "Mise à jour disponible"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "La nouvelle version {0} est disponible. Voulez-vous mettre à jour ?"
+
+msgid "Downloading Update"
+msgstr "Téléchargement de la mise à jour"
+
+msgid "Starting download..."
+msgstr "Démarrage du téléchargement..."
+
+msgid "Downloading update: {0}%"
+msgstr "Téléchargement de la mise à jour : {0}%"
+
+msgid "Update Failed"
+msgstr "Échec de la mise à jour"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Échec de l'installation de la mise à jour. Veuillez réessayer plus tard."
+
+msgid "No Updates Available"
+msgstr "Aucune mise à jour disponible"
+
+msgid "You have the latest version."
+msgstr "Vous avez la dernière version."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Impossible de vérifier les mises à jour. Veuillez réessayer plus tard."
+
+msgid "Update available"
+msgstr "Mise à jour disponible"
+
+msgid "No updates available"
+msgstr "Aucune mise à jour disponible"
+
+msgid "Update check failed"
+msgstr "Échec de la vérification"
+
+# Nom de l'application
+msgid "BatRun"
+msgstr "BatRun"
+ 

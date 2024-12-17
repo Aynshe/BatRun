@@ -15,16 +15,35 @@ namespace BatRun
         private string? currentJoystickName;
         private string? currentDeviceGuid;
         private readonly Logger logger = new Logger("BatRun.log");
+        private readonly LocalizedStrings strings;
 
         public MappingConfigurationForm(ButtonMapping mapping)
         {
+            strings = new LocalizedStrings();
             buttonMapping = mapping;
             InitializeComponent();
             
             // Appliquer le style sombre
             FormStyles.ApplyDarkStyle(this);
             
+            // Mettre à jour les textes
+            UpdateLocalizedTexts();
+            
             RefreshJoystickList();
+        }
+
+        private void UpdateLocalizedTexts()
+        {
+            this.Text = LocalizedStrings.GetString("Controller Mappings");
+            labelJoystick.Text = LocalizedStrings.GetString("Select Controller:");
+            labelHotkey.Text = LocalizedStrings.GetString("Hotkey Button:");
+            labelStart.Text = LocalizedStrings.GetString("Start Button:");
+            buttonDetectHotkey.Text = LocalizedStrings.GetString("Detect");
+            buttonDetectStart.Text = LocalizedStrings.GetString("Detect");
+            buttonResetCurrent.Text = LocalizedStrings.GetString("Reset Current");
+            buttonResetAll.Text = LocalizedStrings.GetString("Reset All");
+            buttonSave.Text = LocalizedStrings.GetString("Save");
+            buttonCancel.Text = LocalizedStrings.GetString("Cancel");
         }
 
         private void RefreshJoystickList()

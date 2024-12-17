@@ -1,0 +1,79 @@
+# Spanish translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: es\n"
+
+# Nombre de la aplicación
+msgid "BatRun"
+msgstr "BatRun"
+
+# Mensajes de inicio
+msgid "Initializing..."
+msgstr "Inicializando..."
+
+msgid "Starting controller service..."
+msgstr "Iniciando servicio de controladores..."
+
+msgid "Ready!"
+msgstr "¡Listo!"
+
+msgid "Launching RetroBat..."
+msgstr "Iniciando RetroBat..."
+
+msgid "Version {0}"
+msgstr "Versión {0}"
+
+# Mensajes de error
+msgid "[ERREUR] EmulationStation failed to start"
+msgstr "EmulationStation no pudo iniciarse"
+
+# Mensajes de actualización
+msgid "Check for Updates"
+msgstr "Buscar actualizaciones"
+
+msgid "Checking for Updates"
+msgstr "Buscando actualizaciones"
+
+msgid "Checking for updates..."
+msgstr "Buscando actualizaciones..."
+
+msgid "Update Available"
+msgstr "Actualización disponible"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "La nueva versión {0} está disponible. ¿Desea actualizar?"
+
+msgid "Downloading Update"
+msgstr "Descargando actualización"
+
+msgid "Starting download..."
+msgstr "Iniciando descarga..."
+
+msgid "Downloading update: {0}%"
+msgstr "Descargando actualización: {0}%"
+
+msgid "Update Failed"
+msgstr "Error en la actualización"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Error al instalar la actualización. Por favor, inténtelo más tarde."
+
+msgid "No Updates Available"
+msgstr "No hay actualizaciones disponibles"
+
+msgid "You have the latest version."
+msgstr "Tiene la última versión."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Error al buscar actualizaciones. Por favor, inténtelo más tarde."
+
+msgid "Update available"
+msgstr "Actualización disponible"
+
+msgid "No updates available"
+msgstr "No hay actualizaciones disponibles"
+
+msgid "Update check failed"
+msgstr "Error al buscar actualizaciones"
+ 

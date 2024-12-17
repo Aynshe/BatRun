@@ -1,0 +1,193 @@
+# German translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: de\n"
+
+# Hauptoberfläche
+msgid "Open BatRun"
+msgstr "BatRun öffnen"
+
+msgid "Launch RetroBat"
+msgstr "RetroBat starten"
+
+msgid "Launch BatGui"
+msgstr "BatGui starten"
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "BatRun Configuration"
+msgstr "BatRun-Konfiguration"
+
+msgid "General Settings"
+msgstr "Allgemeine Einstellungen"
+
+msgid "Controller Mappings"
+msgstr "Controller-Zuordnungen"
+
+msgid "Help"
+msgstr "Hilfe"
+
+msgid "Help & Support"
+msgstr "Hilfe & Support"
+
+msgid "View Logs"
+msgstr "Protokolle anzeigen"
+
+msgid "View Error Logs"
+msgstr "Fehlerprotokolle anzeigen"
+
+msgid "About"
+msgstr "Über"
+
+msgid "Exit"
+msgstr "Beenden"
+
+# Einstellungsformular
+msgid "Focus Settings"
+msgstr "Fokus-Einstellungen"
+
+msgid "Focus Duration:"
+msgstr "Fokusdauer:"
+
+msgid "Focus Interval:"
+msgstr "Fokusintervall:"
+
+msgid "Windows Settings"
+msgstr "Windows-Einstellungen"
+
+msgid "Start with Windows:"
+msgstr "Mit Windows starten:"
+
+msgid "Minimize active windows on launch"
+msgstr "Aktive Fenster beim Start minimieren"
+
+msgid "Enable controller vibration"
+msgstr "Controller-Vibration aktivieren"
+
+msgid "Enable logging (requires restart)"
+msgstr "Protokollierung aktivieren (Neustart erforderlich)"
+
+msgid "Select Controller:"
+msgstr "Controller auswählen:"
+
+msgid "Hotkey Button:"
+msgstr "Hotkey-Taste:"
+
+msgid "Start Button:"
+msgstr "Start-Taste:"
+
+msgid "Detect"
+msgstr "Erkennen"
+
+msgid "Reset Current"
+msgstr "Aktuelles zurücksetzen"
+
+msgid "Reset All"
+msgstr "Alles zurücksetzen"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Settings saved successfully!"
+msgstr "Einstellungen erfolgreich gespeichert!"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Success"
+msgstr "Erfolg"
+
+msgid "Initializing..."
+msgstr "Initialisierung..."
+
+msgid "Ready!"
+msgstr "Bereit!"
+
+msgid "Launching RetroBat..."
+msgstr "RetroBat wird gestartet..."
+
+# Fehlermeldungen
+msgid "Controller not found"
+msgstr "Controller nicht gefunden"
+
+msgid "Failed to save settings"
+msgstr "Fehler beim Speichern der Einstellungen"
+
+msgid "Failed to load settings"
+msgstr "Fehler beim Laden der Einstellungen"
+
+msgid "Button detection timeout"
+msgstr "Zeitüberschreitung bei der Tastenerkennung"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+# Über
+msgid "About BatRun"
+msgstr "Über BatRun"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Entwickelt von KI für Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "Ein Launcher für RetroBat mit Hotkey select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Tritt uns auf Discord bei"
+
+msgid "Source code on GitHub"
+msgstr "Quellcode auf GitHub"
+
+msgid "Starting controller service..."
+msgstr ""
+
+msgid "Checking for Updates"
+msgstr "Suche nach Updates"
+
+msgid "Checking for updates..."
+msgstr "Suche nach Updates..."
+
+msgid "Update Available"
+msgstr "Update verfügbar"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "Neue Version {0} ist verfügbar. Möchten Sie aktualisieren?"
+
+msgid "Downloading Update"
+msgstr "Update wird heruntergeladen"
+
+msgid "Starting download..."
+msgstr "Download wird gestartet..."
+
+msgid "Downloading update: {0}%"
+msgstr "Update wird heruntergeladen: {0}%"
+
+msgid "Update Failed"
+msgstr "Update fehlgeschlagen"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Update konnte nicht installiert werden. Bitte versuchen Sie es später erneut."
+
+msgid "No Updates Available"
+msgstr "Keine Updates verfügbar"
+
+msgid "You have the latest version."
+msgstr "Sie haben die neueste Version."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Updates konnten nicht überprüft werden. Bitte versuchen Sie es später erneut."
+
+msgid "Update check failed"
+msgstr "Update-Prüfung fehlgeschlagen"
+
+msgid "Check for Updates"
+msgstr "Nach Updates suchen"
+ 

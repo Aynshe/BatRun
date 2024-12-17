@@ -1,0 +1,190 @@
+# Swedish translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: sv\n"
+
+# Huvudgränssnitt
+msgid "Open BatRun"
+msgstr "Öppna BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Starta RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Starta BatGui"
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "BatRun Configuration"
+msgstr "BatRun-konfiguration"
+
+msgid "General Settings"
+msgstr "Allmänna inställningar"
+
+msgid "Controller Mappings"
+msgstr "Kontrollerkonfiguration"
+
+msgid "Help"
+msgstr "Hjälp"
+
+msgid "Help & Support"
+msgstr "Hjälp och support"
+
+msgid "View Logs"
+msgstr "Visa loggar"
+
+msgid "View Error Logs"
+msgstr "Visa felloggar"
+
+msgid "About"
+msgstr "Om"
+
+msgid "Exit"
+msgstr "Avsluta"
+
+# Inställningsformulär
+msgid "Focus Settings"
+msgstr "Fokusinställningar"
+
+msgid "Focus Duration:"
+msgstr "Fokuslängd:"
+
+msgid "Focus Interval:"
+msgstr "Fokusintervall:"
+
+msgid "Windows Settings"
+msgstr "Windows-inställningar"
+
+msgid "Start with Windows:"
+msgstr "Starta med Windows:"
+
+msgid "Minimize active windows on launch"
+msgstr "Minimera aktiva fönster vid start"
+
+msgid "Enable controller vibration"
+msgstr "Aktivera kontrollervibration"
+
+msgid "Enable logging (requires restart)"
+msgstr "Aktivera loggning (kräver omstart)"
+
+msgid "Select Controller:"
+msgstr "Välj kontroller:"
+
+msgid "Hotkey Button:"
+msgstr "Snabbtangent:"
+
+msgid "Start Button:"
+msgstr "Start-knapp:"
+
+msgid "Detect"
+msgstr "Upptäck"
+
+msgid "Reset Current"
+msgstr "Återställ nuvarande"
+
+msgid "Reset All"
+msgstr "Återställ alla"
+
+msgid "Save"
+msgstr "Spara"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Settings saved successfully!"
+msgstr "Inställningar sparade!"
+
+msgid "Error"
+msgstr "Fel"
+
+msgid "Success"
+msgstr "Klart"
+
+msgid "Initializing..."
+msgstr "Initierar..."
+
+msgid "Ready!"
+msgstr "Redo!"
+
+msgid "Launching RetroBat..."
+msgstr "Startar RetroBat..."
+
+# Felmeddelanden
+msgid "Controller not found"
+msgstr "Kontroller hittades inte"
+
+msgid "Failed to save settings"
+msgstr "Kunde inte spara inställningar"
+
+msgid "Failed to load settings"
+msgstr "Kunde inte ladda inställningar"
+
+msgid "Button detection timeout"
+msgstr "Tidsgräns för knappupptäckt"
+
+# Om
+msgid "About BatRun"
+msgstr "Om BatRun"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Utvecklad av AI för Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "En starthanterare för RetroBat med snabbtangent select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Gå med oss på Discord"
+
+msgid "Source code on GitHub"
+msgstr "Källkod på GitHub"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+msgid "Checking for Updates"
+msgstr "Söker efter uppdateringar"
+
+msgid "Checking for updates..."
+msgstr "Söker efter uppdateringar..."
+
+msgid "Update Available"
+msgstr "Uppdatering tillgänglig"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "Ny version {0} är tillgänglig. Vill du uppdatera?"
+
+msgid "Downloading Update"
+msgstr "Laddar ner uppdatering"
+
+msgid "Starting download..."
+msgstr "Startar nedladdning..."
+
+msgid "Downloading update: {0}%"
+msgstr "Laddar ner uppdatering: {0}%"
+
+msgid "Update Failed"
+msgstr "Uppdatering misslyckades"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Kunde inte installera uppdateringen. Försök igen senare."
+
+msgid "No Updates Available"
+msgstr "Inga uppdateringar tillgängliga"
+
+msgid "You have the latest version."
+msgstr "Du har den senaste versionen."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Kunde inte söka efter uppdateringar. Försök igen senare."
+
+msgid "Update check failed"
+msgstr "Uppdateringskontroll misslyckades"
+
+msgid "Check for Updates"
+msgstr "Sök efter uppdateringar"
+ 

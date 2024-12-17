@@ -1,0 +1,190 @@
+# Russian translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: ru\n"
+
+# Главный интерфейс
+msgid "Open BatRun"
+msgstr "Открыть BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Запустить RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Запустить BatGui"
+
+msgid "Configuration"
+msgstr "Конфигурация"
+
+msgid "BatRun Configuration"
+msgstr "Конфигурация BatRun"
+
+msgid "General Settings"
+msgstr "Общие настройки"
+
+msgid "Controller Mappings"
+msgstr "Настройка контроллера"
+
+msgid "Help"
+msgstr "Помощь"
+
+msgid "Help & Support"
+msgstr "Помощь и поддержка"
+
+msgid "View Logs"
+msgstr "Просмотр журналов"
+
+msgid "View Error Logs"
+msgstr "Просмотр журналов ошибок"
+
+msgid "About"
+msgstr "О программе"
+
+msgid "Exit"
+msgstr "Выход"
+
+# Форма настроек
+msgid "Focus Settings"
+msgstr "Настройки фокуса"
+
+msgid "Focus Duration:"
+msgstr "Длительность фокуса:"
+
+msgid "Focus Interval:"
+msgstr "Интервал фокуса:"
+
+msgid "Windows Settings"
+msgstr "Настройки Windows"
+
+msgid "Start with Windows:"
+msgstr "Запускать с Windows:"
+
+msgid "Minimize active windows on launch"
+msgstr "Сворачивать активные окна при запуске"
+
+msgid "Enable controller vibration"
+msgstr "Включить вибрацию контроллера"
+
+msgid "Enable logging (requires restart)"
+msgstr "Включить журналирование (требуется перезапуск)"
+
+msgid "Select Controller:"
+msgstr "Выбрать контроллер:"
+
+msgid "Hotkey Button:"
+msgstr "Кнопка горячей клавиши:"
+
+msgid "Start Button:"
+msgstr "Кнопка Start:"
+
+msgid "Detect"
+msgstr "Обнаружить"
+
+msgid "Reset Current"
+msgstr "Сбросить текущее"
+
+msgid "Reset All"
+msgstr "Сбросить всё"
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Cancel"
+msgstr "Отмена"
+
+msgid "Settings saved successfully!"
+msgstr "Настройки успешно сохранены!"
+
+msgid "Error"
+msgstr "Ошибка"
+
+msgid "Success"
+msgstr "Успешно"
+
+msgid "Initializing..."
+msgstr "Инициализация..."
+
+msgid "Ready!"
+msgstr "Готово!"
+
+msgid "Launching RetroBat..."
+msgstr "Запуск RetroBat..."
+
+# Сообщения об ошибках
+msgid "Controller not found"
+msgstr "Контроллер не найден"
+
+msgid "Failed to save settings"
+msgstr "Не удалось сохранить настройки"
+
+msgid "Failed to load settings"
+msgstr "Не удалось загрузить настройки"
+
+msgid "Button detection timeout"
+msgstr "Превышено время обнаружения кнопки"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+# О программе
+msgid "About BatRun"
+msgstr "О программе BatRun"
+
+msgid "Version"
+msgstr "Версия"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Разработано ИИ для Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "Программа запуска RetroBat с горячей клавишей select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Присоединяйтесь к нам в Discord"
+
+msgid "Source code on GitHub"
+msgstr "Исходный код на GitHub"
+
+msgid "Checking for Updates"
+msgstr "Проверка обновлений"
+
+msgid "Checking for updates..."
+msgstr "Проверка обновлений..."
+
+msgid "Update Available"
+msgstr "Доступно обновление"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "Доступна новая версия {0}. Хотите обновить?"
+
+msgid "Downloading Update"
+msgstr "Загрузка обновления"
+
+msgid "Starting download..."
+msgstr "Начало загрузки..."
+
+msgid "Downloading update: {0}%"
+msgstr "Загрузка обновления: {0}%"
+
+msgid "Update Failed"
+msgstr "Ошибка обновления"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Не удалось установить обновление. Повторите попытку позже."
+
+msgid "No Updates Available"
+msgstr "Нет доступных обновлений"
+
+msgid "You have the latest version."
+msgstr "У вас установлена последняя версия."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Не удалось проверить обновления. Повторите попытку позже."
+
+msgid "Update check failed"
+msgstr "Ошибка проверки обновлений"
+
+msgid "Check for Updates"
+msgstr "Проверить обновления"
+  

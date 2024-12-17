@@ -10,6 +10,7 @@ namespace BatRun
         private readonly IniFile config;
         private readonly string startupPath;
         private readonly Logger logger;
+        private readonly LocalizedStrings strings;
 
         private const string RUN_REGISTRY_KEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string APP_NAME = "BatRun";
@@ -18,7 +19,11 @@ namespace BatRun
         {
             this.config = config;
             this.logger = logger;
+            this.strings = new LocalizedStrings();
+            
             InitializeComponent();
+            FormStyles.ApplyDarkStyle(this);
+            UpdateLocalizedTexts();
 
             // Appliquer le style sombre
             FormStyles.ApplyDarkStyle(this);
@@ -29,6 +34,21 @@ namespace BatRun
                 "BatRun.lnk");
 
             LoadSettings();
+        }
+
+        private void UpdateLocalizedTexts()
+        {
+            this.Text = LocalizedStrings.GetString("BatRun Configuration");
+            groupBoxFocus.Text = LocalizedStrings.GetString("Focus Settings");
+            labelFocusDuration.Text = LocalizedStrings.GetString("Focus Duration:");
+            labelFocusInterval.Text = LocalizedStrings.GetString("Focus Interval:");
+            groupBoxWindows.Text = LocalizedStrings.GetString("Windows Settings");
+            checkBoxMinimizeWindows.Text = LocalizedStrings.GetString("Minimize active windows on launch");
+            checkBoxEnableVibration.Text = LocalizedStrings.GetString("Enable controller vibration");
+            checkBoxEnableLogging.Text = LocalizedStrings.GetString("Enable logging (requires restart)");
+            labelStartupMethod.Text = LocalizedStrings.GetString("Start with Windows:");
+            buttonSave.Text = LocalizedStrings.GetString("Save");
+            buttonCancel.Text = LocalizedStrings.GetString("Cancel");
         }
 
         private void LoadSettings()

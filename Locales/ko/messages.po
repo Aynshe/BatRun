@@ -1,0 +1,189 @@
+# Korean translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: ko\n"
+
+# 메인 인터페이스
+msgid "Open BatRun"
+msgstr "BatRun 열기"
+
+msgid "Launch RetroBat"
+msgstr "RetroBat 실행"
+
+msgid "Launch BatGui"
+msgstr "BatGui 실행"
+
+msgid "Configuration"
+msgstr "설정"
+
+msgid "General Settings"
+msgstr "일반 설정"
+
+msgid "Controller Mappings"
+msgstr "컨트롤러 매핑"
+
+msgid "Help"
+msgstr "도움말"
+
+msgid "Help & Support"
+msgstr "도움말 및 지원"
+
+msgid "View Logs"
+msgstr "로그 보기"
+
+msgid "View Error Logs"
+msgstr "오류 로그 보기"
+
+msgid "About"
+msgstr "정보"
+
+msgid "Exit"
+msgstr "종료"
+
+# 설정 양식
+msgid "Focus Settings"
+msgstr "포커스 설정"
+
+msgid "Focus Duration:"
+msgstr "포커스 지속 시간:"
+
+msgid "Focus Interval:"
+msgstr "포커스 간격:"
+
+msgid "Windows Settings"
+msgstr "Windows 설정"
+
+msgid "Start with Windows:"
+msgstr "Windows와 함께 시작:"
+
+msgid "Minimize active windows on launch"
+msgstr "실행 시 활성 창 최소화"
+
+msgid "Enable controller vibration"
+msgstr "컨트롤러 진동 활성화"
+
+msgid "Enable logging (requires restart)"
+msgstr "로깅 활성화 (재시작 필요)"
+
+msgid "Select Controller:"
+msgstr "컨트롤러 선택:"
+
+msgid "Hotkey Button:"
+msgstr "단축키 버튼:"
+
+msgid "Start Button:"
+msgstr "시작 버튼:"
+
+msgid "Detect"
+msgstr "감지"
+
+msgid "Reset Current"
+msgstr "현재 설정 초기화"
+
+msgid "Reset All"
+msgstr "모두 초기화"
+
+msgid "Save"
+msgstr "저장"
+
+msgid "Cancel"
+msgstr "취소"
+
+msgid "Settings saved successfully!"
+msgstr "설정이 성공적으로 저장되었습니다!"
+
+msgid "Error"
+msgstr "오류"
+
+msgid "Success"
+msgstr "성공"
+
+msgid "Initializing..."
+msgstr "초기화 중..."
+
+msgid "Ready!"
+msgstr "준비 완료!"
+
+msgid "Launching RetroBat..."
+msgstr "RetroBat 실행 중..."
+
+# 오류 메시지
+msgid "Controller not found"
+msgstr "컨트롤러를 찾을 수 없습니다"
+
+msgid "Failed to save settings"
+msgstr "설정을 저장하지 못했습니다"
+
+msgid "Failed to load settings"
+msgstr "설정을 불러오지 못했습니다"
+
+msgid "Button detection timeout"
+msgstr "버튼 감지 시간 초과"
+
+msgid "EmulationStation failed to start"
+msgstr "EmulationStation 시작 실패"
+
+# 정보
+msgid "About BatRun"
+msgstr "BatRun 정보"
+
+msgid "Version"
+msgstr "버전"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Aynshe를 위해 AI가 개발"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "select/back+start 단축키가 있는 RetroBat 실행기"
+
+msgid "Join us on Discord"
+msgstr "Discord에서 우리와 함께하세요"
+
+msgid "Source code on GitHub"
+msgstr "GitHub의 소스 코드"
+
+msgid "Starting controller service..."
+msgstr "컨트롤러 서비스 시작 중..."
+
+msgid "Checking for Updates"
+msgstr "업데이트 확인 중"
+
+msgid "Checking for updates..."
+msgstr "업데이트 확인 중..."
+
+msgid "Update Available"
+msgstr "업데이트 가능"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "새 버전 {0}이(가) 있습니다. 업데이트하시겠습니까?"
+
+msgid "Downloading Update"
+msgstr "업데이트 다운로드 중"
+
+msgid "Starting download..."
+msgstr "다운로드 시작 중..."
+
+msgid "Downloading update: {0}%"
+msgstr "업데이트 다운로드 중: {0}%"
+
+msgid "Update Failed"
+msgstr "업데이트 실패"
+
+msgid "Failed to install update. Please try again later."
+msgstr "업데이트 설치에 실패했습니다. 나중에 다시 시도해 주세요."
+
+msgid "No Updates Available"
+msgstr "사용 가능한 업데이트 없음"
+
+msgid "You have the latest version."
+msgstr "최신 버전을 사용 중입니다."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "업데이트 확인에 실패했습니다. 나중에 다시 시도해 주세요."
+
+msgid "Update check failed"
+msgstr "업데이트 확인 실패"
+
+msgid "Check for Updates"
+msgstr "업데이트 확인" 

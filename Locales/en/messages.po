@@ -1,0 +1,205 @@
+# English translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: en\n"
+
+# Main Interface
+msgid "Open BatRun"
+msgstr "Open BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Launch RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Launch BatGui"
+
+# Configuration
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "General Settings"
+msgstr "General Settings"
+
+msgid "Controller Mappings"
+msgstr "Controller Mappings"
+
+# Help Menu
+msgid "Help"
+msgstr "Help"
+
+msgid "Help & Support"
+msgstr "Help & Support"
+
+msgid "View Logs"
+msgstr "View Logs"
+
+msgid "View Error Logs"
+msgstr "View Error Logs"
+
+msgid "About"
+msgstr "About"
+
+msgid "Exit"
+msgstr "Exit"
+
+# Configuration Form
+msgid "Focus Settings"
+msgstr "Focus Settings"
+
+msgid "Focus Duration:"
+msgstr "Focus Duration:"
+
+msgid "Focus Interval:"
+msgstr "Focus Interval:"
+
+msgid "Windows Settings"
+msgstr "Windows Settings"
+
+msgid "Start with Windows:"
+msgstr "Start with Windows:"
+
+msgid "Minimize active windows on launch"
+msgstr "Minimize active windows on launch"
+
+msgid "Enable controller vibration"
+msgstr "Enable controller vibration"
+
+msgid "Enable logging (requires restart)"
+msgstr "Enable logging (requires restart)"
+
+# Controller Configuration
+msgid "Select Controller:"
+msgstr "Select Controller:"
+
+msgid "Hotkey Button:"
+msgstr "Hotkey Button:"
+
+msgid "Start Button:"
+msgstr "Start Button:"
+
+msgid "Detect"
+msgstr "Detect"
+
+msgid "Reset Current"
+msgstr "Reset Current"
+
+msgid "Reset All"
+msgstr "Reset All"
+
+# Common Buttons
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+# Messages
+msgid "Settings saved successfully!"
+msgstr "Settings saved successfully!"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Initializing..."
+msgstr "Initializing..."
+
+msgid "Ready!"
+msgstr "Ready!"
+
+msgid "Launching RetroBat..."
+msgstr "Launching RetroBat..."
+
+# Error messages
+msgid "Controller not found"
+msgstr "Controller not found"
+
+msgid "Failed to save settings"
+msgstr "Failed to save settings"
+
+msgid "Failed to load settings"
+msgstr "Failed to load settings"
+
+msgid "Button detection timeout"
+msgstr "Button detection timeout"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+# About
+msgid "About BatRun"
+msgstr "About BatRun"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Developed by AI for Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "A launcher for RetroBat with Hotkey select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Join us on Discord"
+
+msgid "Source code on GitHub"
+msgstr "Source code on GitHub"
+
+msgid "BatRun Configuration"
+msgstr "BatRun Configuration"
+
+# Update messages
+msgid "Check for Updates"
+msgstr "Check for Updates"
+
+msgid "Checking for Updates"
+msgstr "Checking for Updates"
+
+msgid "Checking for updates..."
+msgstr "Checking for updates..."
+
+msgid "Update Available"
+msgstr "Update Available"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "New version {0} is available. Would you like to update?"
+
+msgid "Downloading Update"
+msgstr "Downloading Update"
+
+msgid "Starting download..."
+msgstr "Starting download..."
+
+msgid "Downloading update: {0}%"
+msgstr "Downloading update: {0}%"
+
+msgid "Update Failed"
+msgstr "Update Failed"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Failed to install update. Please try again later."
+
+msgid "No Updates Available"
+msgstr "No Updates Available"
+
+msgid "You have the latest version."
+msgstr "You have the latest version."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Failed to check for updates. Please try again later."
+
+msgid "Checking for updates..."
+msgstr "Checking for updates..."
+
+msgid "Update available"
+msgstr "Update available"
+
+msgid "No updates available"
+msgstr "No updates available"
+
+msgid "Update check failed"
+msgstr "Update check failed"
+ 

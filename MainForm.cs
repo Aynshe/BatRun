@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace BatRun
 {
@@ -16,6 +17,8 @@ namespace BatRun
         void OpenErrorLogFile();
         void ShowAbout(object? sender, EventArgs e);
         void SafeExecute(Action action);
+        Task CheckForUpdates();
+        string GetAppVersion();
     }
 
     public partial class MainForm : Form
@@ -23,12 +26,17 @@ namespace BatRun
         private readonly IBatRunProgram mainProgram;
         private readonly Logger logger;
         private readonly IniFile config;
+        private readonly UpdateChecker updateChecker;
+        private Label? versionLabel;
+        private Panel? updateStatusPanel;
+        private Label? updateStatusLabel;
 
         public MainForm(IBatRunProgram program, Logger logger, IniFile config)
         {
             this.mainProgram = program;
             this.logger = logger;
             this.config = config;
+            this.updateChecker = new UpdateChecker(logger, program.GetAppVersion());
             InitializeComponent();
 
             // Configurer les propriétés de la fenêtre
@@ -43,10 +51,8 @@ namespace BatRun
                 string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
                 if (File.Exists(iconPath))
                 {
-                    using (var icon = new Icon(iconPath))
-                    {
-                        this.Icon = (Icon)icon.Clone();
-                    }
+                    using Icon icon = new(iconPath);
+                    this.Icon = (Icon)icon.Clone();
                 }
                 else
                 {
@@ -73,42 +79,188 @@ namespace BatRun
 
         private void InitializeCustomComponents()
         {
-            var strings = LocalizedStrings.GetStrings();
+            LocalizedStrings.LoadTranslations(); // Ensure translations are loaded
+            var strings = new LocalizedStrings();
 
             // Configuration des couleurs et du style
             this.BackColor = Color.FromArgb(32, 32, 32);
             this.ForeColor = Color.White;
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-            this.ClientSize = new Size(400, 800); // Augmentation de la hauteur de la fenêtre
+            this.ClientSize = new Size(800, 550); // Augmenté pour accommoder la box de mise à jour en bas
 
             // Création du panneau principal qui contiendra les boutons
             var mainPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(20),
-                RowCount = 3,
-                ColumnCount = 1,
+                RowCount = 2,
+                ColumnCount = 2,
                 BackColor = Color.FromArgb(32, 32, 32)
             };
 
-            // Configuration des lignes avec des hauteurs égales
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 230)); // Zone RetroBat Launcher
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 230)); // Zone Configuration
-            mainPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 260)); // Zone Help & Support (plus haute pour 3 boutons)
+            // Configuration des lignes et colonnes
+            mainPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F)); // Colonne gauche
+            mainPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F)); // Colonne droite
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 85F));      // Ligne principale
+            mainPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 15F));      // Ligne de mise à jour
+
+            // Panneau gauche (RetroBat Launcher et Configuration)
+            var leftPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 2,
+                ColumnCount = 1,
+                BackColor = Color.Transparent,
+                Margin = new Padding(0, 0, 10, 0)
+            };
+
+            leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            leftPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
 
             // Panneau des actions principales
             var actionPanel = CreateActionPanel(strings);
-            mainPanel.Controls.Add(actionPanel, 0, 0);
+            leftPanel.Controls.Add(actionPanel, 0, 0);
 
             // Panneau de configuration
             var configPanel = CreateConfigPanel(strings);
-            mainPanel.Controls.Add(configPanel, 0, 1);
+            leftPanel.Controls.Add(configPanel, 0, 1);
 
-            // Panneau d'aide
+            mainPanel.Controls.Add(leftPanel, 0, 0);
+
+            // Panneau d'aide (même hauteur que les panneaux de gauche)
             var helpPanel = CreateHelpPanel(strings);
-            mainPanel.Controls.Add(helpPanel, 0, 2);
+            helpPanel.Margin = new Padding(10, 0, 0, 0);
+            mainPanel.Controls.Add(helpPanel, 1, 0);
+
+            // Panneau de version et mise à jour (en bas sur toute la largeur)
+            var versionPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Margin = new Padding(0, 10, 0, 0)
+            };
+
+            var versionLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Padding = new Padding(20, 10, 20, 10)
+            };
+            versionLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            versionLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+
+            // Label de version (à gauche)
+            versionLabel = new Label
+            {
+                Text = $"v{mainProgram.GetAppVersion()}",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Dock = DockStyle.Left
+            };
+            versionLayout.Controls.Add(versionLabel, 0, 0);
+
+            // Container pour le statut de mise à jour (à droite)
+            var updateStatusContainer = new TableLayoutPanel
+            {
+                AutoSize = true,
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = Color.Transparent,
+                Dock = DockStyle.Right,
+                Padding = new Padding(0, 5, 0, 0)
+            };
+
+            // Indicateur LED plus grand et plus visible
+            updateStatusPanel = new Panel
+            {
+                Width = 20,
+                Height = 20,
+                BackColor = Color.Gray,
+                Margin = new Padding(0, 2, 10, 0),
+                Anchor = AnchorStyles.None
+            };
+            updateStatusPanel.Paint += (s, e) =>
+            {
+                using (var brush = new SolidBrush(updateStatusPanel.BackColor))
+                {
+                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    e.Graphics.FillEllipse(brush, 0, 0, 19, 19);
+                }
+            };
+
+            updateStatusLabel = new Label
+            {
+                Text = LocalizedStrings.GetString("Checking for updates..."),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 11F),
+                AutoSize = true,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Anchor = AnchorStyles.None
+            };
+
+            updateStatusContainer.Controls.Add(updateStatusPanel, 0, 0);
+            updateStatusContainer.Controls.Add(updateStatusLabel, 1, 0);
+            versionLayout.Controls.Add(updateStatusContainer, 1, 0);
+
+            versionPanel.Controls.Add(versionLayout);
+            mainPanel.SetColumnSpan(versionPanel, 2); // Étendre sur les deux colonnes
+            mainPanel.Controls.Add(versionPanel, 0, 1);
 
             this.Controls.Add(mainPanel);
+
+            // Démarrer la vérification des mises à jour
+            CheckForUpdatesOnStartup();
+        }
+
+        private async void CheckForUpdatesOnStartup()
+        {
+            try
+            {
+                if (updateStatusPanel != null && updateStatusLabel != null)
+                {
+                    var strings = new LocalizedStrings();
+                    updateStatusPanel.BackColor = Color.Gray;
+                    updateStatusLabel.Text = strings.CheckingForUpdatesProgress;
+                    
+                    var result = await updateChecker.CheckForUpdates();
+                    
+                    if (!result.HasInternetConnection)
+                    {
+                        updateStatusPanel.BackColor = Color.Orange;
+                        updateStatusLabel.Text = "No internet connection";
+                        return;
+                    }
+                    
+                    if (result.UpdateAvailable)
+                    {
+                        updateStatusPanel.BackColor = Color.LimeGreen;
+                        updateStatusLabel.Text = strings.UpdateAvailable;
+                        updateStatusLabel.Cursor = Cursors.Hand;
+                        updateStatusLabel.Click += async (s, e) => await CheckForUpdatesAsync();
+                        updateStatusPanel.Cursor = Cursors.Hand;
+                        updateStatusPanel.Click += async (s, e) => await CheckForUpdatesAsync();
+                    }
+                    else
+                    {
+                        updateStatusPanel.BackColor = Color.Red;
+                        updateStatusLabel.Text = strings.NoUpdatesAvailable;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error checking for updates on startup: {ex.Message}", ex);
+                if (updateStatusPanel != null && updateStatusLabel != null)
+                {
+                    var strings = new LocalizedStrings();
+                    updateStatusPanel.BackColor = Color.Red;
+                    updateStatusLabel.Text = strings.UpdateCheckFailed;
+                }
+            }
         }
 
         private Panel CreateActionPanel(LocalizedStrings strings)
@@ -117,7 +269,7 @@ namespace BatRun
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(45, 45, 48),
-                Margin = new Padding(0, 0, 0, 10)
+                Margin = new Padding(0, 0, 0, 5)
             };
 
             var layout = new TableLayoutPanel
@@ -126,7 +278,7 @@ namespace BatRun
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                Height = 170,  // Hauteur fixe : 50 (titre) + 2 * 60 (boutons)
+                Height = 170,
                 AutoSize = false
             };
 
@@ -168,7 +320,7 @@ namespace BatRun
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(45, 45, 48),
-                Margin = new Padding(0, 10, 0, 10)
+                Margin = new Padding(0, 5, 0, 0)
             };
 
             var layout = new TableLayoutPanel
@@ -177,7 +329,7 @@ namespace BatRun
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                Height = 170,  // Hauteur fixe : 50 (titre) + 2 * 60 (boutons)
+                Height = 170,
                 AutoSize = false
             };
 
@@ -219,25 +371,24 @@ namespace BatRun
             {
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(45, 45, 48),
-                Margin = new Padding(0, 10, 0, 0)
+                Margin = new Padding(0)
             };
 
             var layout = new TableLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 Padding = new Padding(10),
                 RowCount = 4,
                 ColumnCount = 1,
-                Height = 230,
                 AutoSize = false
             };
 
-            // Configuration des lignes avec des hauteurs fixes
+            // Configuration des lignes
             layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 1
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 2
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 3
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));  // Titre
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));  // Espace pour centrer
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));  // Zone des boutons (3 * 60)
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));  // Espace pour centrer
 
             // Titre du panneau
             var titleLabel = new Label
@@ -247,29 +398,44 @@ namespace BatRun
                 ForeColor = Color.White,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Fill,
-                AutoSize = false,
-                Height = 50
+                AutoSize = false
             };
             layout.Controls.Add(titleLabel, 0, 0);
 
-            // Boutons d'aide avec hauteurs fixes
+            // Panel pour contenir les boutons avec une hauteur fixe
+            var buttonsPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 3,
+                ColumnCount = 1,
+                Height = 180,
+                AutoSize = false
+            };
+
+            buttonsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+            buttonsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+            buttonsPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));
+
+            // Boutons d'aide
             var logsButton = CreateStyledButton(strings.ViewLogs, Color.FromArgb(87, 87, 38));
             logsButton.Click += (s, e) => mainProgram.SafeExecute(mainProgram.OpenLogFile);
-            layout.Controls.Add(logsButton, 0, 1);
+            buttonsPanel.Controls.Add(logsButton, 0, 0);
 
             var errorLogsButton = CreateStyledButton(strings.ViewErrorLogs, Color.FromArgb(87, 87, 38));
             errorLogsButton.Click += (s, e) => mainProgram.SafeExecute(mainProgram.OpenErrorLogFile);
-            layout.Controls.Add(errorLogsButton, 0, 2);
+            buttonsPanel.Controls.Add(errorLogsButton, 0, 1);
 
             var aboutButton = CreateStyledButton(strings.About, Color.FromArgb(87, 87, 38));
             aboutButton.Click += (s, e) => mainProgram.SafeExecute(() => mainProgram.ShowAbout(null, EventArgs.Empty));
-            layout.Controls.Add(aboutButton, 0, 3);
+            buttonsPanel.Controls.Add(aboutButton, 0, 2);
+
+            layout.Controls.Add(buttonsPanel, 0, 2);
 
             panel.Controls.Add(layout);
             return panel;
         }
 
-        private Button CreateStyledButton(string text, Color baseColor)
+        private static Button CreateStyledButton(string text, Color baseColor)
         {
             var button = new Button
             {
@@ -293,6 +459,116 @@ namespace BatRun
             button.FlatAppearance.MouseDownBackColor = ControlPaint.Dark(baseColor);
 
             return button;
+        }
+
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                var strings = new LocalizedStrings();
+                var progressForm = new Form
+                {
+                    Text = strings.CheckingForUpdates,
+                    Size = new Size(300, 100),
+                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                    StartPosition = FormStartPosition.CenterScreen,
+                    MaximizeBox = false,
+                    MinimizeBox = false,
+                    BackColor = Color.FromArgb(32, 32, 32),
+                    ForeColor = Color.White
+                };
+
+                var progressLabel = new Label
+                {
+                    Text = strings.CheckingForUpdatesProgress,
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+
+                progressForm.Controls.Add(progressLabel);
+                progressForm.Show();
+
+                var result = await updateChecker.CheckForUpdates();
+                progressForm.Close();
+
+                if (!result.HasInternetConnection)
+                {
+                    MessageBox.Show(
+                        "No internet connection",
+                        "Update Check Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (result.UpdateAvailable)
+                {
+                    var dialogResult = MessageBox.Show(
+                        string.Format(strings.NewVersionAvailable, result.LatestVersion),
+                        strings.UpdateAvailable,
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information);
+
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        var downloadProgress = new Progress<int>(percent =>
+                        {
+                            progressLabel.Text = string.Format(strings.DownloadingUpdateProgress, percent);
+                        });
+
+                        progressForm = new Form
+                        {
+                            Text = strings.DownloadingUpdate,
+                            Size = new Size(300, 100),
+                            FormBorderStyle = FormBorderStyle.FixedDialog,
+                            StartPosition = FormStartPosition.CenterScreen,
+                            MaximizeBox = false,
+                            MinimizeBox = false,
+                            BackColor = Color.FromArgb(32, 32, 32),
+                            ForeColor = Color.White
+                        };
+
+                        progressLabel = new Label
+                        {
+                            Text = strings.StartingDownload,
+                            Dock = DockStyle.Fill,
+                            TextAlign = ContentAlignment.MiddleCenter
+                        };
+
+                        progressForm.Controls.Add(progressLabel);
+                        progressForm.Show();
+
+                        var success = await updateChecker.DownloadAndInstallUpdate(result.DownloadUrl, downloadProgress);
+                        progressForm.Close();
+
+                        if (!success)
+                        {
+                            MessageBox.Show(
+                                strings.UpdateFailedMessage,
+                                strings.UpdateFailed,
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
+                        }
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(
+                        strings.LatestVersion,
+                        strings.NoUpdatesAvailable,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error checking for updates: {ex.Message}", ex);
+                MessageBox.Show(
+                    LocalizedStrings.GetString("Failed to check for updates. Please try again later."),
+                    LocalizedStrings.GetString("Update check failed"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

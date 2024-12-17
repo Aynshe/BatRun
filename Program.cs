@@ -191,6 +191,8 @@ namespace BatRun
         private const long MEMORY_CHECK_INTERVAL = 30000; // 30 secondes
         private System.Windows.Forms.Timer? memoryMonitorTimer;
 
+        public const string APP_VERSION = "1.3";
+
         public Program()
         {
             if (configPath == null)
@@ -1108,9 +1110,23 @@ namespace BatRun
                         }
 
                         // Attendre que EmulationStation démarre
-                        await Task.Delay(2000);
+                        int maxAttempts = 10; // 10 tentatives
+                        int attemptDelay = 2000; // 2 secondes entre chaque tentative
+                        int currentAttempt = 0;
+                        Process? esProcess = null;
 
-                        var esProcess = Process.GetProcessesByName("emulationstation").FirstOrDefault();
+                        while (currentAttempt < maxAttempts && esProcess == null)
+                        {
+                            await Task.Delay(attemptDelay);
+                            esProcess = Process.GetProcessesByName("emulationstation").FirstOrDefault();
+                            currentAttempt++;
+
+                            if (esProcess == null)
+                            {
+                                logger.LogInfo($"Waiting for EmulationStation to start (attempt {currentAttempt}/{maxAttempts})");
+                            }
+                        }
+
                         if (esProcess != null)
                         {
                             esProcess.EnableRaisingEvents = true;
@@ -1360,8 +1376,8 @@ namespace BatRun
 
         private void InitializeTrayIcon()
         {
-            var strings = LocalizedStrings.GetStrings();
-
+            var strings = new LocalizedStrings();
+            
             try
             {
                 string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
@@ -1386,45 +1402,158 @@ namespace BatRun
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error loading tray icon: {ex.Message}", ex);
-                // Fallback to default icon
-                trayIcon = new NotifyIcon
-                {
-                    Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath),
-                    Text = "BatRun",
-                    Visible = true
-                };
+                logger.LogError("Error initializing tray icon", ex);
+                return; // Sortir de la méthode si l'initialisation de l'icône échoue
             }
 
-            var contextMenu = new ContextMenuStrip();
-            
-            // Groupe principal
-            contextMenu.Items.Add(strings.OpenBatRun, null, (s, e) => SafeExecute(ShowMainForm));
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add(strings.OpenEmulationStation, null, (s, e) => SafeExecute(LaunchEmulationStation));
-            contextMenu.Items.Add(strings.LaunchBatGui, null, (s, e) => SafeExecute(LaunchBatGui));
-            contextMenu.Items.Add(new ToolStripSeparator());
-            
-            // Groupe Configuration
-            var configMenuItem = new ToolStripMenuItem(strings.Configuration);
-            configMenuItem.DropDownItems.Add(strings.GeneralSettings, null, (s, e) => SafeExecute(ShowConfigWindow));
-            configMenuItem.DropDownItems.Add(strings.ControllerMappings, null, (s, e) => SafeExecute(OpenMappingConfiguration));
-            contextMenu.Items.Add(configMenuItem);
-            
-            // Groupe Aide
-            var helpMenuItem = new ToolStripMenuItem(strings.Help);
-            helpMenuItem.DropDownItems.Add(strings.ViewLogs, null, (s, e) => SafeExecute(OpenLogFile));
-            helpMenuItem.DropDownItems.Add(strings.ViewErrorLogs, null, (s, e) => SafeExecute(OpenErrorLogFile));
-            helpMenuItem.DropDownItems.Add(strings.About, null, (s, e) => SafeExecute(() => ShowAbout(null, EventArgs.Empty)));
-            contextMenu.Items.Add(helpMenuItem);
-            
-            contextMenu.Items.Add(new ToolStripSeparator());
-            contextMenu.Items.Add(strings.Exit, null, (s, e) => SafeExecute(Application.Exit));
+            try 
+            {
+                var contextMenu = new ContextMenuStrip();
+                
+                // Groupe principal
+                contextMenu.Items.Add(strings.OpenBatRun, null, (s, e) => SafeExecute(ShowMainForm));
+                contextMenu.Items.Add(new ToolStripSeparator());
+                contextMenu.Items.Add(strings.OpenEmulationStation, null, (s, e) => SafeExecute(LaunchEmulationStation));
+                contextMenu.Items.Add(strings.LaunchBatGui, null, (s, e) => SafeExecute(LaunchBatGui));
+                contextMenu.Items.Add(new ToolStripSeparator());
+                
+                // Groupe Configuration
+                var configMenuItem = new ToolStripMenuItem(strings.Configuration);
+                configMenuItem.DropDownItems.Add(strings.GeneralSettings, null, (s, e) => SafeExecute(ShowConfigWindow));
+                configMenuItem.DropDownItems.Add(strings.ControllerMappings, null, (s, e) => SafeExecute(OpenMappingConfiguration));
+                contextMenu.Items.Add(configMenuItem);
+                
+                // Groupe Aide
+                var helpMenuItem = new ToolStripMenuItem(strings.Help);
+                helpMenuItem.DropDownItems.Add(strings.ViewLogs, null, (s, e) => SafeExecute(OpenLogFile));
+                helpMenuItem.DropDownItems.Add(strings.ViewErrorLogs, null, (s, e) => SafeExecute(OpenErrorLogFile));
+                helpMenuItem.DropDownItems.Add(strings.About, null, (s, e) => SafeExecute(() => ShowAbout(null, EventArgs.Empty)));
+                helpMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                helpMenuItem.DropDownItems.Add(LocalizedStrings.GetString("Check for Updates"), null, async (s, e) => 
+                {
+                    try
+                    {
+                        var progressForm = new Form
+                        {
+                            Text = LocalizedStrings.GetString("Checking for Updates"),
+                            Size = new Size(300, 100),
+                            FormBorderStyle = FormBorderStyle.FixedDialog,
+                            StartPosition = FormStartPosition.CenterScreen,
+                            MaximizeBox = false,
+                            MinimizeBox = false,
+                            BackColor = Color.FromArgb(32, 32, 32),
+                            ForeColor = Color.White
+                        };
 
-            trayIcon.ContextMenuStrip = contextMenu;
-            
-            // Modifier le comportement du double-clic pour afficher la fenêtre principale
-            trayIcon.MouseDoubleClick += (s, e) => SafeExecute(ShowMainForm);
+                        var progressLabel = new Label
+                        {
+                            Text = LocalizedStrings.GetString("Checking for updates..."),
+                            Dock = DockStyle.Fill,
+                            TextAlign = ContentAlignment.MiddleCenter
+                        };
+
+                        progressForm.Controls.Add(progressLabel);
+                        progressForm.Show();
+
+                        var updateChecker = new UpdateChecker(logger, APP_VERSION);
+                        var result = await updateChecker.CheckForUpdates();
+                        progressForm.Close();
+
+                        if (!result.HasInternetConnection)
+                        {
+                            MessageBox.Show(
+                                "No internet connection",
+                                "Update Check Failed",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+                            return;
+                        }
+
+                        if (result.UpdateAvailable)
+                        {
+                            var dialogResult = MessageBox.Show(
+                                string.Format(LocalizedStrings.GetString("New version {0} is available. Would you like to update?"), result.LatestVersion),
+                                LocalizedStrings.GetString("Update Available"),
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Information);
+
+                            if (dialogResult == DialogResult.Yes)
+                            {
+                                var downloadProgress = new Progress<int>(percent =>
+                                {
+                                    progressLabel.Text = string.Format(LocalizedStrings.GetString("Downloading update: {0}%"), percent);
+                                });
+
+                                progressForm = new Form
+                                {
+                                    Text = LocalizedStrings.GetString("Downloading Update"),
+                                    Size = new Size(300, 100),
+                                    FormBorderStyle = FormBorderStyle.FixedDialog,
+                                    StartPosition = FormStartPosition.CenterScreen,
+                                    MaximizeBox = false,
+                                    MinimizeBox = false,
+                                    BackColor = Color.FromArgb(32, 32, 32),
+                                    ForeColor = Color.White
+                                };
+
+                                progressLabel = new Label
+                                {
+                                    Text = LocalizedStrings.GetString("Starting download..."),
+                                    Dock = DockStyle.Fill,
+                                    TextAlign = ContentAlignment.MiddleCenter
+                                };
+
+                                progressForm.Controls.Add(progressLabel);
+                                progressForm.Show();
+
+                                var success = await updateChecker.DownloadAndInstallUpdate(result.DownloadUrl, downloadProgress);
+                                progressForm.Close();
+
+                                if (!success)
+                                {
+                                    MessageBox.Show(
+                                        LocalizedStrings.GetString("Failed to install update. Please try again later."),
+                                        LocalizedStrings.GetString("Update Failed"),
+                                        MessageBoxButtons.OK,
+                                        MessageBoxIcon.Error);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show(
+                                LocalizedStrings.GetString("You have the latest version."),
+                                LocalizedStrings.GetString("No Updates Available"),
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"Error checking for updates: {ex.Message}", ex);
+                        MessageBox.Show(
+                            LocalizedStrings.GetString("Failed to check for updates. Please try again later."),
+                            LocalizedStrings.GetString("Error"),
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                    }
+                });
+                contextMenu.Items.Add(helpMenuItem);
+                
+                contextMenu.Items.Add(new ToolStripSeparator());
+                contextMenu.Items.Add(strings.Exit, null, (s, e) => SafeExecute(Application.Exit));
+
+                if (trayIcon != null)
+                {
+                    trayIcon.ContextMenuStrip = contextMenu;
+                    // Modifier le comportement du double-clic pour afficher la fenêtre principale
+                    trayIcon.MouseDoubleClick += (s, e) => SafeExecute(ShowMainForm);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error creating context menu", ex);
+            }
         }
 
         public void SafeExecute(Action action)
@@ -1585,11 +1714,11 @@ namespace BatRun
 
         public void ShowAbout(object? sender, EventArgs e)
         {
-            var culture = System.Globalization.CultureInfo.CurrentUICulture;
-            
+            var strings = new LocalizedStrings();
+
             var aboutForm = new Form
             {
-                Text = culture.Name.StartsWith("fr-") ? "À propos de BatRun" : "About BatRun",
+                Text = strings.AboutBatRun,
                 Size = new Size(400, 300),
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 MaximizeBox = false,
@@ -1601,15 +1730,10 @@ namespace BatRun
 
             var mainText = new Label
             {
-                Text = culture.Name.StartsWith("fr-") 
-                    ? $"BatRun\n\n" +
-                      $"Version: 1.3\n" +
-                      "Développé par AI pour Aynshe\n\n" +
-                      "Un lanceur pour RetroBat avec Hotkey select/back+start."
-                    : $"BatRun\n\n" +
-                      $"Version: 1.3\n" +
-                      "Developed by AI for Aynshe\n\n" +
-                      "A launcher for RetroBat with Hotkey select/back+start.",
+                Text = $"BatRun\n\n" +
+                       $"{strings.VersionLabel}: {APP_VERSION}\n" +
+                       $"{strings.DevelopedBy}\n\n" +
+                       $"{strings.Description}",
                 Dock = DockStyle.Top,
                 Height = 150,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -1619,12 +1743,12 @@ namespace BatRun
 
             var discordLink = new LinkLabel
             {
-                Text = culture.Name.StartsWith("fr-") ? "Rejoignez-nous sur Discord" : "Join us on Discord",
+                Text = strings.JoinDiscord,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Top,
                 Height = 30,
                 Font = new Font("Segoe UI", 10F),
-                LinkColor = Color.FromArgb(114, 137, 218), // Couleur Discord
+                LinkColor = Color.FromArgb(114, 137, 218), // Discord color
                 ActiveLinkColor = Color.FromArgb(134, 157, 238),
                 VisitedLinkColor = Color.FromArgb(114, 137, 218)
             };
@@ -1636,7 +1760,7 @@ namespace BatRun
 
             var githubLink = new LinkLabel
             {
-                Text = culture.Name.StartsWith("fr-") ? "Code source sur GitHub" : "Source code on GitHub",
+                Text = strings.SourceCode,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Top,
                 Height = 30,
@@ -1812,12 +1936,12 @@ namespace BatRun
                 }
 
                 // Log de la tentative
-                logger.LogInfo($"EmulationStation non trouvé, nouvelle tentative dans {checkInterval / 1000} secondes...");
+                logger.LogInfo($"EmulationStation not found, retrying in {checkInterval / 1000} seconds...");
                 await Task.Delay(checkInterval); // Attendre avant de vérifier à nouveau
                 elapsedTime += checkInterval / 1000; // Convertir en secondes
             }
 
-            logger.LogError("[ERREUR] EmulationStation n'a pas pu être démarré après 30 secondes.");
+            logger.LogError("EmulationStation failed to start after 30 seconds.");
         }
 
         private void LogEmulationStationPolling()
@@ -1874,6 +1998,34 @@ namespace BatRun
             mainForm.ShowInTaskbar = true;
             mainForm.BringToFront();
             mainForm.Activate();
+        }
+
+        public async Task CheckForUpdates()
+        {
+            try
+            {
+                logger.Log("Checking for updates...");
+                var updateChecker = new UpdateChecker(logger, APP_VERSION);
+                var result = await updateChecker.CheckForUpdates();
+                
+                if (result.UpdateAvailable)
+                {
+                    logger.Log($"Update available: version {result.LatestVersion}");
+                }
+                else
+                {
+                    logger.Log("No updates available");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrorWithException("Error checking for updates", ex);
+            }
+        }
+
+        public string GetAppVersion()
+        {
+            return APP_VERSION;
         }
 
         [STAThread]

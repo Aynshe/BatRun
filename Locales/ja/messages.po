@@ -1,0 +1,191 @@
+# Japanese translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: ja\n"
+
+# メインインターフェース
+msgid "Open BatRun"
+msgstr "BatRunを開く"
+
+msgid "Launch RetroBat"
+msgstr "RetroBatを起動"
+
+msgid "Launch BatGui"
+msgstr "BatGuiを起動"
+
+msgid "Configuration"
+msgstr "設定"
+
+msgid "BatRun Configuration"
+msgstr "BatRun 設定"
+
+msgid "General Settings"
+msgstr "一般設定"
+
+msgid "Controller Mappings"
+msgstr "コントローラー設定"
+
+msgid "Help"
+msgstr "ヘルプ"
+
+msgid "Help & Support"
+msgstr "ヘルプとサポート"
+
+msgid "View Logs"
+msgstr "ログを表示"
+
+msgid "View Error Logs"
+msgstr "エラーログを表示"
+
+msgid "About"
+msgstr "バージョン情報"
+
+msgid "Exit"
+msgstr "終了"
+
+# 設定フォーム
+msgid "Focus Settings"
+msgstr "フォーカス設定"
+
+msgid "Focus Duration:"
+msgstr "フォーカス持続時間:"
+
+msgid "Focus Interval:"
+msgstr "フォーカス間隔:"
+
+msgid "Windows Settings"
+msgstr "Windows設定"
+
+msgid "Start with Windows:"
+msgstr "Windowsと同時に起動:"
+
+msgid "Minimize active windows on launch"
+msgstr "起動時にアクティブウィンドウを最小化"
+
+msgid "Enable controller vibration"
+msgstr "コントローラーの振動を有効化"
+
+msgid "Enable logging (requires restart)"
+msgstr "ログを有効化（再起動が必要）"
+
+msgid "Select Controller:"
+msgstr "コントローラーを選択:"
+
+msgid "Hotkey Button:"
+msgstr "ホットキーボタン:"
+
+msgid "Start Button:"
+msgstr "スタートボタン:"
+
+msgid "Detect"
+msgstr "検出"
+
+msgid "Reset Current"
+msgstr "現在の設定をリセット"
+
+msgid "Reset All"
+msgstr "すべてリセット"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Settings saved successfully!"
+msgstr "設定が保存されました！"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Initializing..."
+msgstr "初期化中..."
+
+msgid "Ready!"
+msgstr "準備完了！"
+
+msgid "Launching RetroBat..."
+msgstr "RetroBatを起動中..."
+
+# エラーメッセージ
+msgid "Controller not found"
+msgstr "コントローラーが見つかりません"
+
+msgid "Failed to save settings"
+msgstr "設定の保存に失敗しました"
+
+msgid "Failed to load settings"
+msgstr "設定の読み込みに失敗しました"
+
+msgid "Button detection timeout"
+msgstr "ボタン検出がタイムアウトしました"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+# バージョン情報
+msgid "About BatRun"
+msgstr "BatRunについて"
+
+msgid "Version"
+msgstr "バージョン"
+
+msgid "Developed by AI for Aynshe"
+msgstr "AynsheのためにAIによって開発"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "ホットキーselect/back+startを使用するRetroBatランチャー"
+
+msgid "Join us on Discord"
+msgstr "Discordに参加"
+
+msgid "Source code on GitHub"
+msgstr "GitHubのソースコード"
+
+# アップデートメッセージ
+msgid "Check for Updates"
+msgstr "アップデートを確認"
+
+msgid "Checking for Updates"
+msgstr "アップデートを確認中"
+
+msgid "Checking for updates..."
+msgstr "アップデートを確認中..."
+
+msgid "Update Available"
+msgstr "アップデートが利用可能"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "新しいバージョン{0}が利用可能です。アップデートしますか？"
+
+msgid "Downloading Update"
+msgstr "アップデートをダウンロード中"
+
+msgid "Starting download..."
+msgstr "ダウンロードを開始中..."
+
+msgid "Downloading update: {0}%"
+msgstr "アップデートをダウンロード中: {0}%"
+
+msgid "Update Failed"
+msgstr "アップデート失敗"
+
+msgid "Failed to install update. Please try again later."
+msgstr "アップデートのインストールに失敗しました。後でもう一度お試しください。"
+
+msgid "No Updates Available"
+msgstr "利用可能なアップデートはありません"
+
+msgid "You have the latest version."
+msgstr "最新バージョンをお利用中です。"
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "アップデートの確認に失敗しました。後でもう一度お試しください。"
+
+msgid "Update check failed"
+msgstr "アップデートの確認に失敗"
+  

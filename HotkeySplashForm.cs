@@ -8,9 +8,12 @@ namespace BatRun
         private readonly Label titleLabel;
         private readonly Label messageLabel;
         private readonly PictureBox logoBox;
+        private readonly LocalizedStrings strings;
 
         public HotkeySplashForm()
         {
+            strings = new LocalizedStrings();
+            
             this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(400, 250);
@@ -39,7 +42,7 @@ namespace BatRun
             // Titre
             titleLabel = new Label
             {
-                Text = "BatRun",
+                Text = LocalizedStrings.GetString("BatRun"),
                 ForeColor = Color.White,
                 Font = new Font("Segoe UI", 24, FontStyle.Bold),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -51,9 +54,7 @@ namespace BatRun
             // Message
             messageLabel = new Label
             {
-                Text = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("fr-") 
-                    ? "Lancement de RetroBat..." 
-                    : "Launching RetroBat...",
+                Text = LocalizedStrings.GetString("Launching RetroBat..."),
                 ForeColor = Color.LightGray,
                 Font = new Font("Segoe UI", 12),
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -62,7 +63,7 @@ namespace BatRun
                 Location = new Point(0, 170)
             };
 
-            this.Controls.AddRange([logoBox, titleLabel, messageLabel]);
+            this.Controls.AddRange(new Control[] { logoBox, titleLabel, messageLabel });
         }
 
         protected override void OnPaint(PaintEventArgs e)

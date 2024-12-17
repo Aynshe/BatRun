@@ -1,0 +1,190 @@
+# Polish translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: pl\n"
+
+# Interfejs główny
+msgid "Open BatRun"
+msgstr "Otwórz BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Uruchom RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Uruchom BatGui"
+
+msgid "Configuration"
+msgstr "Konfiguracja"
+
+msgid "BatRun Configuration"
+msgstr "Konfiguracja BatRun"
+
+msgid "General Settings"
+msgstr "Ustawienia ogólne"
+
+msgid "Controller Mappings"
+msgstr "Mapowanie kontrolera"
+
+msgid "Help"
+msgstr "Pomoc"
+
+msgid "Help & Support"
+msgstr "Pomoc i wsparcie"
+
+msgid "View Logs"
+msgstr "Pokaż dzienniki"
+
+msgid "View Error Logs"
+msgstr "Pokaż dzienniki błędów"
+
+msgid "About"
+msgstr "O programie"
+
+msgid "Exit"
+msgstr "Wyjście"
+
+# Formularz ustawień
+msgid "Focus Settings"
+msgstr "Ustawienia skupienia"
+
+msgid "Focus Duration:"
+msgstr "Czas skupienia:"
+
+msgid "Focus Interval:"
+msgstr "Interwał skupienia:"
+
+msgid "Windows Settings"
+msgstr "Ustawienia Windows"
+
+msgid "Start with Windows:"
+msgstr "Uruchamiaj z Windows:"
+
+msgid "Minimize active windows on launch"
+msgstr "Minimalizuj aktywne okna przy uruchomieniu"
+
+msgid "Enable controller vibration"
+msgstr "Włącz wibracje kontrolera"
+
+msgid "Enable logging (requires restart)"
+msgstr "Włącz rejestrowanie (wymaga restartu)"
+
+msgid "Select Controller:"
+msgstr "Wybierz kontroler:"
+
+msgid "Hotkey Button:"
+msgstr "Przycisk skrótu:"
+
+msgid "Start Button:"
+msgstr "Przycisk Start:"
+
+msgid "Detect"
+msgstr "Wykryj"
+
+msgid "Reset Current"
+msgstr "Resetuj bieżące"
+
+msgid "Reset All"
+msgstr "Resetuj wszystko"
+
+msgid "Save"
+msgstr "Zapisz"
+
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgid "Settings saved successfully!"
+msgstr "Ustawienia zostały zapisane!"
+
+msgid "Error"
+msgstr "Błąd"
+
+msgid "Success"
+msgstr "Sukces"
+
+msgid "Initializing..."
+msgstr "Inicjalizacja..."
+
+msgid "Ready!"
+msgstr "Gotowe!"
+
+msgid "Launching RetroBat..."
+msgstr "Uruchamianie RetroBat..."
+
+# Komunikaty o błędach
+msgid "Controller not found"
+msgstr "Nie znaleziono kontrolera"
+
+msgid "Failed to save settings"
+msgstr "Nie udało się zapisać ustawień"
+
+msgid "Failed to load settings"
+msgstr "Nie udało się wczytać ustawień"
+
+msgid "Button detection timeout"
+msgstr "Przekroczono czas wykrywania przycisku"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+# O programie
+msgid "About BatRun"
+msgstr "O programie BatRun"
+
+msgid "Version"
+msgstr "Wersja"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Opracowane przez AI dla Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "Program uruchamiający RetroBat ze skrótem select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Dołącz do nas na Discord"
+
+msgid "Source code on GitHub"
+msgstr "Kod źródłowy na GitHub"
+
+msgid "Checking for Updates"
+msgstr "Sprawdzanie aktualizacji"
+
+msgid "Checking for updates..."
+msgstr "Sprawdzanie aktualizacji..."
+
+msgid "Update Available"
+msgstr "Dostępna aktualizacja"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "Dostępna jest nowa wersja {0}. Czy chcesz zaktualizować?"
+
+msgid "Downloading Update"
+msgstr "Pobieranie aktualizacji"
+
+msgid "Starting download..."
+msgstr "Rozpoczynanie pobierania..."
+
+msgid "Downloading update: {0}%"
+msgstr "Pobieranie aktualizacji: {0}%"
+
+msgid "Update Failed"
+msgstr "Aktualizacja nie powiodła się"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Nie udało się zainstalować aktualizacji. Spróbuj ponownie później."
+
+msgid "No Updates Available"
+msgstr "Brak dostępnych aktualizacji"
+
+msgid "You have the latest version."
+msgstr "Masz najnowszą wersję."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Nie udało się sprawdzić aktualizacji. Spróbuj ponownie później."
+
+msgid "Update check failed"
+msgstr "Sprawdzanie aktualizacji nie powiodło się"
+
+msgid "Check for Updates"
+msgstr "Sprawdź aktualizacje"
+  

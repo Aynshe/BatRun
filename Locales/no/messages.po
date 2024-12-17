@@ -1,0 +1,190 @@
+# Norwegian translations for BatRun
+msgid ""
+msgstr ""
+"Project-Id-Version: BatRun 1.3\n"
+"Language: no\n"
+
+# Hovedgrensesnitt
+msgid "Open BatRun"
+msgstr "Åpne BatRun"
+
+msgid "Launch RetroBat"
+msgstr "Start RetroBat"
+
+msgid "Launch BatGui"
+msgstr "Start BatGui"
+
+msgid "Configuration"
+msgstr "Konfigurasjon"
+
+msgid "BatRun Configuration"
+msgstr "BatRun-konfigurasjon"
+
+msgid "General Settings"
+msgstr "Generelle innstillinger"
+
+msgid "Controller Mappings"
+msgstr "Kontrollertilordninger"
+
+msgid "Help"
+msgstr "Hjelp"
+
+msgid "Help & Support"
+msgstr "Hjelp og støtte"
+
+msgid "View Logs"
+msgstr "Vis logger"
+
+msgid "View Error Logs"
+msgstr "Vis feillogger"
+
+msgid "About"
+msgstr "Om"
+
+msgid "Exit"
+msgstr "Avslutt"
+
+# Innstillingsskjema
+msgid "Focus Settings"
+msgstr "Fokusinnstillinger"
+
+msgid "Focus Duration:"
+msgstr "Fokusvarighet:"
+
+msgid "Focus Interval:"
+msgstr "Fokusintervall:"
+
+msgid "Windows Settings"
+msgstr "Windows-innstillinger"
+
+msgid "Start with Windows:"
+msgstr "Start med Windows:"
+
+msgid "Minimize active windows on launch"
+msgstr "Minimer aktive vinduer ved oppstart"
+
+msgid "Enable controller vibration"
+msgstr "Aktiver kontrollervibrasjon"
+
+msgid "Enable logging (requires restart)"
+msgstr "Aktiver logging (krever omstart)"
+
+msgid "Select Controller:"
+msgstr "Velg kontroller:"
+
+msgid "Hotkey Button:"
+msgstr "Hurtigtast:"
+
+msgid "Start Button:"
+msgstr "Start-knapp:"
+
+msgid "Detect"
+msgstr "Oppdag"
+
+msgid "Reset Current"
+msgstr "Tilbakestill gjeldende"
+
+msgid "Reset All"
+msgstr "Tilbakestill alt"
+
+msgid "Save"
+msgstr "Lagre"
+
+msgid "Cancel"
+msgstr "Avbryt"
+
+msgid "Settings saved successfully!"
+msgstr "Innstillinger lagret!"
+
+msgid "Error"
+msgstr "Feil"
+
+msgid "Success"
+msgstr "Vellykket"
+
+msgid "Initializing..."
+msgstr "Initialiserer..."
+
+msgid "Ready!"
+msgstr "Klar!"
+
+msgid "Launching RetroBat..."
+msgstr "Starter RetroBat..."
+
+# Feilmeldinger
+msgid "Controller not found"
+msgstr "Kontroller ikke funnet"
+
+msgid "Failed to save settings"
+msgstr "Kunne ikke lagre innstillinger"
+
+msgid "Failed to load settings"
+msgstr "Kunne ikke laste innstillinger"
+
+msgid "Button detection timeout"
+msgstr "Tidsavbrudd for knappoppdagelse"
+
+# Om
+msgid "About BatRun"
+msgstr "Om BatRun"
+
+msgid "Version"
+msgstr "Versjon"
+
+msgid "Developed by AI for Aynshe"
+msgstr "Utviklet av AI for Aynshe"
+
+msgid "A launcher for RetroBat with Hotkey select/back+start."
+msgstr "En launcher for RetroBat med hurtigtast select/back+start."
+
+msgid "Join us on Discord"
+msgstr "Bli med oss på Discord"
+
+msgid "Source code on GitHub"
+msgstr "Kildekode på GitHub"
+
+msgid "EmulationStation failed to start"
+msgstr ""
+
+msgid "Checking for Updates"
+msgstr "Søker etter oppdateringer"
+
+msgid "Checking for updates..."
+msgstr "Søker etter oppdateringer..."
+
+msgid "Update Available"
+msgstr "Oppdatering tilgjengelig"
+
+msgid "New version {0} is available. Would you like to update?"
+msgstr "Ny versjon {0} er tilgjengelig. Vil du oppdatere?"
+
+msgid "Downloading Update"
+msgstr "Laster ned oppdatering"
+
+msgid "Starting download..."
+msgstr "Starter nedlasting..."
+
+msgid "Downloading update: {0}%"
+msgstr "Laster ned oppdatering: {0}%"
+
+msgid "Update Failed"
+msgstr "Oppdatering mislyktes"
+
+msgid "Failed to install update. Please try again later."
+msgstr "Kunne ikke installere oppdateringen. Prøv igjen senere."
+
+msgid "No Updates Available"
+msgstr "Ingen oppdateringer tilgjengelig"
+
+msgid "You have the latest version."
+msgstr "Du har den nyeste versjonen."
+
+msgid "Failed to check for updates. Please try again later."
+msgstr "Kunne ikke søke etter oppdateringer. Prøv igjen senere."
+
+msgid "Update check failed"
+msgstr "Oppdateringskontroll mislyktes"
+
+msgid "Check for Updates"
+msgstr "Søk etter oppdateringer"
+  

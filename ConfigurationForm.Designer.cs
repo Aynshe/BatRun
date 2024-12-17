@@ -82,20 +82,20 @@ namespace BatRun
             this.labelFocusInterval.Text = "Focus Interval:";
 
             // numericFocusDuration
-            this.numericFocusDuration.Location = new System.Drawing.Point(110, 23);
+            this.numericFocusDuration.Location = new System.Drawing.Point(135, 23);
             this.numericFocusDuration.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             this.numericFocusDuration.Minimum = new decimal(new int[] { 1000, 0, 0, 0 });
             this.numericFocusDuration.Name = "numericFocusDuration";
-            this.numericFocusDuration.Size = new System.Drawing.Size(120, 23);
+            this.numericFocusDuration.Size = new System.Drawing.Size(100, 23);
             this.numericFocusDuration.TabIndex = 2;
             this.numericFocusDuration.Value = new decimal(new int[] { 15000, 0, 0, 0 });
 
             // numericFocusInterval
-            this.numericFocusInterval.Location = new System.Drawing.Point(110, 58);
+            this.numericFocusInterval.Location = new System.Drawing.Point(135, 58);
             this.numericFocusInterval.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             this.numericFocusInterval.Minimum = new decimal(new int[] { 1000, 0, 0, 0 });
             this.numericFocusInterval.Name = "numericFocusInterval";
-            this.numericFocusInterval.Size = new System.Drawing.Size(120, 23);
+            this.numericFocusInterval.Size = new System.Drawing.Size(100, 23);
             this.numericFocusInterval.TabIndex = 3;
             this.numericFocusInterval.Value = new decimal(new int[] { 5000, 0, 0, 0 });
 
@@ -139,9 +139,9 @@ namespace BatRun
             // comboBoxStartupMethod
             this.comboBoxStartupMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxStartupMethod.FormattingEnabled = true;
-            this.comboBoxStartupMethod.Location = new System.Drawing.Point(140, 22);
+            this.comboBoxStartupMethod.Location = new System.Drawing.Point(160, 22);
             this.comboBoxStartupMethod.Name = "comboBoxStartupMethod";
-            this.comboBoxStartupMethod.Size = new System.Drawing.Size(220, 23);
+            this.comboBoxStartupMethod.Size = new System.Drawing.Size(190, 23);
             this.comboBoxStartupMethod.TabIndex = 6;
             this.comboBoxStartupMethod.Items.AddRange(new object[] {
                 "Disabled",
