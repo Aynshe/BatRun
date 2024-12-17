@@ -59,7 +59,7 @@ A launcher for RetroBat that allows you to use a controller button combination (
 4. Configure the Hotkey and Start buttons.
 5. Save.
 
-### Auto Startup Configuration with Scheduled Task
+### Auto Startup Configuration
 
 1. Launch `BatRun.exe`.
 2. Go to **Configuration > Startup Settings**.
@@ -130,7 +130,7 @@ Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manett
 4. Configurez les boutons Hotkey et Start.
 5. Sauvegardez.
 
-### Configuration du démarrage automatique avec tâche planifiée
+### Configuration du démarrage automatique
 
 1. Lancez `BatRun.exe`.
 2. Allez dans **Configuration > Startup Settings**.
