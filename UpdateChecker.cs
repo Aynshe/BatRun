@@ -72,7 +72,11 @@ namespace BatRun
                 string logDirectory = Path.Combine(AppContext.BaseDirectory, "Logs");
                 if (Directory.Exists(logDirectory))
                 {
-                    var updateLogs = Directory.GetFiles(logDirectory, "BatRun_update*.log");
+                    // Garder seulement les 5 derniers fichiers de log de mise à jour
+                    var updateLogs = Directory.GetFiles(logDirectory, "BatRun_update*.log")
+                        .OrderByDescending(f => new FileInfo(f).CreationTime)
+                        .Skip(5);
+
                     foreach (var log in updateLogs)
                     {
                         try
@@ -222,6 +226,11 @@ namespace BatRun
                 Directory.CreateDirectory(tempDir);
                 updateLogger.LogInfo($"Created temporary directory: {tempDir}");
 
+                // Créer un nouveau fichier log pour cette mise à jour
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string updateLogPath = Path.Combine(AppContext.BaseDirectory, "Logs", $"BatRun_update_{timestamp}.log");
+                updateLogger.LogInfo($"Starting update process, log will be saved to: {updateLogPath}");
+
                 string archivePath = Path.Combine(tempDir, Path.GetFileName(downloadUrl));
                 updateLogger.LogInfo($"Downloading update to: {archivePath}");
 
@@ -312,7 +321,13 @@ namespace BatRun
                 string batchPath = Path.Combine(tempDir, "update.bat");
                 string appDir = AppContext.BaseDirectory;
                 string updateScript = $@"@echo off
+chcp 65001 > nul
+set ""LOG_FILE=%TEMP%\BatRun_update.log""
+
+echo [%date% %time%] Update script started >> ""%LOG_FILE%""
+
 echo Waiting for BatRun to close...
+echo [%date% %time%] Waiting for BatRun to close >> ""%LOG_FILE%""
 :waitloop
 tasklist /FI ""IMAGENAME eq BatRun.exe"" 2>NUL | find /I /N ""BatRun.exe"">NUL
 if ""%ERRORLEVEL%""==""0"" (
@@ -320,25 +335,84 @@ if ""%ERRORLEVEL%""==""0"" (
     goto waitloop
 )
 
+echo [%date% %time%] BatRun process closed >> ""%LOG_FILE%""
+
+echo Killing any remaining BatRun processes...
+echo [%date% %time%] Attempting to kill any remaining BatRun processes >> ""%LOG_FILE%""
+taskkill /F /IM BatRun.exe /T 2>nul
+timeout /t 2 /nobreak >nul
+
+echo Verifying source files...
+echo [%date% %time%] Verifying source files >> ""%LOG_FILE%""
+if not exist ""{batrunSourcePath}\BatRun.exe"" (
+    echo ERROR: Source files not found! >> ""%LOG_FILE%""
+    echo Update failed - source files not found!
+    pause
+    exit /b 1
+)
+
+echo Backing up current installation...
+echo [%date% %time%] Backing up current installation >> ""%LOG_FILE%""
+if exist ""{appDir}\BatRun.exe.bak"" del ""{appDir}\BatRun.exe.bak""
+if exist ""{appDir}\BatRun.exe"" (
+    move ""{appDir}\BatRun.exe"" ""{appDir}\BatRun.exe.bak""
+    if errorlevel 1 (
+        echo ERROR: Failed to backup existing installation >> ""%LOG_FILE%""
+        echo Update failed - backup error!
+        pause
+        exit /b 1
+    )
+)
+
 echo Copying new files...
-xcopy ""{batrunSourcePath}\*.*"" ""{appDir}"" /E /I /Y
+echo [%date% %time%] Copying new files >> ""%LOG_FILE%""
+xcopy ""{batrunSourcePath}\*.*"" ""{appDir}"" /E /I /Y /F
 if errorlevel 1 (
+    echo ERROR: Failed to copy new files >> ""%LOG_FILE%""
+    echo Restoring backup...
+    if exist ""{appDir}\BatRun.exe.bak"" (
+        move ""{appDir}\BatRun.exe.bak"" ""{appDir}\BatRun.exe""
+    )
     echo Update failed!
     pause
     exit /b 1
 )
 
+echo Verifying update...
+echo [%date% %time%] Verifying update >> ""%LOG_FILE%""
+if not exist ""{appDir}\BatRun.exe"" (
+    echo ERROR: BatRun.exe not found after update >> ""%LOG_FILE%""
+    echo Update verification failed!
+    if exist ""{appDir}\BatRun.exe.bak"" (
+        move ""{appDir}\BatRun.exe.bak"" ""{appDir}\BatRun.exe""
+    )
+    pause
+    exit /b 1
+)
+
+echo Removing backup...
+echo [%date% %time%] Removing backup >> ""%LOG_FILE%""
+if exist ""{appDir}\BatRun.exe.bak"" del ""{appDir}\BatRun.exe.bak""
+
 echo Starting BatRun...
+echo [%date% %time%] Starting BatRun >> ""%LOG_FILE%""
 start """" ""{Path.Combine(appDir, "BatRun.exe")}""
 if errorlevel 1 (
+    echo ERROR: Failed to start BatRun >> ""%LOG_FILE%""
     echo Failed to start BatRun!
     pause
     exit /b 1
 )
 
 echo Cleaning up...
+echo [%date% %time%] Cleaning up >> ""%LOG_FILE%""
 timeout /t 2 /nobreak >nul
 rmdir /s /q ""{tempDir}""
+
+echo [%date% %time%] Update completed successfully >> ""%LOG_FILE%""
+echo Update completed successfully!
+
+timeout /t 5 /nobreak >nul
 del ""%~f0""
 ";
                 File.WriteAllText(batchPath, updateScript);
