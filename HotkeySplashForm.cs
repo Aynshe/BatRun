@@ -7,8 +7,35 @@ namespace BatRun
     {
         private readonly Label titleLabel;
         private readonly Label messageLabel;
+        private readonly Label versionLabel;
         private readonly PictureBox logoBox;
         private readonly LocalizedStrings strings;
+
+        private string GetRetroBatVersion()
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RetroBat");
+                if (key != null)
+                {
+                    var path = key.GetValue("LatestKnownInstallPath") as string;
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        string versionFile = Path.Combine(path, "system", "version.info");
+                        if (File.Exists(versionFile))
+                        {
+                            string version = File.ReadAllText(versionFile).Trim();
+                            return $"RetroBat {version}";
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Silently fail and return empty string
+            }
+            return "RetroBat";
+        }
 
         public HotkeySplashForm()
         {
@@ -60,10 +87,22 @@ namespace BatRun
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.None,
                 Size = new Size(Width, 30),
-                Location = new Point(0, 170)
+                Location = new Point(0, 160)
             };
 
-            this.Controls.AddRange(new Control[] { logoBox, titleLabel, messageLabel });
+            // Version de RetroBat
+            versionLabel = new Label
+            {
+                Text = GetRetroBatVersion(),
+                ForeColor = Color.LightGray,
+                Font = new Font("Segoe UI", 10),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Dock = DockStyle.None,
+                Size = new Size(Width, 30),
+                Location = new Point(0, 190)
+            };
+
+            this.Controls.AddRange(new Control[] { logoBox, titleLabel, versionLabel, messageLabel });
         }
 
         protected override void OnPaint(PaintEventArgs e)

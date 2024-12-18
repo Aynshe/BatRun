@@ -141,7 +141,7 @@ namespace BatRun
         private DateTime lastBackButtonTime = DateTime.MinValue;
         private bool isBackButtonPressed = false;
         private readonly Logger logger = new Logger("BatRun.log");
-        private string retrobatPath = "";
+        private static string retrobatPath = "";
         private readonly LoggingConfig _loggingConfig = new LoggingConfig();
         private MainForm? mainForm;
 
@@ -1821,7 +1821,7 @@ namespace BatRun
             }
         }
 
-        private string GetRetrobatPath()
+        public static string GetRetrobatPath()
         {
             return retrobatPath;
         }
