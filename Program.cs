@@ -10,6 +10,8 @@ using Newtonsoft.Json.Linq;
 using SharpDX.XInput;
 using SharpDX.DirectInput;
 
+// line 194 version number
+
 namespace BatRun
 {
     internal static class NativeMethods
@@ -191,7 +193,7 @@ namespace BatRun
         private const long MEMORY_CHECK_INTERVAL = 30000; // 30 secondes
         private System.Windows.Forms.Timer? memoryMonitorTimer;
 
-        public const string APP_VERSION = "1.3.2";
+        public const string APP_VERSION = "1.3.3";
 
         public Program()
         {
@@ -2062,29 +2064,28 @@ namespace BatRun
                     // Créer et afficher le splash screen
                     var splash = new SplashForm();
                     splash.Show();
-                    splash.UpdateStatus("Initializing...");
+                    Application.DoEvents(); // Force le rendu immédiat
 
-                    // Créer le programme principal
+                    // Créer un timer pour fermer le splash après 4 secondes
+                    var splashTimer = new System.Windows.Forms.Timer();
+                    splashTimer.Interval = 4000; // 4 secondes
+                    splashTimer.Tick += (s, e) =>
+                    {
+                        splashTimer.Stop();
+                        splash.Close();
+                        splash.Dispose();
+                    };
+                    splashTimer.Start();
+
+                    // Créer et configurer le programme principal en arrière-plan
                     var program = new Program();
                     program.mainForm = new MainForm(program, logger, program.config);
-                    
-                    // Configurer le programme
                     program.ShowInTaskbar = false;
                     program.Visible = false;
 
                     // Démarrer le polling en arrière-plan
-                    splash.UpdateStatus("Starting controller service...");
                     program.StartPolling();
 
-                    // Attendre un peu pour montrer le splash
-                    Thread.Sleep(2000);
-                    splash.UpdateStatus("Ready!");
-                    Thread.Sleep(500);
-
-                    // Fermer le splash et démarrer l'application
-                    splash.Close();
-                    splash.Dispose();
-                    
                     Application.Run(program);
                 }
             }

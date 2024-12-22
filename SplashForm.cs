@@ -21,13 +21,15 @@ namespace BatRun
             this.Size = new Size(400, 250);
             this.BackColor = Color.FromArgb(32, 32, 32);
             this.ShowInTaskbar = false;
+            this.TopMost = true;
 
             // Logo/Icon
             logoBox = new PictureBox
             {
                 Size = new Size(64, 64),
                 SizeMode = PictureBoxSizeMode.Zoom,
-                Location = new Point((this.Width - 64) / 2, 40)
+                Location = new Point((this.Width - 64) / 2, 40),
+                BackColor = Color.FromArgb(32, 32, 32)
             };
 
             try
@@ -35,35 +37,41 @@ namespace BatRun
                 string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
                 if (File.Exists(iconPath))
                 {
-                    logoBox.Image = new Icon(iconPath).ToBitmap();
+                    using (var icon = new Icon(iconPath))
+                    {
+                        logoBox.Image = icon.ToBitmap();
+                    }
                 }
             }
-            catch { }
+            catch (Exception ex) 
+            {
+                Console.WriteLine($"Error loading icon: {ex.Message}");
+            }
 
             // Title Label
             titleLabel = new Label
             {
-                Text = LocalizedStrings.GetString("BatRun"),
+                Text = "BatRun",
                 Font = new Font("Segoe UI", 24F, FontStyle.Bold),
                 ForeColor = Color.White,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.None,
                 AutoSize = false,
                 Size = new Size(400, 50),
-                Location = new Point(0, 110)
+                Location = new Point(0, 110),
+                BackColor = Color.FromArgb(32, 32, 32)
             };
 
             // Version Label
             versionLabel = new Label
             {
-                Text = string.Format(LocalizedStrings.GetString("Version {0}"), Program.APP_VERSION),
+                Text = $"v{Program.APP_VERSION}",
                 Font = new Font("Segoe UI", 12F, FontStyle.Regular),
                 ForeColor = Color.LightGray,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.None,
                 AutoSize = false,
                 Size = new Size(400, 30),
-                Location = new Point(0, 160)
+                Location = new Point(0, 160),
+                BackColor = Color.FromArgb(32, 32, 32)
             };
 
             // Status Label
@@ -73,25 +81,25 @@ namespace BatRun
                 Font = new Font("Segoe UI", 10F),
                 ForeColor = Color.White,
                 TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.None,
                 AutoSize = false,
                 Size = new Size(400, 30),
-                Location = new Point(0, 190)
+                Location = new Point(0, 190),
+                BackColor = Color.FromArgb(32, 32, 32)
             };
 
             this.Controls.AddRange(new Control[] { logoBox, titleLabel, versionLabel, statusLabel });
         }
 
-        public void UpdateStatus(string key)
+        public void UpdateStatus(string message)
         {
-            if (statusLabel.InvokeRequired)
+            if (this.InvokeRequired)
             {
-                statusLabel.Invoke(new Action(() => statusLabel.Text = LocalizedStrings.GetString(key)));
+                this.Invoke(new Action(() => UpdateStatus(message)));
+                return;
             }
-            else
-            {
-                statusLabel.Text = LocalizedStrings.GetString(key);
-            }
+
+            statusLabel.Text = message;
+            Application.DoEvents();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -99,7 +107,7 @@ namespace BatRun
             base.OnPaint(e);
             
             // Draw border
-            using (Pen pen = new Pen(Color.FromArgb(45, 45, 48), 2))
+            using (var pen = new Pen(Color.FromArgb(45, 45, 48), 2))
             {
                 e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
             }
