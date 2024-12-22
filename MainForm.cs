@@ -237,7 +237,7 @@ namespace BatRun
                     
                     if (result.UpdateAvailable)
                     {
-                        updateStatusPanel.BackColor = Color.LimeGreen;
+                        updateStatusPanel.BackColor = Color.Red;
                         updateStatusLabel.Text = strings.UpdateAvailable;
                         updateStatusLabel.Cursor = Cursors.Hand;
                         updateStatusLabel.Click += async (s, e) => await CheckForUpdatesAsync();
@@ -246,7 +246,7 @@ namespace BatRun
                     }
                     else
                     {
-                        updateStatusPanel.BackColor = Color.Red;
+                        updateStatusPanel.BackColor = Color.LimeGreen;
                         updateStatusLabel.Text = strings.NoUpdatesAvailable;
                     }
                 }
@@ -257,7 +257,7 @@ namespace BatRun
                 if (updateStatusPanel != null && updateStatusLabel != null)
                 {
                     var strings = new LocalizedStrings();
-                    updateStatusPanel.BackColor = Color.Red;
+                    updateStatusPanel.BackColor = Color.LimeGreen;
                     updateStatusLabel.Text = strings.UpdateCheckFailed;
                 }
             }

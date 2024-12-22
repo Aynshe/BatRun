@@ -191,7 +191,7 @@ namespace BatRun
         private const long MEMORY_CHECK_INTERVAL = 30000; // 30 secondes
         private System.Windows.Forms.Timer? memoryMonitorTimer;
 
-        public const string APP_VERSION = "1.3.1";
+        public const string APP_VERSION = "1.3.2";
 
         public Program()
         {
