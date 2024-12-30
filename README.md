@@ -20,15 +20,34 @@ ________________________________________________________________________________
 
 _____________________________________________________________________________________________________________________________________________________
 
-# BatRun v1.3
+# BatRun v2.0
 
 A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat from any Windows application.
 
+# New Features in Version 2.0.0
+
+### Custom Shell
+- Configuration as custom Windows shell
+- Command and application execution
+- Auto-Hide Applications
+
+### Dynamic Wallpaper
+- Video wallpaper support (MP4)
+- Animated GIF support
+- Movable floating menu
+- Automatic wallpaper pause when launching EmulationStation
+- Audio volume control for video wallpapers
+
+### Shortcuts System
+- Custom shortcuts management interface
+- Quick access menu for shortcuts from floating menu
+- Ability to add/edit/delete shortcuts
+_____________________________________________________________________________________________________________________________________________________
 ## New Features in Version 1.3
 
 - 🚀 **Added controller vibration when pressing Hotkey + Start** (works with XInput, DirectInput not tested, potential incompatibility with some Bluetooth controllers).
 - 🖥 **Automatic startup via scheduled task** (works if `explorer.exe` is not the default Shell on Windows startup).
-
+_____________________________________________________________________________________________________________________________________________________
 ### CPU Load Notes:
 - On a processor like the i5-9600 (Win11) : CPU load is below 1%.
 - Tested on an i7-3770K (Win10) : load varies between 2% and 5%.
@@ -91,15 +110,34 @@ Developed by AI for Aynshe
 
 _____________________________________________________________________________________________________________________________________________________
 
-# BatRun v1.3
+# BatRun v2.0
 
 Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manette (Hotkey + Start) pour lancer RetroBat depuis n'importe quelle application Windows.
 
+## Nouveautés de la version 2.0.0
+
+### Shell personnalisé
+- Configuration comme shell Windows personnalisé
+- Exécution commandes et applications
+- Auto-Hide Applications
+
+### Fond d'écran dynamique
+- Support des fonds d'écran vidéo (MP4)
+- Support des GIFs animés
+- Menu flottant déplaçable
+- Pause automatique du fond d'écran lors du lancement d'EmulationStation
+- Contrôle du volume audio pour les fonds vidéo
+
+### Système de raccourcis
+- Interface de gestion des raccourcis personnalisés
+- Menu rapide d'accès aux raccourcis depuis le menu flottant
+- Possibilité d'ajouter/éditer/supprimer des raccourcis
+_____________________________________________________________________________________________________________________________________________________
 ## Nouveautés de la version 1.3
 
 - 🚀 **Ajout de la vibration manette lors de la combinaison Hotkey + Start** (fonctionne avec XInput, DirectInput non testé, incompatibilité possible avec certaines manettes Bluetooth).
 - 🖥 **Démarrage automatique via tâche planifiée** (compatible si `explorer.exe` n'est pas le Shell par défaut au démarrage de Windows).
-
+_____________________________________________________________________________________________________________________________________________________
 ### Remarque sur la charge CPU :
 - Sur un processeur type i5-9600 (Win11) : charge CPU inférieure à 1%.
 - Testé avec un i7-3770K (Win10) : charge variant entre 2% et 5%.
