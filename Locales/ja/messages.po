@@ -188,4 +188,137 @@ msgstr "アップデートの確認に失敗しました。後でもう一度お
 
 msgid "Update check failed"
 msgstr "アップデートの確認に失敗"
+
+msgid "Wallpaper Settings"
+msgstr "壁紙設定"
+
+msgid "Use random wallpaper from folder"
+msgstr "フォルダからランダムな壁紙を使用"
+
+msgid "None"
+msgstr "なし"
+
+msgid "Random Wallpaper"
+msgstr "ランダム壁紙"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "エクスプローラー実行中でも壁紙を有効にする"
+
+msgid "Please select a wallpaper"
+msgstr "壁紙を選択してください"
+
+msgid "Test Wallpaper"
+msgstr "壁紙をテスト"
+
+msgid "Close Wallpaper"
+msgstr "壁紙を閉じる"
+
+msgid "Loop video wallpapers"
+msgstr "ビデオをループ再生"
+
+msgid "Enable video audio"
+msgstr "ビデオの音声を有効にする"
+
+msgid "Shell Launcher"
+msgstr "シェルランチャー"
+
+msgid "This action will configure BatRun as a custom shell."
+msgstr "この操作により、BatRunをカスタムシェルとして設定します。"
+
+msgid "To restore Windows Explorer:"
+msgstr "Windows Explorerを復元するには："
+
+msgid "- Uncheck this box"
+msgstr "- このボックスのチェックを外してください"
+
+msgid "Do you want to continue?"
+msgstr "続行しますか？"
+
+msgid "This action will restore the default Windows Explorer shell."
+msgstr "この操作により、デフォルトのWindows Explorerシェルが復元されます。"
+
+msgid "Custom Shell Configuration"
+msgstr "カスタムシェルの設定"
+
+msgid "Restore Default Shell"
+msgstr "デフォルトシェルの復元"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "操作がキャンセルされました。管理者権限が必要です。"
+
+msgid "Operation cancelled"
+msgstr "操作がキャンセルされました"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "エラーが発生しました：{0}\n管理者権限があることを確認してください。"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Creating system restore point..."
+msgstr "システムの復元ポイントを作成中..."
+
+msgid "System restore point created successfully."
+msgstr "システムの復元ポイントが正常に作成されました。"
+
+msgid "Configuring for user with SID: {0}"
+msgstr "SID：{0}のユーザーに対して設定中"
+
+msgid "Creating registry key: {0}"
+msgstr "レジストリキーを作成中：{0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "カスタムシェルを設定中：{0}"
+
+msgid "Custom shell configured successfully."
+msgstr "カスタムシェルが正常に設定されました。"
+
+msgid "Removing shell key..."
+msgstr "シェルキーを削除中..."
+
+msgid "Configuration restored to default."
+msgstr "設定がデフォルトに復元されました。"
+
+msgid "No configuration to remove."
+msgstr "削除する設定がありません。"
+
+msgid "Press any key to continue..."
+msgstr "続行するには任意のキーを押してください..."
+
+msgid "Unable to retrieve user SID"
+msgstr "ユーザーSIDを取得できません"
+
+msgid "Add Application"
+msgstr "アプリケーションを追加"
+
+msgid "Add Command"
+msgstr "コマンドを追加"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "グループポリシーでカスタムユーザーインターフェースを有効にする"
+
+msgid "Open BatRun Interface"
+msgstr "BatRunインターフェースを開く"
+
+msgid "Open RetroBat Folder"
+msgstr "RetroBatフォルダを開く"
+
+msgid "Task Manager"
+msgstr "タスクマネージャー"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "リストの最後にRetroBATを起動"
+
+msgid "Enable"
+msgstr "有効"
+
+msgid "Delay (seconds)"
+msgstr "遅延（秒）"
+
+msgid "Allow only one instance of this application"
+msgstr "このアプリケーションの単一インスタンスのみを許可"
+
+msgid "Manage Applications Hide"
+msgstr "非表示アプリケーションの管理"
   

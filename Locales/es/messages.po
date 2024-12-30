@@ -76,4 +76,144 @@ msgstr "No hay actualizaciones disponibles"
 
 msgid "Update check failed"
 msgstr "Error al buscar actualizaciones"
+
+msgid "Wallpaper Settings"
+msgstr "Configuración del fondo de pantalla"
+
+msgid "Use random wallpaper from folder"
+msgstr "Usar fondo de pantalla aleatorio de la carpeta"
+
+msgid "None"
+msgstr "Ninguno"
+
+msgid "Random Wallpaper"
+msgstr "Fondo de pantalla aleatorio"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "Activar fondo de pantalla incluso con Explorer en ejecución"
+
+msgid "Please select a wallpaper"
+msgstr "Por favor, seleccione un fondo de pantalla"
+
+msgid "Test Wallpaper"
+msgstr "Probar fondo de pantalla"
+
+msgid "Close Wallpaper"
+msgstr "Cerrar fondo de pantalla"
+
+msgid "Loop video wallpapers"
+msgstr "Reproducir videos en bucle"
+
+msgid "Enable video audio"
+msgstr "Activar audio de video"
+
+msgid "Shell Launcher"
+msgstr "Lanzador de Shell"
+
+msgid "This action will configure BatRun as a custom shell."
+msgstr "Esta acción configurará BatRun como shell personalizado."
+
+msgid "To restore Windows Explorer:"
+msgstr "Para restaurar Windows Explorer:"
+
+msgid "- Uncheck this box"
+msgstr "- Desmarque esta casilla"
+
+msgid "Do you want to continue?"
+msgstr "¿Desea continuar?"
+
+msgid "This action will restore the default Windows Explorer shell."
+msgstr "Esta acción restaurará el shell predeterminado de Windows Explorer."
+
+msgid "Custom Shell Configuration"
+msgstr "Configuración de Shell Personalizado"
+
+msgid "Restore Default Shell"
+msgstr "Restaurar Shell Predeterminado"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "Operación cancelada. Se requieren privilegios administrativos."
+
+msgid "Operation cancelled"
+msgstr "Operación cancelada"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "Se produjo un error: {0}\nAsegúrese de tener privilegios administrativos."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Creating system restore point..."
+msgstr "Creando punto de restauración del sistema..."
+
+msgid "System restore point created successfully."
+msgstr "Punto de restauración del sistema creado con éxito."
+
+msgid "Configuring for user with SID: {0}"
+msgstr "Configurando para el usuario con SID: {0}"
+
+msgid "Creating registry key: {0}"
+msgstr "Creando clave de registro: {0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "Configurando shell personalizado: {0}"
+
+msgid "Custom shell configured successfully."
+msgstr "Shell personalizado configurado con éxito."
+
+msgid "Removing shell key..."
+msgstr "Eliminando clave de shell..."
+
+msgid "Configuration restored to default."
+msgstr "Configuración restaurada a valores predeterminados."
+
+msgid "No configuration to remove."
+msgstr "No hay configuración para eliminar."
+
+msgid "Press any key to continue..."
+msgstr "Presione cualquier tecla para continuar..."
+
+msgid "Unable to retrieve user SID"
+msgstr "No se puede obtener el SID del usuario"
+
+msgid "Add Application"
+msgstr "Agregar aplicación"
+
+msgid "Add Command"
+msgstr "Agregar comando"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "Habilitar interfaz de usuario personalizada en la directiva de grupo"
+
+msgid "Open BatRun Interface"
+msgstr "Abrir interfaz de BatRun"
+
+msgid "Open RetroBat Folder"
+msgstr "Abrir carpeta de RetroBat"
+
+msgid "Task Manager"
+msgstr "Administrador de tareas"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Lanzar RetroBAT al final de la lista"
+
+msgid "Enable"
+msgstr "Activar"
+
+msgid "Delay (seconds)"
+msgstr "Retraso (segundos)"
+
+msgid "Allow only one instance of this application"
+msgstr "Permitir solo una instancia de esta aplicación"
+
+# Common Buttons
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Manage Applications Hide"
+msgstr "Gestionar aplicaciones ocultas"
  

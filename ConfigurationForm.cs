@@ -2,6 +2,9 @@ using System;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using System.Drawing;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace BatRun
 {
@@ -10,28 +13,33 @@ namespace BatRun
         private readonly IniFile config;
         private readonly string startupPath;
         private readonly Logger logger;
-        private readonly LocalizedStrings strings;
+        private readonly IBatRunProgram program;
 
         private const string RUN_REGISTRY_KEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string APP_NAME = "BatRun";
 
-        public ConfigurationForm(IniFile config, Logger logger)
+        private ComboBox? comboBoxWallpaper;
+        private GroupBox? groupBoxWallpaper;
+        private CheckBox? checkBoxEnableWithExplorer;
+        private ComboBox? comboBoxWallpaperFolder;
+
+        public ConfigurationForm(IniFile config, Logger logger, IBatRunProgram program)
         {
             this.config = config;
             this.logger = logger;
-            this.strings = new LocalizedStrings();
+            this.program = program;
             
             InitializeComponent();
             FormStyles.ApplyDarkStyle(this);
             UpdateLocalizedTexts();
 
-            // Appliquer le style sombre
-            FormStyles.ApplyDarkStyle(this);
-
             // Initialiser le chemin de démarrage automatique
             startupPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.Startup),
                 "BatRun.lnk");
+
+            // Initialiser les contrôles de fond d'écran
+            InitializeWallpaperControls();
 
             LoadSettings();
         }
@@ -49,13 +57,19 @@ namespace BatRun
             labelStartupMethod.Text = LocalizedStrings.GetString("Start with Windows:");
             buttonSave.Text = LocalizedStrings.GetString("Save");
             buttonCancel.Text = LocalizedStrings.GetString("Cancel");
+
+            // Ajouter les nouveaux textes pour le fond d'écran
+            if (groupBoxWallpaper != null)
+            {
+                groupBoxWallpaper.Text = LocalizedStrings.GetString("Wallpaper Settings");
+            }
         }
 
         private void LoadSettings()
         {
             // Charger les paramètres de focus
-            numericFocusDuration.Value = config.ReadInt("Focus", "FocusDuration", 15000);
-            numericFocusInterval.Value = config.ReadInt("Focus", "FocusInterval", 5000);
+            numericFocusDuration.Value = config.ReadInt("Focus", "FocusDuration", 9000);
+            numericFocusInterval.Value = config.ReadInt("Focus", "FocusInterval", 3000);
 
             // Charger le paramètre MinimizeWindows
             checkBoxMinimizeWindows.Checked = config.ReadBool("Windows", "MinimizeWindows", true);
@@ -83,6 +97,41 @@ namespace BatRun
 
             // Charger l'état du logging
             checkBoxEnableLogging.Checked = config.ReadBool("Logging", "EnableLogging", true);
+
+            // Charger les paramètres de fond d'écran
+            if (comboBoxWallpaper != null && comboBoxWallpaperFolder != null)
+            {
+                string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+                
+                // Charger d'abord les dossiers
+                LoadWallpaperFolders();
+
+                // Si un wallpaper est sélectionné, sélectionner son dossier parent
+                if (selectedWallpaper != "None" && selectedWallpaper != "Random Wallpaper")
+                {
+                    string? parentFolder = Path.GetDirectoryName(selectedWallpaper);
+                    if (!string.IsNullOrEmpty(parentFolder) && parentFolder != ".")
+                    {
+                        // Sélectionner le dossier parent dans la liste
+                        int folderIndex = comboBoxWallpaperFolder.Items.IndexOf(parentFolder);
+                        if (folderIndex >= 0)
+                        {
+                            comboBoxWallpaperFolder.SelectedIndex = folderIndex;
+                        }
+                    }
+                    else
+                    {
+                        comboBoxWallpaperFolder.SelectedIndex = 0; // Dossier racine
+                    }
+                }
+
+                // Maintenant charger la liste des wallpapers et sélectionner le bon
+                LoadWallpaperList();
+                if (comboBoxWallpaper.Items.Contains(selectedWallpaper))
+                {
+                    comboBoxWallpaper.SelectedItem = selectedWallpaper;
+                }
+            }
         }
 
         private void ButtonSave_Click(object sender, EventArgs e)
@@ -128,15 +177,35 @@ namespace BatRun
                         break;
                 }
 
+                // Sauvegarder les paramètres de fond d'écran
+                string selectedWallpaper = comboBoxWallpaper?.SelectedItem?.ToString() ?? "None";
+                config.WriteValue("Wallpaper", "Selected", selectedWallpaper);
+                
+                // Mettre à jour l'état actif du wallpaper
+                config.WriteValue("Wallpaper", "IsActive", (selectedWallpaper != "None").ToString().ToLower());
+
+                // Sauvegarder le dossier sélectionné
+                string selectedFolder = comboBoxWallpaperFolder?.SelectedItem?.ToString() ?? "/";
+                config.WriteValue("Wallpaper", "SelectedFolder", selectedFolder);
+
+                // S'assurer que l'option EnableWithExplorer est sauvegardée
+                if (checkBoxEnableWithExplorer != null)
+                {
+                    config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
+                }
+
                 logger.LogInfo("Configuration settings saved successfully");
-                MessageBox.Show("Settings saved successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
                 logger.LogError("Error saving configuration settings", ex);
-                MessageBox.Show($"Error saving settings: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    LocalizedStrings.GetString("Failed to save settings"),
+                    LocalizedStrings.GetString("Error"),
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
 
@@ -390,6 +459,333 @@ namespace BatRun
             {
                 logger.LogError("Error removing startup task", ex);
                 // Ne pas relancer l'exception car la tâche peut ne pas exister
+            }
+        }
+
+        private void InitializeWallpaperControls()
+        {
+            // Groupe pour les paramètres de fond d'écran
+            groupBoxWallpaper = new GroupBox
+            {
+                Text = LocalizedStrings.GetString("Wallpaper Settings"),
+                Location = new Point(12, groupBoxWindows.Bottom + 10),
+                Size = new Size(380, 140),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White
+            };
+
+            // ComboBox pour la sélection du fond d'écran
+            comboBoxWallpaper = new ComboBox
+            {
+                Location = new Point(15, 30),
+                Size = new Size(350, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White
+            };
+
+            // Checkbox pour activer le wallpaper même avec explorer.exe
+            checkBoxEnableWithExplorer = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable wallpaper even with Explorer running"),
+                Location = new Point(15, 60),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "EnableWithExplorer", false)
+            };
+
+            // Ajouter une checkbox pour la lecture en boucle des vidéos
+            var checkBoxLoopVideo = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Loop video wallpapers"),
+                Location = new Point(15, 85),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "LoopVideo", true)
+            };
+
+            // Ajouter une checkbox pour activer/désactiver l'audio des vidéos
+            var checkBoxEnableAudio = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable video audio"),
+                Location = new Point(15, 110),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "EnableAudio", false)
+            };
+
+            checkBoxEnableAudio.CheckedChanged += (s, e) =>
+            {
+                config.WriteValue("Wallpaper", "EnableAudio", checkBoxEnableAudio.Checked.ToString());
+            };
+
+            checkBoxLoopVideo.CheckedChanged += (s, e) =>
+            {
+                config.WriteValue("Wallpaper", "LoopVideo", checkBoxLoopVideo.Checked.ToString());
+            };
+
+            // Ajouter un gestionnaire d'événements pour le changement d'état
+            checkBoxEnableWithExplorer.CheckedChanged += (s, e) =>
+            {
+                config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
+                
+                var wallpaperManager = new WallpaperManager(config, logger, program);
+                if (Process.GetProcessesByName("explorer").Length > 0)
+                {
+                    if (checkBoxEnableWithExplorer.Checked)
+                    {
+                        wallpaperManager.ShowWallpaper(forceShow: true);
+                    }
+                    else
+                    {
+                        wallpaperManager.CloseWallpaper();
+                    }
+                }
+            };
+
+            // Bouton de test
+            var buttonTestWallpaper = new Button
+            {
+                Text = LocalizedStrings.GetString("Test Wallpaper"),
+                Location = new Point(15, 90),
+                Size = new Size(120, 30),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+
+            // Nouveau bouton pour fermer le wallpaper
+            var buttonCloseWallpaper = new Button
+            {
+                Text = LocalizedStrings.GetString("Close Wallpaper"),
+                Location = new Point(145, 90),
+                Size = new Size(120, 30),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+
+            buttonTestWallpaper.Click += (s, e) =>
+            {
+                try
+                {
+                    // D'abord tuer VLC comme le fait le bouton Kill VLC
+                    WallpaperManager.StopActiveMediaPlayer();
+                    WallpaperManager.CleanupAllInstances();
+                    GC.Collect(2, GCCollectionMode.Forced, true);
+                    GC.WaitForPendingFinalizers();
+
+                    // Ensuite, vérifier et charger le nouveau fond d'écran
+                    if (comboBoxWallpaper?.SelectedItem == null)
+                    {
+                        MessageBox.Show(
+                            LocalizedStrings.GetString("Please select a wallpaper"),
+                            "Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                        return;
+                    }
+
+                    string selectedWallpaper = comboBoxWallpaper.SelectedItem.ToString() ?? "None";
+                    
+                    // Sauvegarder la configuration
+                    config.WriteValue("Wallpaper", "Selected", selectedWallpaper);
+                    config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
+
+                    // Créer une nouvelle instance et afficher le fond d'écran
+                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    wallpaperManager.ShowWallpaper(forceShow: true);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error testing wallpaper: {ex.Message}", ex);
+                    MessageBox.Show(
+                        $"Error testing wallpaper: {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            };
+
+            buttonCloseWallpaper.Click += (s, e) =>
+            {
+                try
+                {
+                    // D'abord tuer VLC comme le fait le bouton Kill VLC
+                    WallpaperManager.StopActiveMediaPlayer();
+                    WallpaperManager.CleanupAllInstances();
+                    GC.Collect(2, GCCollectionMode.Forced, true);
+                    GC.WaitForPendingFinalizers();
+
+                    // Ensuite, fermer proprement le wallpaper
+                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    wallpaperManager.CloseWallpaper();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error closing wallpaper: {ex.Message}", ex);
+                    MessageBox.Show(
+                        $"Error closing wallpaper: {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            };
+
+            // ComboBox pour la sélection du dossier
+            comboBoxWallpaperFolder = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(15, 30),
+                Width = 270,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+            comboBoxWallpaperFolder.SelectedIndexChanged += (s, e) => LoadWallpaperList();
+
+            // Ajuster la position de la comboBox des wallpapers
+            if (comboBoxWallpaper != null)
+            {
+                comboBoxWallpaper.Location = new Point(15, 60);
+            }
+
+            // Ajuster la position des autres contrôles
+            if (checkBoxEnableWithExplorer != null)
+            {
+                checkBoxEnableWithExplorer.Location = new Point(15, 90);
+            }
+
+            // Ajuster la position des checkboxes
+            checkBoxLoopVideo.Location = new Point(15, 115);
+            checkBoxEnableAudio.Location = new Point(15, 140);
+
+            // Ajuster la position des boutons
+            buttonTestWallpaper.Location = new Point(15, 170);
+            buttonCloseWallpaper.Location = new Point(145, 170);
+
+            LoadWallpaperFolders();
+            
+            // Ajouter les contrôles au groupBox
+            groupBoxWallpaper.Controls.Add(comboBoxWallpaperFolder);
+            groupBoxWallpaper.Controls.Add(comboBoxWallpaper);
+            groupBoxWallpaper.Controls.Add(checkBoxEnableWithExplorer);
+            groupBoxWallpaper.Controls.Add(checkBoxLoopVideo);
+            groupBoxWallpaper.Controls.Add(checkBoxEnableAudio);
+            groupBoxWallpaper.Controls.Add(buttonTestWallpaper);
+            groupBoxWallpaper.Controls.Add(buttonCloseWallpaper);
+            this.Controls.Add(groupBoxWallpaper);
+
+            // Ajuster la taille du groupBox pour accommoder tous les contrôles
+            if (groupBoxWallpaper != null)
+            {
+                groupBoxWallpaper.Height = 240;  // Augmenté pour accommoder la nouvelle disposition
+            }
+
+            // Ajuster la taille de la fenêtre
+            if (groupBoxWallpaper != null && buttonSave != null)
+            {
+                this.ClientSize = new Size(
+                    Math.Max(this.ClientSize.Width, groupBoxWallpaper.Right + 20),
+                    groupBoxWallpaper.Bottom + buttonSave.Height + 20
+                );
+
+                // Ajuster la position des boutons Save et Cancel
+                if (buttonCancel != null)
+                {
+                    buttonSave.Location = new Point(
+                        buttonSave.Location.X,
+                        groupBoxWallpaper.Bottom + 10
+                    );
+                    buttonCancel.Location = new Point(
+                        buttonCancel.Location.X,
+                        groupBoxWallpaper.Bottom + 10
+                    );
+
+                    // S'assurer que les boutons sont visibles
+                    this.MinimumSize = new Size(
+                        this.Width,
+                        buttonCancel.Bottom + 10
+                    );
+                }
+            }
+            else
+            {
+                // Taille par défaut si les contrôles ne sont pas initialisés
+                this.ClientSize = new Size(350, 450);
+            }
+        }
+
+        private void LoadWallpaperFolders()
+        {
+            if (comboBoxWallpaperFolder == null) return;
+
+            comboBoxWallpaperFolder.Items.Clear();
+            comboBoxWallpaperFolder.Items.Add("/");  // Dossier racine
+
+            string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
+            if (!Directory.Exists(wallpaperFolder))
+            {
+                Directory.CreateDirectory(wallpaperFolder);
+                return;
+            }
+
+            var directories = Directory.GetDirectories(wallpaperFolder, "*", SearchOption.AllDirectories)
+                .Select(d => Path.GetRelativePath(wallpaperFolder, d))
+                .OrderBy(d => d);
+
+            foreach (var dir in directories)
+            {
+                comboBoxWallpaperFolder.Items.Add(dir);
+            }
+
+            // Ne pas forcer la sélection du dossier racine ici
+            if (comboBoxWallpaperFolder.Items.Count > 0 && comboBoxWallpaperFolder.SelectedIndex < 0)
+            {
+                comboBoxWallpaperFolder.SelectedIndex = 0;
+            }
+        }
+
+        private void LoadWallpaperList()
+        {
+            if (comboBoxWallpaper == null || comboBoxWallpaperFolder == null) return;
+
+            comboBoxWallpaper.Items.Clear();
+            comboBoxWallpaper.Items.Add(LocalizedStrings.GetString("Random Wallpaper"));
+            comboBoxWallpaper.Items.Add(LocalizedStrings.GetString("None"));
+
+            string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
+            string selectedFolder = comboBoxWallpaperFolder.SelectedItem?.ToString() ?? "/";
+            string searchPath = selectedFolder == "/" ? wallpaperFolder : Path.Combine(wallpaperFolder, selectedFolder);
+
+            if (Directory.Exists(searchPath))
+            {
+                var imageFiles = Directory.GetFiles(searchPath, "*.*")
+                    .Where(file => WallpaperManager.SupportedExtensions.Contains(Path.GetExtension(file).ToLower()))
+                    .Select(f => Path.GetRelativePath(wallpaperFolder, f))
+                    .OrderBy(f => f);
+
+                foreach (var file in imageFiles)
+                {
+                    comboBoxWallpaper.Items.Add(file);
+                }
+            }
+
+            // Restaurer la sélection précédente si possible
+            string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+            if (comboBoxWallpaper.Items.Contains(selectedWallpaper))
+            {
+                comboBoxWallpaper.SelectedItem = selectedWallpaper;
+            }
+            else
+            {
+                comboBoxWallpaper.SelectedItem = "None";
             }
         }
     }

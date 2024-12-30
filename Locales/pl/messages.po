@@ -187,4 +187,26 @@ msgstr "Sprawdzanie aktualizacji nie powiodło się"
 
 msgid "Check for Updates"
 msgstr "Sprawdź aktualizacje"
+
+msgid "Open BatRun Interface"
+msgstr "Otwórz interfejs BatRun"
+
+msgid "Open RetroBat Folder"
+msgstr "Otwórz folder RetroBat"
+
+msgid "Task Manager"
+msgstr "Menedżer zadań"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Uruchom RetroBAT na końcu listy"
+
+msgid "Enable"
+msgstr "Włącz"
+
+msgid "Delay (seconds)"
+msgstr "Opóźnienie (sekundy)"
+
+msgid "Allow only one instance of this application"
+msgstr "Zezwól tylko na jedną instancję tej aplikacji"
   

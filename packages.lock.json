@@ -2,6 +2,15 @@
   "version": 1,
   "dependencies": {
     "net8.0-windows7.0": {
+      "LibVLCSharp.WinForms": {
+        "type": "Direct",
+        "requested": "[3.8.2, )",
+        "resolved": "3.8.2",
+        "contentHash": "3wL7lthadR9MvpmSBTjY7WIlnwWRrFS2YpnFaaSnOzT3NZJngujlfuvfrf+1ge7uUE3CL/6Il6P4eN9fNNa0SA==",
+        "dependencies": {
+          "LibVLCSharp": "3.8.2"
+        }
+      },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
         "requested": "[8.0.11, )",
@@ -62,6 +71,17 @@
           "System.Runtime": "4.3.0",
           "System.Runtime.Handles": "4.3.0"
         }
+      },
+      "VideoLAN.LibVLC.Windows": {
+        "type": "Direct",
+        "requested": "[3.0.20, )",
+        "resolved": "3.0.20",
+        "contentHash": "ahujCn2kTPJSLEpwXu2BHIyv9Ke/iahd367hFwMMHSP9UkSOYC5QekOGFrSxKz22yZP67arcfCgNgDIcV31DpQ=="
+      },
+      "LibVLCSharp": {
+        "type": "Transitive",
+        "resolved": "3.8.2",
+        "contentHash": "P61Pkc+2GgX9PGJmm0MTVYKh0zPbak25rkyb5MU8Vq7x/VgFV/0h3L2bP7H4Oz5sfmm03H8T010cqEKQVA4Jew=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -1222,6 +1242,18 @@
         "contentHash": "RkgHVhUPvzZxuUubiZe8yr/6CypRVXj0VBzaR8hsqQ8f+rUo7e4PWrHTLOCjd8fBMGWCrY//fi7Ku3qXD7oHRw==",
         "dependencies": {
           "System.Private.Uri": "4.3.0"
+        }
+      },
+      "System.Buffers": {
+        "type": "Transitive",
+        "resolved": "4.3.0",
+        "contentHash": "ratu44uTIHgeBeI0dE8DWvmXVBSo4u7ozRZZHOMmK/JPpYyo0dAfgSiHlpiObMQ5lEtEyIXA40sKRYg5J6A8uQ==",
+        "dependencies": {
+          "System.Diagnostics.Debug": "4.3.0",
+          "System.Diagnostics.Tracing": "4.3.0",
+          "System.Resources.ResourceManager": "4.3.0",
+          "System.Runtime": "4.3.0",
+          "System.Threading": "4.3.0"
         }
       },
       "System.Collections": {

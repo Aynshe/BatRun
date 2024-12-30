@@ -187,4 +187,104 @@ msgstr "Falha na verificação"
 
 msgid "Check for Updates"
 msgstr "Verificar atualizações"
+
+msgid "This action will configure BatRun as a custom shell."
+msgstr "Esta ação irá configurar o BatRun como shell personalizado."
+
+msgid "To restore Windows Explorer:"
+msgstr "Para restaurar o Windows Explorer:"
+
+msgid "- Uncheck this box"
+msgstr "- Desmarque esta caixa"
+
+msgid "Do you want to continue?"
+msgstr "Deseja continuar?"
+
+msgid "This action will restore the default Windows Explorer shell."
+msgstr "Esta ação irá restaurar o shell padrão do Windows Explorer."
+
+msgid "Custom Shell Configuration"
+msgstr "Configuração de Shell Personalizado"
+
+msgid "Restore Default Shell"
+msgstr "Restaurar Shell Padrão"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "Operação cancelada. Privilégios administrativos são necessários."
+
+msgid "Operation cancelled"
+msgstr "Operação cancelada"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "Ocorreu um erro: {0}\nCertifique-se de ter privilégios administrativos."
+
+msgid "Error"
+msgstr "Erro"
+
+msgid "Creating system restore point..."
+msgstr "Criando ponto de restauração do sistema..."
+
+msgid "System restore point created successfully."
+msgstr "Ponto de restauração do sistema criado com sucesso."
+
+msgid "Configuring for user with SID: {0}"
+msgstr "Configurando para usuário com SID: {0}"
+
+msgid "Creating registry key: {0}"
+msgstr "Criando chave do registro: {0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "Configurando shell personalizado: {0}"
+
+msgid "Custom shell configured successfully."
+msgstr "Shell personalizado configurado com sucesso."
+
+msgid "Removing shell key..."
+msgstr "Removendo chave do shell..."
+
+msgid "Configuration restored to default."
+msgstr "Configuração restaurada para o padrão."
+
+msgid "No configuration to remove."
+msgstr "Nenhuma configuração para remover."
+
+msgid "Press any key to continue..."
+msgstr "Pressione qualquer tecla para continuar..."
+
+msgid "Unable to retrieve user SID"
+msgstr "Não foi possível recuperar o SID do usuário"
+
+msgid "Add Application"
+msgstr "Adicionar aplicativo"
+
+msgid "Add Command"
+msgstr "Adicionar comando"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "Ativar interface de usuário personalizada na política de grupo"
+
+msgid "Open BatRun Interface"
+msgstr "Abrir interface do BatRun"
+
+msgid "Open RetroBat Folder"
+msgstr "Abrir pasta do RetroBat"
+
+msgid "Task Manager"
+msgstr "Gerenciador de Tarefas"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Iniciar RetroBAT no final da lista"
+
+msgid "Enable"
+msgstr "Ativar"
+
+msgid "Delay (seconds)"
+msgstr "Atraso (segundos)"
+
+msgid "Allow only one instance of this application"
+msgstr "Permitir apenas uma instância deste aplicativo"
+
+msgid "Manage Applications Hide"
+msgstr "Gerenciar aplicativos ocultos"
   

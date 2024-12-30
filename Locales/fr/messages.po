@@ -209,4 +209,257 @@ msgstr "Échec de la vérification"
 # Nom de l'application
 msgid "BatRun"
 msgstr "BatRun"
+
+msgid "Wallpaper Settings"
+msgstr "Paramètres du fond d'écran"
+
+msgid "Use random wallpaper from folder"
+msgstr "Utiliser un fond d'écran aléatoire du dossier"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Random Wallpaper"
+msgstr "Fond d'écran aléatoire"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "Activer le fond d'écran même avec Explorer"
+
+msgid "Please select a wallpaper"
+msgstr "Veuillez sélectionner un fond d'écran"
+
+msgid "Test Wallpaper"
+msgstr "Tester le fond d'écran"
+
+msgid "Close Wallpaper"
+msgstr "Fermer le fond d'écran"
+
+msgid "Loop video wallpapers"
+msgstr "Lecture en boucle des vidéos"
+
+msgid "Enable video audio"
+msgstr "Activer l'audio des vidéos"
+
+msgid "Shell Launcher"
+msgstr "Lanceur de Shell"
+
+# Shell Configuration Form
+msgid "Shell Configuration"
+msgstr "Configuration du shell"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "Activer l'interface utilisateur personnalisée dans la stratégie de groupe"
+
+msgid "Add Application"
+msgstr "Ajouter une application"
+
+msgid "Add Command"
+msgstr "Ajouter une commande"
+
+msgid "Enter Command"
+msgstr "Saisir une commande"
+
+msgid "Set Delay"
+msgstr "Définir le délai"
+
+msgid "Edit Command"
+msgstr "Modifier la commande"
+
+msgid "Edit Application Path"
+msgstr "Modifier le chemin de l'application"
+
+msgid "Browse..."
+msgstr "Parcourir..."
+
+msgid "Delay (seconds):"
+msgstr "Délai (secondes) :"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "This action will configure BatRun as a custom shell."
+msgstr "Cette action va configurer BatRun comme shell personnalisé."
+
+msgid "To restore Windows Explorer:"
+msgstr "Pour restaurer l'explorateur Windows :"
+
+msgid "- Uncheck this box"
+msgstr "- Décochez cette case"
+
+msgid "Do you want to continue?"
+msgstr "Voulez-vous continuer ?"
+
+msgid "This action will restore the default Windows Explorer shell."
+msgstr "Cette action va restaurer l'explorateur Windows par défaut."
+
+msgid "Custom Shell Configuration"
+msgstr "Configuration du shell personnalisé"
+
+msgid "Restore Default Shell"
+msgstr "Restaurer le shell par défaut"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "Opération annulée. Les privilèges administrateur sont nécessaires."
+
+msgid "Operation cancelled"
+msgstr "Opération annulée"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "Une erreur s'est produite : {0}\nAssurez-vous d'avoir les privilèges administrateur."
+
+msgid "Error"
+msgstr "Erreur"
+
+msgid "Creating system restore point..."
+msgstr "Création d'un point de restauration système..."
+
+msgid "System restore point created successfully."
+msgstr "Point de restauration système créé avec succès."
+
+msgid "Configuring for user with SID: {0}"
+msgstr "Configuration pour l'utilisateur avec le SID : {0}"
+
+msgid "Creating registry key: {0}"
+msgstr "Création de la clé de registre : {0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "Configuration du shell personnalisé : {0}"
+
+msgid "Custom shell configured successfully."
+msgstr "Shell personnalisé configuré avec succès."
+
+msgid "Removing shell key..."
+msgstr "Suppression de la clé shell..."
+
+msgid "Configuration restored to default."
+msgstr "Configuration restaurée par défaut."
+
+msgid "No configuration to remove."
+msgstr "Aucune configuration à supprimer."
+
+msgid "Press any key to continue..."
+msgstr "Appuyez sur une touche pour continuer..."
+
+msgid "Unable to retrieve user SID"
+msgstr "Impossible de récupérer le SID de l'utilisateur"
+
+msgid "Add Application"
+msgstr "Ajouter une application"
+
+msgid "Add Command"
+msgstr "Ajouter une commande"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "Activer l'interface utilisateur personnalisée dans la stratégie de groupe"
+
+msgid "Open BatRun Interface"
+msgstr "Ouvrir l'interface BatRun"
+
+msgid "Open RetroBat Folder"
+msgstr "Ouvrir le dossier RetroBat"
+
+msgid "Task Manager"
+msgstr "Gestionnaire des tâches"
+
+# Gestion des fenêtres
+msgid "Hidden Windows"
+msgstr "Fenêtres masquées"
+
+msgid "No Hidden Windows"
+msgstr "Aucune fenêtre masquée"
+
+msgid "Application"
+msgstr "Application"
+
+msgid "Status"
+msgstr "État"
+
+msgid "Visible"
+msgstr "Visible"
+
+msgid "Hidden"
+msgstr "Masquée"
+
+msgid "Path"
+msgstr "Chemin"
+
+msgid "Delay (seconds)"
+msgstr "Délai (secondes)"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Auto-Hide"
+msgstr "Masquage auto"
+
+msgid "Command"
+msgstr "Commande"
+
+msgid "Application"
+msgstr "Application"
+
+msgid "Enable"
+msgstr "Activer"
+
+msgid "Persistent"
+msgstr "Persistant"
+
+msgid "Show All"
+msgstr "Tout afficher"
+
+# Double Launch
+msgid "Double Launch"
+msgstr "Double lancement"
+
+msgid "Double Launch Delay"
+msgstr "Délai de double lancement"
+
+msgid "Delay between launches (seconds):"
+msgstr "Délai entre les lancements (secondes) :"
+
+# Instance Settings
+msgid "Instance Settings"
+msgstr "Paramètres d'instance"
+
+msgid "Allow only one instance of this application"
+msgstr "Autoriser une seule instance de cette application"
+
+# Shortcuts Menu
+msgid "Shortcuts"
+msgstr "Raccourcis"
+
+msgid "Shortcuts Interface"
+msgstr "Interface des raccourcis"
+
+# Shortcuts Interface
+msgid "Enter Shortcut Name"
+msgstr "Entrer le nom du raccourci"
+
+msgid "Edit Shortcut"
+msgstr "Modifier le raccourci"
+
+msgid "Name:"
+msgstr "Nom :"
+
+msgid "Path:"
+msgstr "Chemin :"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Lancer RetroBAT à la fin de la liste"
+
+msgid "Enable"
+msgstr "Activer"
+
+msgid "Delay (seconds)"
+msgstr "Délai (secondes)"
+
+msgid "Allow only one instance of this application"
+msgstr "Autoriser une seule instance de cette application"
+
+msgid "Manage Applications Hide"
+msgstr "Gérer les applications masquées"
  

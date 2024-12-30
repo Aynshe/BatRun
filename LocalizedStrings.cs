@@ -121,5 +121,6 @@ namespace BatRun
         public string LatestVersion => GetString("You have the latest version.");
         public string UpdateCheckFailed => GetString("Update check failed");
         public string UpdateCheckFailedMessage => GetString("Failed to check for updates. Please try again later.");
+        public string ShellLauncher => GetString("Shell Launcher");
     }
 } 

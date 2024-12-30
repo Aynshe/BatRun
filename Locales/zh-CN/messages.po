@@ -188,4 +188,104 @@ msgstr "检查更新失败。请稍后重试。"
 
 msgid "Update check failed"
 msgstr "检查更新失败"
+
+msgid "This action will configure BatRun as a custom shell."
+msgstr "此操作将把BatRun配置为自定义shell。"
+
+msgid "To restore Windows Explorer:"
+msgstr "要恢复Windows资源管理器："
+
+msgid "- Uncheck this box"
+msgstr "- 取消勾选此框"
+
+msgid "Do you want to continue?"
+msgstr "是否要继续？"
+
+msgid "This action will restore the default Windows Explorer shell."
+msgstr "此操作将恢复默认的Windows资源管理器shell。"
+
+msgid "Custom Shell Configuration"
+msgstr "自定义Shell配置"
+
+msgid "Restore Default Shell"
+msgstr "恢复默认Shell"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "操作已取消。需要管理员权限。"
+
+msgid "Operation cancelled"
+msgstr "操作已取消"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "发生错误：{0}\n请确保您具有管理员权限。"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Creating system restore point..."
+msgstr "正在创建系统还原点..."
+
+msgid "System restore point created successfully."
+msgstr "系统还原点创建成功。"
+
+msgid "Configuring for user with SID: {0}"
+msgstr "正在为SID为{0}的用户配置"
+
+msgid "Creating registry key: {0}"
+msgstr "正在创建注册表项：{0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "正在配置自定义shell：{0}"
+
+msgid "Custom shell configured successfully."
+msgstr "自定义shell配置成功。"
+
+msgid "Removing shell key..."
+msgstr "正在删除shell键..."
+
+msgid "Configuration restored to default."
+msgstr "配置已恢复为默认值。"
+
+msgid "No configuration to remove."
+msgstr "没有要删除的配置。"
+
+msgid "Press any key to continue..."
+msgstr "按任意键继续..."
+
+msgid "Unable to retrieve user SID"
+msgstr "无法获取用户SID"
+
+msgid "Add Application"
+msgstr "添加应用程序"
+
+msgid "Add Command"
+msgstr "添加命令"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "在组策略中启用自定义用户界面"
+
+msgid "Open BatRun Interface"
+msgstr "打开BatRun界面"
+
+msgid "Open RetroBat Folder"
+msgstr "打开RetroBat文件夹"
+
+msgid "Task Manager"
+msgstr "任务管理器"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "在列表末尾启动RetroBAT"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Delay (seconds)"
+msgstr "延迟（秒）"
+
+msgid "Allow only one instance of this application"
+msgstr "仅允许此应用程序的一个实例"
+
+msgid "Manage Applications Hide"
+msgstr "管理隐藏应用程序"
  

@@ -206,4 +206,123 @@ msgstr "Update check failed"
 # Version information
 msgid "Version {0}"
 msgstr "Version {0}"
+
+# Shell Configuration Form
+msgid "Shell Configuration"
+msgstr "Shell Configuration"
+
+msgid "Enable Custom User Interface in Group Policy"
+msgstr "Enable Custom User Interface in Group Policy"
+
+msgid "Add Application"
+msgstr "Add Application"
+
+msgid "Add Command"
+msgstr "Add Command"
+
+msgid "Enter Command"
+msgstr "Enter Command"
+
+msgid "Set Delay"
+msgstr "Set Delay"
+
+msgid "Edit Command"
+msgstr "Edit Command"
+
+msgid "Edit Application Path"
+msgstr "Edit Application Path"
+
+msgid "Browse..."
+msgstr "Browse..."
+
+msgid "Delay (seconds):"
+msgstr "Delay (seconds):"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "This action will configure BatRun as a custom shell.\n\nTo restore Windows Explorer:\n- Uncheck this box\n\nDo you want to continue?"
+msgstr "This action will configure BatRun as a custom shell.\n\nTo restore Windows Explorer:\n- Uncheck this box\n\nDo you want to continue?"
+
+msgid "This action will restore the default Windows Explorer shell.\n\nDo you want to continue?"
+msgstr "This action will restore the default Windows Explorer shell.\n\nDo you want to continue?"
+
+msgid "Custom Shell Configuration"
+msgstr "Custom Shell Configuration"
+
+msgid "Restore Default Shell"
+msgstr "Restore Default Shell"
+
+msgid "Operation cancelled. Administrative privileges are required."
+msgstr "Operation cancelled. Administrative privileges are required."
+
+msgid "Operation cancelled"
+msgstr "Operation cancelled"
+
+msgid "An error occurred: {0}\nMake sure you have administrative privileges."
+msgstr "An error occurred: {0}\nMake sure you have administrative privileges."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Creating system restore point..."
+msgstr "Creating system restore point..."
+
+msgid "System restore point created successfully."
+msgstr "System restore point created successfully."
+
+msgid "Configuring for user with SID: {0}"
+msgstr "Configuring for user with SID: {0}"
+
+msgid "Creating registry key: {0}"
+msgstr "Creating registry key: {0}"
+
+msgid "Configuring custom shell: {0}"
+msgstr "Configuring custom shell: {0}"
+
+msgid "Custom shell configured successfully."
+msgstr "Custom shell configured successfully."
+
+msgid "Removing shell key..."
+msgstr "Removing shell key..."
+
+msgid "Configuration restored to default."
+msgstr "Configuration restored to default."
+
+msgid "No configuration to remove."
+msgstr "No configuration to remove."
+
+msgid "Press any key to continue..."
+msgstr "Press any key to continue..."
+
+msgid "Unable to retrieve user SID"
+msgstr "Unable to retrieve user SID"
+
+msgid "Open BatRun Interface"
+msgstr "Open BatRun Interface"
+
+msgid "Open RetroBat Folder"
+msgstr "Open RetroBat Folder"
+
+msgid "Task Manager"
+msgstr "Task Manager"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Launch RetroBAT at the end of the list"
+
+msgid "Enable"
+msgstr "Enable"
+
+msgid "Delay (seconds)"
+msgstr "Delay (seconds)"
+
+msgid "Allow only one instance of this application"
+msgstr "Allow only one instance of this application"
+
+msgid "Manage Applications Hide"
+msgstr "Manage Applications Hide"
  

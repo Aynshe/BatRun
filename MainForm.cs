@@ -374,7 +374,28 @@ namespace BatRun
                 Margin = new Padding(0)
             };
 
-            var layout = new TableLayoutPanel
+            // TableLayoutPanel principal pour organiser les deux panneaux
+            var mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                RowCount = 2,
+                ColumnCount = 1,
+                BackColor = Color.FromArgb(32, 32, 32),
+                Margin = new Padding(0)
+            };
+
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 65F));  // Panneau d'aide
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));  // Panneau Shell
+
+            // Panneau d'aide
+            var helpBox = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Margin = new Padding(0, 0, 0, 10)
+            };
+
+            var helpLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(10),
@@ -383,15 +404,15 @@ namespace BatRun
                 AutoSize = false
             };
 
-            // Configuration des lignes
-            layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));  // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));  // Espace pour centrer
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));  // Zone des boutons (3 * 60)
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));  // Espace pour centrer
+            // Configuration des lignes du panneau d'aide
+            helpLayout.RowStyles.Clear();
+            helpLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50));  // Titre
+            helpLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));  // Espace pour centrer
+            helpLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 180));  // Zone des boutons (3 * 60)
+            helpLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));  // Espace pour centrer
 
-            // Titre du panneau
-            var titleLabel = new Label
+            // Titre du panneau d'aide
+            var helpTitleLabel = new Label
             {
                 Text = strings.HelpAndSupport,
                 Font = new Font("Segoe UI", 14F, FontStyle.Bold),
@@ -400,9 +421,9 @@ namespace BatRun
                 Dock = DockStyle.Fill,
                 AutoSize = false
             };
-            layout.Controls.Add(titleLabel, 0, 0);
+            helpLayout.Controls.Add(helpTitleLabel, 0, 0);
 
-            // Panel pour contenir les boutons avec une hauteur fixe
+            // Panel pour contenir les boutons d'aide
             var buttonsPanel = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -429,9 +450,55 @@ namespace BatRun
             aboutButton.Click += (s, e) => mainProgram.SafeExecute(() => mainProgram.ShowAbout(null, EventArgs.Empty));
             buttonsPanel.Controls.Add(aboutButton, 0, 2);
 
-            layout.Controls.Add(buttonsPanel, 0, 2);
+            helpLayout.Controls.Add(buttonsPanel, 0, 2);
+            helpBox.Controls.Add(helpLayout);
 
-            panel.Controls.Add(layout);
+            // Panneau Shell dans son propre cadre
+            var shellBoxOuter = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(32, 32, 32),
+                Margin = new Padding(0)
+            };
+
+            var shellBox = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Margin = new Padding(0)
+            };
+
+            var shellLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(10),
+                RowCount = 3,
+                ColumnCount = 1,
+                AutoSize = false
+            };
+
+            // Configuration des lignes du panneau Shell
+            shellLayout.RowStyles.Clear();
+            shellLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));  // Espace au-dessus
+            shellLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60));  // Bouton
+            shellLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));  // Espace en-dessous
+
+            // Bouton Shell avec une nouvelle couleur
+            var shellButton = CreateStyledButton("Shell Launcher", Color.FromArgb(104, 33, 122));
+            shellButton.Click += (s, e) => mainProgram.SafeExecute(() => {
+                var shellConfigForm = new ShellConfigurationForm();
+                shellConfigForm.ShowDialog();
+            });
+            shellLayout.Controls.Add(shellButton, 0, 1);
+
+            shellBox.Controls.Add(shellLayout);
+            shellBoxOuter.Controls.Add(shellBox);
+
+            // Ajouter les panneaux au layout principal
+            mainLayout.Controls.Add(helpBox, 0, 0);
+            mainLayout.Controls.Add(shellBoxOuter, 0, 1);
+
+            panel.Controls.Add(mainLayout);
             return panel;
         }
 

@@ -186,4 +186,65 @@ msgid "Update check failed"
 msgstr "업데이트 확인 실패"
 
 msgid "Check for Updates"
-msgstr "업데이트 확인" 
+msgstr "업데이트 확인"
+
+msgid "Wallpaper Settings"
+msgstr "배경화면 설정"
+
+msgid "Use random wallpaper from folder"
+msgstr "폴더에서 무작위 배경화면 사용"
+
+msgid "None"
+msgstr "없음"
+
+msgid "Random Wallpaper"
+msgstr "무작위 배경화면"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "탐색기 실행 중에도 배경화면 활성화"
+
+msgid "Please select a wallpaper"
+msgstr "배경화면을 선택하세요"
+
+msgid "Test Wallpaper"
+msgstr "배경화면 테스트"
+
+msgid "Close Wallpaper"
+msgstr "배경화면 닫기"
+
+msgid "Loop video wallpapers"
+msgstr "비디오 반복 재생"
+
+msgid "Enable video audio"
+msgstr "비디오 오디오 활성화"
+
+msgid "Shell Launcher"
+msgstr "셸 런처"
+
+msgid "Menu Shell"
+msgstr "셸 메뉴"
+
+msgid "Open BatRun Interface"
+msgstr "BatRun 인터페이스 열기"
+
+msgid "Open RetroBat Folder"
+msgstr "RetroBat 폴더 열기"
+
+msgid "Task Manager"
+msgstr "작업 관리자"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "목록 끝에서 RetroBAT 실행"
+
+msgid "Enable"
+msgstr "활성화"
+
+msgid "Delay (seconds)"
+msgstr "지연 시간(초)"
+
+msgid "Allow only one instance of this application"
+msgstr "이 응용 프로그램의 인스턴스 하나만 허용"
+
+msgid "Manage Applications Hide"
+msgstr "숨겨진 응용 프로그램 관리" 

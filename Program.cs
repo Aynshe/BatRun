@@ -101,8 +101,8 @@ namespace BatRun
                 }
 
                 // Write default values
-                WriteValue("Focus", "FocusDuration", "15000");
-                WriteValue("Focus", "FocusInterval", "5000");
+                WriteValue("Focus", "FocusDuration", "9000");
+                WriteValue("Focus", "FocusInterval", "3000");
                 WriteValue("Windows", "MinimizeWindows", "true");
                 WriteValue("Logging", "EnableLogging", "false");
             }
@@ -142,7 +142,7 @@ namespace BatRun
         private const int BUTTON_COMBO_TIMEOUT = 1000; // 1 second
         private DateTime lastBackButtonTime = DateTime.MinValue;
         private bool isBackButtonPressed = false;
-        private readonly Logger logger = new Logger("BatRun.log");
+        private readonly Logger logger;
         private static string retrobatPath = "";
         private readonly LoggingConfig _loggingConfig = new LoggingConfig();
         private MainForm? mainForm;
@@ -193,20 +193,31 @@ namespace BatRun
         private const long MEMORY_CHECK_INTERVAL = 30000; // 30 secondes
         private System.Windows.Forms.Timer? memoryMonitorTimer;
 
-        public const string APP_VERSION = "1.3.3";
+        private WallpaperManager? wallpaperManager;
+
+        public const string APP_VERSION = "2.0.0";
 
         public Program()
         {
-            if (configPath == null)
-            {
-                throw new InvalidOperationException("configPath cannot be null.");
-            }
-
+            config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
+            logger = new Logger("BatRun.log");
+            
             // Initialize memory management
             InitializeMemoryManagement();
 
-            // Initialize configuration
-            config = new IniFile(configPath);
+            // Exécuter les commandes shell configurées
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var shellExecutor = new ShellCommandExecutor(config, logger);
+                    await shellExecutor.ExecuteShellCommandsAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error executing shell commands", ex);
+                }
+            });
 
             // Charger l'icône de l'application
             try
@@ -226,24 +237,11 @@ namespace BatRun
                 logger.LogError($"Error loading icon: {ex.Message}", ex);
             }
 
-            // Vérifier si explorer.exe est en cours d'exécution
-            bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
+            // Initialiser le WallpaperManager
+            wallpaperManager = new WallpaperManager(config, logger, this);
 
-            if (isExplorerRunning)
-            {
-                // Comportement normal : cacher la fenêtre et afficher l'icône systray
-                this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
-                this.Hide();
-                InitializeTrayIcon();
-            }
-            else
-            {
-                // Explorer n'est pas en cours d'exécution : afficher la fenêtre alternative
-                this.WindowState = FormWindowState.Normal;
-                this.ShowInTaskbar = true;
-                this.Show();
-            }
+            // Vérifier si explorer.exe est en cours d'exécution
+            CheckExplorerAndInitialize();
 
             logger.Log("Starting BatRun");
             
@@ -262,14 +260,22 @@ namespace BatRun
             // Create a timer to check EmulationStation status
             var checkTimer = new System.Windows.Forms.Timer();
             checkTimer.Interval = 5000; // Check every 5 seconds
+            bool wasRunning = false; // Variable pour stocker l'état précédent
             checkTimer.Tick += (sender, e) =>
             {
-                var wasRunning = IsEmulationStationRunning();
-                if (wasRunning && !IsEmulationStationRunning())
+                bool isRunning = IsEmulationStationRunning();
+                if (wasRunning && !isRunning)
                 {
-                    logger.Log("EmulationStation has stopped, resuming polling");
+                    logger.Log("EmulationStation has stopped, resuming polling and media");
+                    wallpaperManager?.ResumeMedia();
                     StartPolling();
                 }
+                else if (!wasRunning && isRunning)
+                {
+                    logger.Log("EmulationStation has started, pausing media");
+                    wallpaperManager?.PauseMedia();
+                }
+                wasRunning = isRunning; // Mettre à jour l'état précédent
             };
             checkTimer.Start();
 
@@ -344,7 +350,7 @@ namespace BatRun
         {
             // Configuration de base de la fenêtre
             this.Text = "BatRun";
-            this.Size = new Size(300, 150);
+            this.Size = new Size(230, 90);
             this.FormBorderStyle = FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -354,24 +360,13 @@ namespace BatRun
             var mainLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                RowCount = 2,
+                RowCount = 1,  // Changé de 2 à 1 car nous n'avons plus le label
                 ColumnCount = 1,
                 BackColor = Color.FromArgb(32, 32, 32)
             };
 
             // Configuration des lignes
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
-
-            // Label titre
-            var titleLabel = new Label
-            {
-                Text = "BatRun",
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 16, FontStyle.Bold),
-                TextAlign = ContentAlignment.MiddleCenter,
-                Dock = DockStyle.Fill
-            };
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // Une seule ligne prenant 100%
 
             // Bouton pour ouvrir MainForm
             var openButton = new Button
@@ -389,8 +384,7 @@ namespace BatRun
             openButton.Click += (s, e) => ShowMainForm();
 
             // Ajout des contrôles au layout
-            mainLayout.Controls.Add(titleLabel, 0, 0);
-            mainLayout.Controls.Add(openButton, 0, 1);
+            mainLayout.Controls.Add(openButton, 0, 0);
 
             // Ajout du layout à la fenêtre
             this.Controls.Add(mainLayout);
@@ -1101,7 +1095,7 @@ namespace BatRun
                         };
                         Process.Start(startInfo);
 
-                        // Fermer le splash de manière sûre
+                        // Fermer le splash de manière sre
                         if (splash != null)
                         {
                             this.Invoke((MethodInvoker)delegate
@@ -1135,6 +1129,7 @@ namespace BatRun
                             esProcess.Exited += async (sender, args) =>
                             {
                                 await Task.Run(() => RestoreActiveWindows().Wait());
+                                wallpaperManager?.ResumeMedia(); // Reprendre le média quand EmulationStation se ferme
                                 StartPolling();
                             };
 
@@ -1423,6 +1418,7 @@ namespace BatRun
                 var configMenuItem = new ToolStripMenuItem(strings.Configuration);
                 configMenuItem.DropDownItems.Add(strings.GeneralSettings, null, (s, e) => SafeExecute(ShowConfigWindow));
                 configMenuItem.DropDownItems.Add(strings.ControllerMappings, null, (s, e) => SafeExecute(OpenMappingConfiguration));
+                configMenuItem.DropDownItems.Add(strings.ShellLauncher, null, (s, e) => SafeExecute(ShowShellConfigWindow));
                 contextMenu.Items.Add(configMenuItem);
                 
                 // Groupe Aide
@@ -1620,16 +1616,17 @@ namespace BatRun
         {
             try 
             {
-                var configForm = new ConfigurationForm(config, logger);
-                configForm.ShowDialog();
+                if (Application.OpenForms.OfType<ConfigurationForm>().Any())
+                {
+                    return;
+                }
+
+                var configForm = new ConfigurationForm(config, logger, this);
+                configForm.Show();
             }
             catch (Exception ex)
             {
-                logger.LogError("Error opening configuration window", ex);
-                MessageBox.Show($"Unable to open configuration window: {ex.Message}", 
-                    "Error", 
-                    MessageBoxButtons.OK, 
-                    MessageBoxIcon.Error);
+                logger.LogError($"Error showing configuration form: {ex.Message}", ex);
             }
         }
 
@@ -2030,6 +2027,93 @@ namespace BatRun
             return APP_VERSION;
         }
 
+        private void CheckExplorerAndInitialize()
+        {
+            bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
+            bool enableWithExplorer = config?.ReadBool("Wallpaper", "EnableWithExplorer", false) ?? false;
+            string selectedWallpaper = config?.ReadValue("Wallpaper", "Selected", "None") ?? "None";
+            bool isWallpaperActive = selectedWallpaper != "None";
+
+            // Si un wallpaper est configuré, le marquer comme actif dans la config
+            if (selectedWallpaper != "None")
+            {
+                config?.WriteValue("Wallpaper", "IsActive", "true");
+                isWallpaperActive = true;
+            }
+            else
+            {
+                config?.WriteValue("Wallpaper", "IsActive", "false");
+            }
+
+            // Afficher le wallpaper si nécessaire
+            if (wallpaperManager != null && isWallpaperActive)
+            {
+                if (!isExplorerRunning || (isExplorerRunning && enableWithExplorer))
+                {
+                    wallpaperManager.ShowWallpaper();
+                }
+            }
+
+            // N'afficher l'interface alternative que si explorer n'est pas en cours ET qu'aucun wallpaper n'est actif
+            if (!isExplorerRunning && !isWallpaperActive)
+            {
+                if (this != null)
+                {
+                    this.WindowState = FormWindowState.Normal;
+                    this.ShowInTaskbar = true;
+                    this.Show();
+                }
+            }
+            else
+            {
+                // Dans tous les autres cas, minimiser dans le systray
+                if (this != null)
+                {
+                    this.WindowState = FormWindowState.Minimized;
+                    this.ShowInTaskbar = false;
+                    this.Hide();
+                }
+                InitializeTrayIcon();
+            }
+        }
+
+        private async Task InitializeAsync()
+        {
+            try
+            {
+                // ... (code existant)
+
+                // Exécuter les commandes shell configurées
+                var shellExecutor = new ShellCommandExecutor(config, logger);
+                await shellExecutor.ExecuteShellCommandsAsync();
+
+                // ... (code existant)
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error during initialization", ex);
+            }
+        }
+
+        public void ShowShellConfigWindow()
+        {
+            try 
+            {
+                if (Application.OpenForms.OfType<ShellConfigurationForm>().Any())
+                {
+                    return;
+                }
+
+                var shellConfigForm = new ShellConfigurationForm();
+                shellConfigForm.StartPosition = FormStartPosition.CenterScreen;
+                shellConfigForm.Show();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error showing shell configuration form: {ex.Message}", ex);
+            }
+        }
+
         [STAThread]
         static void Main()
         {
@@ -2196,6 +2280,7 @@ namespace BatRun
                 trayIcon?.Dispose();
                 CleanupControllers();
                 ForceGarbageCollection();
+                wallpaperManager?.CloseWallpaper();
             }
             base.Dispose(disposing);
         }

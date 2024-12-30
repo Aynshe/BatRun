@@ -1,0 +1,35 @@
+msgid "Wallpaper Settings"
+msgstr "壁纸设置"
+
+msgid "Use random wallpaper from folder"
+msgstr "从文件夹使用随机壁纸"
+
+msgid "None"
+msgstr "无"
+
+msgid "Random Wallpaper"
+msgstr "随机壁纸"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "即使资源管理器运行时也启用壁纸"
+
+msgid "Please select a wallpaper"
+msgstr "请选择壁纸"
+
+msgid "Test Wallpaper"
+msgstr "测试壁纸"
+
+msgid "Close Wallpaper"
+msgstr "关闭壁纸"
+
+msgid "Loop video wallpapers"
+msgstr "循环播放视频"
+
+msgid "Enable video audio"
+msgstr "启用视频音频"
+
+msgid "Shell Launcher"
+msgstr "Shell启动器"
+
+msgid "Menu Shell"
+msgstr "Shell菜单" 

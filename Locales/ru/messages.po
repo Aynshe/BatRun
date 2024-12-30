@@ -187,4 +187,53 @@ msgstr "Ошибка проверки обновлений"
 
 msgid "Check for Updates"
 msgstr "Проверить обновления"
+
+msgid "Wallpaper Settings"
+msgstr "Настройки обоев"
+
+msgid "Use random wallpaper from folder"
+msgstr "Использовать случайные обои из папки"
+
+msgid "None"
+msgstr "Нет"
+
+msgid "Random Wallpaper"
+msgstr "Случайные обои"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "Включить обои даже при работающем Проводнике"
+
+msgid "Please select a wallpaper"
+msgstr "Пожалуйста, выберите обои"
+
+msgid "Test Wallpaper"
+msgstr "Тест обоев"
+
+msgid "Close Wallpaper"
+msgstr "Закрыть обои"
+
+msgid "Open BatRun Interface"
+msgstr "Открыть интерфейс BatRun"
+
+msgid "Open RetroBat Folder"
+msgstr "Открыть папку RetroBat"
+
+msgid "Task Manager"
+msgstr "Диспетчер задач"
+
+# RetroBAT Configuration
+msgid "Launch RetroBAT at the end of the list"
+msgstr "Запустить RetroBAT в конце списка"
+
+msgid "Enable"
+msgstr "Включить"
+
+msgid "Delay (seconds)"
+msgstr "Задержка (секунды)"
+
+msgid "Allow only one instance of this application"
+msgstr "Разрешить только один экземпляр этого приложения"
+
+msgid "Manage Applications Hide"
+msgstr "Управление скрытыми приложениями"
   

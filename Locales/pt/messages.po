@@ -1,0 +1,23 @@
+msgid "Wallpaper Settings"
+msgstr "Configurações de papel de parede"
+
+msgid "Use random wallpaper from folder"
+msgstr "Usar papel de parede aleatório da pasta"
+
+msgid "None"
+msgstr "Nenhum"
+
+msgid "Random Wallpaper"
+msgstr "Papel de parede aleatório"
+
+msgid "Enable wallpaper even with Explorer running"
+msgstr "Ativar papel de parede mesmo com Explorer em execução"
+
+msgid "Please select a wallpaper"
+msgstr "Selecione um papel de parede"
+
+msgid "Test Wallpaper"
+msgstr "Testar papel de parede"
+
+msgid "Close Wallpaper"
+msgstr "Fechar papel de parede" 
