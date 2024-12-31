@@ -21,7 +21,7 @@ ________________________________________________________________________________
 
 # BatRun v2.0
 
-A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat from any Windows application.
+A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat.
 
 # New Features in Version 2.0.0
 
@@ -111,8 +111,7 @@ ________________________________________________________________________________
 
 # BatRun v2.0
 
-Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manette (Hotkey + Start) pour lancer RetroBat depuis n'importe quelle application Windows.
-
+Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manette (Hotkey + Start) pour lancer RetroBat.
 ## Nouveautés de la version 2.0.0
 
 ### Shell personnalisé
