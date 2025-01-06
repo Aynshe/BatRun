@@ -334,4 +334,75 @@ msgstr "Abbrechen"
 
 msgid "Manage Applications Hide"
 msgstr "Versteckte Anwendungen verwalten"
+
+msgid "Hide ES during loading"
+msgstr "ES während des Ladens ausblenden"
+
+msgid "Show splash screen on startup"
+msgstr "Startbildschirm beim Start anzeigen"
+
+msgid "Show hotkey splash screen"
+msgstr "RetroBat-Bildschirm anzeigen"
+
+msgid "startup"
+msgstr "Start"
+
+msgid "Shortcut"
+msgstr "Verknüpfung"
+
+msgid "Registry"
+msgstr "Registry"
+
+msgid "Task"
+msgstr "Aufgabe"
+
+msgid "Disabled"
+msgstr "Deaktiviert"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "Die folgenden Optionen werden automatisch deaktiviert, wenn 'ES während des Ladens ausblenden' aktiviert ist:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Startbildschirm beim Start anzeigen"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-RetroBat-Startbildschirm anzeigen"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Aktive Fenster beim Start minimieren"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-Das RetroBat-Intro-Video wird ebenfalls deaktiviert."
+
+msgid "Information"
+msgstr "Information"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "MediaPlayer-Einstellungen"
+
+msgid "Available videos:"
+msgstr "Verfügbare Videos:"
+
+msgid "Loop playback"
+msgstr "Wiedergabe wiederholen"
+
+msgid "Mute after first playback"
+msgstr "Nach erster Wiedergabe stummschalten"
+
+msgid "Mute all audio"
+msgstr "Alle Audios stummschalten"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "Die Option 'ES während des Ladens ausblenden' wurde aktiviert. BatRun wird neu gestartet, um die Änderungen zu übernehmen."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "Die Option 'ES während des Ladens ausblenden' wurde deaktiviert. BatRun wird neu gestartet, um die Änderungen zu übernehmen."
+
+msgid "Restart Required"
+msgstr "Neustart erforderlich"
+
+msgid "An error occurred while saving the configuration."
+msgstr "Beim Speichern der Konfiguration ist ein Fehler aufgetreten."
  

@@ -11,7 +11,7 @@ namespace BatRun
         private readonly bool isEnglishCulture;
         private readonly bool isLoggingEnabled;
 
-        public Logger(string logFileName = "BatRun.log")
+        public Logger(string logFileName, bool appendToExisting = false)
         {
             // Lire la configuration du logging
             var configPath = Path.Combine(AppContext.BaseDirectory, "config.ini");
@@ -33,25 +33,15 @@ namespace BatRun
             // Full path of the log file
             logFilePath = Path.Combine(logDirectory, logFileName);
             
-            // Delete the existing log file
-            try 
+            // Créer le fichier s'il n'existe pas, sinon ajouter une ligne de séparation
+            if (!File.Exists(logFilePath))
             {
-                if (File.Exists(logFilePath))
-                {
-                    File.Delete(logFilePath);
-                }
+                File.WriteAllText(logFilePath, $"=== Log started at {DateTime.Now} ===\n");
             }
-            catch (Exception ex)
+            else if (appendToExisting)
             {
-                Console.Error.WriteLine($"Error deleting the log file: {ex.Message}");
+                File.AppendAllText(logFilePath, $"\n=== New session started at {DateTime.Now} ===\n");
             }
-
-            // Write a header message to indicate a new startup
-           // string startupMessage = isEnglishCulture 
-           //     ? $"--- Application startup {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---" 
-            //    : $"--- Démarrage de l'application {DateTime.Now:yyyy-MM-dd HH:mm:ss} ---";
-           // 
-           // Log(startupMessage, "INIT");
         }
 
         public void Log(string message, string type = "INFO")

@@ -288,4 +288,51 @@ msgstr "仅允许此应用程序的一个实例"
 
 msgid "Manage Applications Hide"
 msgstr "管理隐藏应用程序"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "启用"加载时隐藏ES"后，以下选项将自动禁用："
+
+msgid "-Show splash screen on startup"
+msgstr "-启动时显示启动画面"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-显示RetroBat启动画面"
+
+msgid "-Minimize active windows on launch"
+msgstr "-启动时最小化活动窗口"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-RetroBat介绍视频也将被禁用。"
+
+msgid "Information"
+msgstr "信息"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "媒体播放器设置"
+
+msgid "Available videos:"
+msgstr "可用视频："
+
+msgid "Loop playback"
+msgstr "循环播放"
+
+msgid "Mute after first playback"
+msgstr "首次播放后静音"
+
+msgid "Mute all audio"
+msgstr "静音所有音频"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "已启用"加载时隐藏ES"选项。BatRun将重新启动以应用更改。"
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "已禁用"加载时隐藏ES"选项。BatRun将重新启动以应用更改。"
+
+msgid "Restart Required"
+msgstr "需要重新启动"
+
+msgid "An error occurred while saving the configuration."
+msgstr "保存配置时发生错误。"
  

@@ -209,4 +209,51 @@ msgstr "Opóźnienie (sekundy)"
 
 msgid "Allow only one instance of this application"
 msgstr "Zezwól tylko na jedną instancję tej aplikacji"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "Następujące opcje są automatycznie wyłączane, gdy włączona jest opcja 'Ukryj ES podczas ładowania':"
+
+msgid "-Show splash screen on startup"
+msgstr "-Pokaż ekran powitalny przy starcie"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-Pokaż ekran powitalny RetroBat"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Minimalizuj aktywne okna przy uruchomieniu"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-Film wprowadzający RetroBat zostanie również wyłączony."
+
+msgid "Information"
+msgstr "Informacja"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "Ustawienia MediaPlayer"
+
+msgid "Available videos:"
+msgstr "Dostępne filmy:"
+
+msgid "Loop playback"
+msgstr "Zapętlone odtwarzanie"
+
+msgid "Mute after first playback"
+msgstr "Wycisz po pierwszym odtworzeniu"
+
+msgid "Mute all audio"
+msgstr "Wycisz wszystkie dźwięki"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "Opcja 'Ukryj ES podczas ładowania' została włączona. BatRun zostanie uruchomiony ponownie, aby zastosować zmiany."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "Opcja 'Ukryj ES podczas ładowania' została wyłączona. BatRun zostanie uruchomiony ponownie, aby zastosować zmiany."
+
+msgid "Restart Required"
+msgstr "Wymagane Ponowne Uruchomienie"
+
+msgid "An error occurred while saving the configuration."
+msgstr "Wystąpił błąd podczas zapisywania konfiguracji."
   

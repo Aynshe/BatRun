@@ -321,4 +321,75 @@ msgstr "このアプリケーションの単一インスタンスのみを許可
 
 msgid "Manage Applications Hide"
 msgstr "非表示アプリケーションの管理"
+
+msgid "Hide ES during loading"
+msgstr "読み込み中にESを非表示"
+
+msgid "Show splash screen on startup"
+msgstr "起動時にスプラッシュ画面を表示"
+
+msgid "Show RetroBat splash screen"
+msgstr "RetroBat画面を表示"
+
+msgid "startup"
+msgstr "起動"
+
+msgid "Shortcut"
+msgstr "ショートカット"
+
+msgid "Registry"
+msgstr "レジストリ"
+
+msgid "Task"
+msgstr "タスク"
+
+msgid "Disabled"
+msgstr "無効"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "「ロード中にESを非表示」が有効な場合、以下のオプションは自動的に無効になります："
+
+msgid "-Show splash screen on startup"
+msgstr "-起動時にスプラッシュ画面を表示"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-RetroBatスプラッシュ画面を表示"
+
+msgid "-Minimize active windows on launch"
+msgstr "-起動時にアクティブウィンドウを最小化"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-RetroBatイントロ動画も無効になります。"
+
+msgid "Information"
+msgstr "情報"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "メディアプレーヤーの設定"
+
+msgid "Available videos:"
+msgstr "利用可能な動画："
+
+msgid "Loop playback"
+msgstr "ループ再生"
+
+msgid "Mute after first playback"
+msgstr "最初の再生後にミュート"
+
+msgid "Mute all audio"
+msgstr "すべての音声をミュート"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "「ロード中にESを非表示」オプションが有効になりました。変更を適用するためBatRunを再起動します。"
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "「ロード中にESを非表示」オプションが無効になりました。変更を適用するためBatRunを再起動します。"
+
+msgid "Restart Required"
+msgstr "再起動が必要"
+
+msgid "An error occurred while saving the configuration."
+msgstr "設定の保存中にエラーが発生しました。"
   

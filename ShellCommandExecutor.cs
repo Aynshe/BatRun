@@ -13,11 +13,15 @@ namespace BatRun
         private readonly Logger logger;
         private readonly string commandsDirectory;
         private readonly ApplicationManager applicationManager;
+        private readonly IBatRunProgram? program;
+        private readonly WallpaperManager? wallpaperManager;
 
-        public ShellCommandExecutor(IniFile config, Logger logger)
+        public ShellCommandExecutor(IniFile config, Logger logger, IBatRunProgram? program = null, WallpaperManager? wallpaperManager = null)
         {
             this.config = config;
             this.logger = logger;
+            this.program = program;
+            this.wallpaperManager = wallpaperManager;
             this.applicationManager = new ApplicationManager(config, logger);
             
             // Enregistrer le fournisseur d'encodage pour Windows-1252
@@ -216,235 +220,38 @@ namespace BatRun
                 {
                     int retroBatDelay = config.ReadInt("Shell", "RetroBatDelay", 0);
                     
-                    // Attendre le délai spécifié
-                    if (retroBatDelay > 0)
+                    // Attendre le délai spécifié (ajout d'une seconde supplémentaire)
+                    if (retroBatDelay >= 0)
                     {
-                        logger.LogInfo($"Waiting {retroBatDelay} seconds before launching RetroBAT");
-                        await Task.Delay(retroBatDelay * 1000);
+                        int actualDelay = retroBatDelay + 2;
+                        logger.LogInfo($"Waiting {actualDelay} seconds before launching RetroBAT");
+                        await Task.Delay(actualDelay * 2000);
                     }
 
-                    // Lancer RetroBAT.exe en utilisant le chemin déjà récupéré
-                    try
+                    // Lancer RetroBAT en utilisant le programme principal si disponible
+                    if (program != null)
                     {
+                        await program.StartRetrobat();
+                    }
+                    else
+                    {
+                        // Fallback au lancement direct si le programme principal n'est pas disponible
                         string retroBatExe = Program.GetRetrobatPath();
-                        if (!string.IsNullOrEmpty(retroBatExe))
+                        if (!string.IsNullOrEmpty(retroBatExe) && File.Exists(retroBatExe))
                         {
-                            if (File.Exists(retroBatExe))
+                            logger.LogInfo("Launching RetroBAT");
+                            var startInfo = new ProcessStartInfo
                             {
-                                // Créer et afficher le splash sur le thread UI
-                                HotkeySplashForm? splash = null;
-                                await Task.Run(() =>
-                                {
-                                    Application.OpenForms[0]?.Invoke((MethodInvoker)delegate
-                                    {
-                                        splash = new HotkeySplashForm();
-                                        splash.Show();
-                                        Application.DoEvents(); // Forcer le rendu
-                                    });
-                                });
-
-                                // Attendre avec le splash visible
-                                await Task.Delay(3000);
-
-                                // Vérifier si la minimisation des fenêtres est activée
-                                bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", true);
-                                if (minimizeWindows)
-                                {
-                                    // Minimiser les fenêtres actives
-                                    var processes = Process.GetProcesses();
-                                    foreach (var proc in processes)
-                                    {
-                                        try
-                                        {
-                                            if (proc.MainWindowHandle != IntPtr.Zero)
-                                            {
-                                                NativeMethods.ShowWindow(proc.MainWindowHandle, 6); // SW_MINIMIZE = 6
-                                            }
-                                        }
-                                        catch { }
-                                    }
-                                }
-
-                                logger.LogInfo("Launching RetroBAT");
-                                var startInfo = new ProcessStartInfo
-                                {
-                                    FileName = retroBatExe,
-                                    UseShellExecute = false,
-                                    WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
-                                };
-                                Process.Start(startInfo);
-
-                                // Fermer le splash de manière sûre
-                                if (splash != null)
-                                {
-                                    Application.OpenForms[0]?.Invoke((MethodInvoker)delegate
-                                    {
-                                        splash.Close();
-                                        splash.Dispose();
-                                    });
-                                }
-
-                                // Attendre que EmulationStation démarre
-                                int maxAttempts = 10; // 10 tentatives
-                                int attemptDelay = 2000; // 2 secondes entre chaque tentative
-                                int currentAttempt = 0;
-                                Process? esProcess = null;
-
-                                while (currentAttempt < maxAttempts && esProcess == null)
-                                {
-                                    await Task.Delay(attemptDelay);
-                                    var processes = Process.GetProcessesByName("emulationstation");
-                                    if (processes.Length > 0 && !processes[0].HasExited)
-                                    {
-                                        esProcess = processes[0];
-                                        break;
-                                    }
-                                    currentAttempt++;
-                                }
-
-                                if (esProcess != null)
-                                {
-                                    // Attendre que la fenêtre soit créée
-                                    while (esProcess.MainWindowHandle == IntPtr.Zero && !esProcess.HasExited)
-                                    {
-                                        await Task.Delay(500);
-                                        esProcess.Refresh();
-                                    }
-
-                                    if (!esProcess.HasExited)
-                                    {
-                                        // Vérifier les paramètres d'intro
-                                        string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retroBatExe) ?? string.Empty, "retrobat.ini");
-                                        bool hasIntro = false;
-                                        int introDuration = 0;
-
-                                        if (File.Exists(retrobatIniPath))
-                                        {
-                                            var lines = File.ReadAllLines(retrobatIniPath);
-                                            string? enableIntro = lines.FirstOrDefault(line => line.StartsWith("EnableIntro="))?.Split('=')[1];
-                                            string? videoDuration = lines.FirstOrDefault(line => line.StartsWith("VideoDuration="))?.Split('=')[1];
-
-                                            if (enableIntro == "1" && videoDuration != null && int.TryParse(videoDuration, out introDuration))
-                                            {
-                                                hasIntro = true;
-                                                logger.LogInfo($"Waiting for intro video duration: {introDuration} ms");
-                                                await Task.Delay(introDuration);
-                                            }
-                                        }
-
-                                        // Mettre le focus sur EmulationStation seulement si pas de vidéo d'intro
-                                        // ou après la fin de la vidéo d'intro
-                                        if (!hasIntro || introDuration > 0)
-                                        {
-                                            if (esProcess.MainWindowHandle != IntPtr.Zero)
-                                            {
-                                                // Read values from the INI file
-                                                int focusDuration = config.ReadInt("Focus", "FocusDuration", 30000);
-                                                int focusInterval = config.ReadInt("Focus", "FocusInterval", 5000);
-                                                int elapsedTime = 0;
-
-                                                logger.LogInfo($"Starting focus sequence for EmulationStation (Duration: {focusDuration}ms, Interval: {focusInterval}ms)");
-
-                                                while (elapsedTime < focusDuration)
-                                                {
-                                                    try 
-                                                    {
-                                                        // Complete focus sequence
-                                                        var process = Process.GetProcessesByName("emulationstation").FirstOrDefault();
-                                                        IntPtr hWnd = process?.MainWindowHandle ?? IntPtr.Zero;
-                                                        
-                                                        if (hWnd != IntPtr.Zero)
-                                                        {
-                                                            // Check if process is not null before accessing its Id
-                                if (process != null)
-                                                            {
-                                                                // Allow focus change for this process
-                                                                NativeMethods.AllowSetForegroundWindow(process.Id);
-
-                                                                // Get thread IDs
-                                                                uint foregroundThread = NativeMethods.GetWindowThreadProcessId(
-                                                                    NativeMethods.GetForegroundWindow(), IntPtr.Zero);
-                                                                uint appThread = NativeMethods.GetCurrentThreadId();
-
-                                                                // Attach threads for focus
-                                                                bool threadAttached = false;
-                                                                if (foregroundThread != appThread)
-                                                                {
-                                                                    threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
-                                                                }
-
-                                                                try
-                                                                {
-                                                                    NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
-                                                                    NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
-                                                                    NativeMethods.BringWindowToTop(hWnd);
-                                                                    NativeMethods.SetForegroundWindow(hWnd);
-                                                                    
-                                                                    logger.LogInfo($"Focus applied to EmulationStation (attempt {elapsedTime/focusInterval + 1}/{focusDuration/focusInterval})");
-                                                                }
-                                                                finally
-                                                                {
-                                                                    // Detach threads if necessary
-                                                                    if (threadAttached)
-                                                                    {
-                                                                        NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
-                                                                    }
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                logger.LogError("Process is null, cannot set foreground window.");
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            logger.LogInfo("EmulationStation window handle not found");
-                                                        }
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        logger.LogError("Error setting focus to EmulationStation", ex);
-                                                    }
-
-                                                    await Task.Delay(focusInterval);
-                                                    elapsedTime += focusInterval;
-                                                }
-
-                                                logger.LogInfo("End of focus sequence for EmulationStation");
-                                            }
-                                        }
-
-                                        // Attendre la fermeture d'EmulationStation
-                                        await Task.Run(() =>
-                                        {
-                                            esProcess.WaitForExit();
-                                        });
-
-                                        // Restaurer les fenêtres si elles ont été minimisées
-                                        if (minimizeWindows)
-                                        {
-                                            applicationManager.ShowAllWindows();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    logger.LogError("EmulationStation failed to start");
-                                }
-                            }
-                            else
-                            {
-                                logger.LogError($"RetroBAT executable not found at: {retroBatExe}");
-                            }
+                                FileName = retroBatExe,
+                                UseShellExecute = false,
+                                WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
+                            };
+                            Process.Start(startInfo);
                         }
                         else
                         {
-                            logger.LogError("RetroBAT installation path not found");
+                            logger.LogError($"RetroBAT executable not found at: {retroBatExe}");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError($"Error launching RetroBAT: {ex.Message}", ex);
                     }
                 }
             }

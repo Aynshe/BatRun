@@ -145,4 +145,22 @@ msgstr "Junta-te a nós no Discord"
 
 msgid "Source code on GitHub"
 msgstr "Código-fonte no GitHub"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "As seguintes opções são automaticamente desativadas quando 'Ocultar ES durante o carregamento' está ativado:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Mostrar ecrã inicial no arranque"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-Mostrar ecrã inicial do RetroBat"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Minimizar janelas ativas ao iniciar"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-O vídeo de introdução do RetroBat também será desativado."
+
+msgid "Information"
+msgstr "Informação"
   

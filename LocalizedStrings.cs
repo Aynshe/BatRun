@@ -17,6 +17,11 @@ namespace BatRun
         public static void LoadTranslations()
         {
             _translations.Clear();
+            
+            // Add default English translations
+            _translations["Random Wallpaper"] = "Random Wallpaper";
+            // Add other default English translations here...
+
             var culture = CultureInfo.CurrentUICulture;
             _currentLanguage = culture.TwoLetterISOLanguageName.ToLower() switch
             {
@@ -35,18 +40,22 @@ namespace BatRun
                 _ => "en"
             };
 
-            string poPath = Path.Combine(AppContext.BaseDirectory, "Locales", _currentLanguage, "messages.po");
-            _logger.LogInfo($"Loading translations from: {poPath}");
-
-            if (!File.Exists(poPath))
+            // Si la langue n'est pas l'anglais, charger les traductions
+            if (_currentLanguage != "en")
             {
-                _logger.LogError($"Translation file not found: {poPath}");
-                poPath = Path.Combine(AppContext.BaseDirectory, "Locales", "en", "messages.po");
+                string poPath = Path.Combine(AppContext.BaseDirectory, "Locales", _currentLanguage, "messages.po");
+                if (File.Exists(poPath))
+                {
+                    LoadTranslationsFromFile(poPath);
+                }
             }
+        }
 
+        private static void LoadTranslationsFromFile(string filePath)
+        {
             try
             {
-                var lines = File.ReadAllLines(poPath);
+                var lines = File.ReadAllLines(filePath);
                 string? msgid = null;
 
                 foreach (var line in lines)
@@ -60,13 +69,11 @@ namespace BatRun
                         var msgstr = line.Substring(8, line.Length - 9);
                         if (!string.IsNullOrEmpty(msgstr))
                         {
-                            _translations.TryAdd(msgid, msgstr);
+                            _translations[msgid] = msgstr;
                         }
                         msgid = null;
                     }
                 }
-
-                _logger.LogInfo($"Loaded {_translations.Count} translations for {_currentLanguage}");
             }
             catch (Exception ex)
             {
@@ -76,12 +83,7 @@ namespace BatRun
 
         public static string GetString(string key)
         {
-            if (_translations.TryGetValue(key, out var translation) && !string.IsNullOrEmpty(translation))
-            {
-                return translation;
-            }
-            _logger.LogError($"Translation not found for key: {key} in language: {_currentLanguage}");
-            return key;
+            return _translations.GetValueOrDefault(key, key);
         }
 
         // Properties to access translated strings

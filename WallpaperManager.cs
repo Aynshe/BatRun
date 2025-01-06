@@ -41,7 +41,7 @@ namespace BatRun
             ".png",
             ".bmp",
             ".gif",
-            ".mp4"
+            ".mp4",
         };
 
         [DllImport("user32.dll")]
@@ -73,6 +73,11 @@ namespace BatRun
 
         private bool isGifPaused = false;
         private Image? originalGifImage;
+
+        private bool isPauseEnabled = true;
+        private bool isBlackBackgroundEnabled = true;
+
+        private Form? blackBackground;
 
         public WallpaperManager(IniFile config, Logger logger, IBatRunProgram program)
         {
@@ -121,6 +126,16 @@ namespace BatRun
             {
                 logger.LogError($"Failed to initialize LibVLC: {ex.Message}", ex);
             }
+
+            // Créer le fond noir
+            blackBackground = new Form
+            {
+                BackColor = Color.Black,
+                FormBorderStyle = FormBorderStyle.None,
+                ShowInTaskbar = false,
+                TopMost = true,
+                WindowState = FormWindowState.Maximized
+            };
         }
 
         private Screen GetTargetScreen()
@@ -163,15 +178,37 @@ namespace BatRun
                     string wallpaperPath;
                     string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
                     bool useRandom = selectedWallpaper == "Random Wallpaper" || 
-                                   selectedWallpaper == LocalizedStrings.GetString("Random Wallpaper");
+                                   selectedWallpaper == LocalizedStrings.GetString("Random Wallpaper") ||
+                                   selectedWallpaper == "Fond d'écran aléatoire";
 
                     if (useRandom)
                     {
                         wallpaperPath = GetRandomWallpaperPath();
+                        if (string.IsNullOrEmpty(wallpaperPath))
+                        {
+                            logger.LogError("No wallpaper files found for random selection");
+                            return;
+                        }
                     }
                     else if (selectedWallpaper != "None")
                     {
-                        wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Wallpapers", selectedWallpaper);
+                        if (selectedWallpaper.StartsWith("ES Videos"))
+                        {
+                            string esVideoPath = GetEmulationStationVideoPath();
+                            if (!string.IsNullOrEmpty(esVideoPath))
+                            {
+                                wallpaperPath = Path.Combine(esVideoPath, Path.GetFileName(selectedWallpaper.Replace("ES Videos\\", "")));
+                            }
+                            else
+                            {
+                                logger.LogError("EmulationStation video path not found");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            wallpaperPath = Path.Combine(AppContext.BaseDirectory, "Wallpapers", selectedWallpaper);
+                        }
                     }
                     else
                     {
@@ -285,6 +322,9 @@ namespace BatRun
                             overlayButton.Cursor = Cursors.Hand;
                         }
                     };
+
+                    // Recharger les traductions avant de créer le menu contextuel
+                    LocalizedStrings.LoadTranslations();
 
                     var contextMenu = new ContextMenuStrip();
                     var openMenuItem = new ToolStripMenuItem(LocalizedStrings.GetString("Open BatRun Interface"));
@@ -658,27 +698,91 @@ namespace BatRun
             }
         }
 
+        private string GetEmulationStationVideoPath()
+        {
+            try
+            {
+                string retroBatPath = Program.GetRetrobatPath();
+                if (!string.IsNullOrEmpty(retroBatPath))
+                {
+                    string retroBatFolder = Path.GetDirectoryName(retroBatPath) ?? string.Empty;
+                    string esVideoPath = Path.Combine(retroBatFolder, "emulationstation", ".emulationstation", "video");
+                    if (Directory.Exists(esVideoPath))
+                    {
+                        return esVideoPath;
+                    }
+                    else
+                    {
+                        logger.LogError($"EmulationStation video directory not found at: {esVideoPath}");
+                    }
+                }
+                else
+                {
+                    logger.LogError("RetroBat path is empty");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error getting EmulationStation video path: {ex.Message}", ex);
+            }
+            return string.Empty;
+        }
+
         private string GetRandomWallpaperPath()
         {
-            string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
-            string selectedFolder = config.ReadValue("Wallpaper", "SelectedFolder", "/");
-            
-            string searchPath = wallpaperFolder;
-            if (selectedFolder != "/" && !string.IsNullOrEmpty(selectedFolder))
+            try
             {
-                searchPath = Path.Combine(wallpaperFolder, selectedFolder);
+                string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
+                string selectedFolder = config.ReadValue("Wallpaper", "SelectedFolder", "/");
+                
+                List<string> allFiles = new List<string>();
+                
+                if (selectedFolder == "/")
+                {
+                    // Si le dossier racine est sélectionné, inclure tous les fichiers de tous les dossiers
+                    if (Directory.Exists(wallpaperFolder))
+                    {
+                        allFiles.AddRange(Directory.GetFiles(wallpaperFolder, "*.*", SearchOption.AllDirectories)
+                            .Where(file => SupportedExtensions.Contains(Path.GetExtension(file).ToLower())));
+                    }
+                }
+                else if (selectedFolder == "ES Videos")
+                {
+                    string esVideoPath = GetEmulationStationVideoPath();
+                    if (!string.IsNullOrEmpty(esVideoPath) && Directory.Exists(esVideoPath))
+                    {
+                        allFiles.AddRange(Directory.GetFiles(esVideoPath, "*.*", SearchOption.TopDirectoryOnly)
+                            .Where(file => SupportedExtensions.Contains(Path.GetExtension(file).ToLower())));
+                    }
+                }
+                else
+                {
+                    // Sinon, inclure uniquement les fichiers du dossier sélectionné
+                    string searchPath = Path.Combine(wallpaperFolder, selectedFolder);
+                    if (Directory.Exists(searchPath))
+                    {
+                        allFiles.AddRange(Directory.GetFiles(searchPath, "*.*", SearchOption.TopDirectoryOnly)
+                            .Where(file => SupportedExtensions.Contains(Path.GetExtension(file).ToLower())));
+                    }
+                }
+
+                if (allFiles.Count > 0)
+                {
+                    string selectedFile = allFiles[random.Next(allFiles.Count)];
+                    logger.LogInfo($"Selected random wallpaper: {selectedFile}");
+                    return selectedFile;
+                }
+                else
+                {
+                    logger.LogError($"No files found in selected folder: {selectedFolder}");
+                    return string.Empty;
+                }
             }
-
-            var imageFiles = Directory.GetFiles(searchPath, "*.*", SearchOption.TopDirectoryOnly)
-                .Where(file => SupportedExtensions.Contains(Path.GetExtension(file).ToLower()))
-                .ToArray();
-
-            if (imageFiles.Length > 0)
+            catch (Exception ex)
             {
-                return imageFiles[random.Next(imageFiles.Length)];
+                logger.LogError($"Error in GetRandomWallpaperPath: {ex.Message}", ex);
+                return string.Empty;
             }
-
-            return string.Empty;
         }
 
         private bool IsExplorerRunning()
@@ -975,7 +1079,7 @@ namespace BatRun
             else
             {
                 consecutiveChecksWithoutEmulationStation++;
-                logger.LogInfo($"EmulationStation not detected ({consecutiveChecksWithoutEmulationStation}/{REQUIRED_CHECKS_BEFORE_RESUME} checks)");
+                //logger.LogInfo($"EmulationStation not detected ({consecutiveChecksWithoutEmulationStation}/{REQUIRED_CHECKS_BEFORE_RESUME} checks)");
                 
                 if (consecutiveChecksWithoutEmulationStation >= REQUIRED_CHECKS_BEFORE_RESUME)
                 {
@@ -1090,6 +1194,56 @@ namespace BatRun
             catch (Exception ex)
             {
                 logger.LogError($"Error loading shortcuts: {ex.Message}", ex);
+            }
+        }
+
+        public void DisablePauseAndBlackBackground()
+        {
+            isPauseEnabled = false;
+            isBlackBackgroundEnabled = false;
+            if (mediaPlayer != null)
+            {
+                mediaPlayer.Play();
+            }
+            if (blackBackground != null)
+            {
+                blackBackground.Hide();
+            }
+        }
+
+        public void EnablePauseAndBlackBackground()
+        {
+            isPauseEnabled = true;
+            isBlackBackgroundEnabled = true;
+        }
+
+        public void BringToFront()
+        {
+            if (wallpaperForm != null)
+            {
+                wallpaperForm.BringToFront();
+            }
+        }
+
+        public void SendToBack()
+        {
+            if (wallpaperForm != null)
+            {
+                wallpaperForm.SendToBack();
+            }
+        }
+
+        private void PauseWallpaper()
+        {
+            if (!isPauseEnabled) return;
+
+            if (mediaPlayer != null)
+            {
+                mediaPlayer.Pause();
+            }
+            if (isBlackBackgroundEnabled && blackBackground != null)
+            {
+                blackBackground.Show();
             }
         }
     }

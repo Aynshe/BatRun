@@ -43,6 +43,9 @@ namespace BatRun
             this.checkBoxEnableVibration = new System.Windows.Forms.CheckBox();
             this.checkBoxMinimizeWindows = new System.Windows.Forms.CheckBox();
             this.checkBoxEnableLogging = new System.Windows.Forms.CheckBox();
+            this.checkBoxHideESLoading = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowSplashScreen = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowHotkeySplash = new System.Windows.Forms.CheckBox();
             
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
@@ -121,9 +124,12 @@ namespace BatRun
             this.groupBoxWindows.Controls.Add(this.checkBoxMinimizeWindows);
             this.groupBoxWindows.Controls.Add(this.checkBoxEnableVibration);
             this.groupBoxWindows.Controls.Add(this.checkBoxEnableLogging);
+            this.groupBoxWindows.Controls.Add(this.checkBoxHideESLoading);
+            this.groupBoxWindows.Controls.Add(this.checkBoxShowSplashScreen);
+            this.groupBoxWindows.Controls.Add(this.checkBoxShowHotkeySplash);
             this.groupBoxWindows.Location = new System.Drawing.Point(12, 118);
             this.groupBoxWindows.Name = "groupBoxWindows";
-            this.groupBoxWindows.Size = new System.Drawing.Size(380, 140);
+            this.groupBoxWindows.Size = new System.Drawing.Size(380, 215);
             this.groupBoxWindows.TabIndex = 1;
             this.groupBoxWindows.TabStop = false;
             this.groupBoxWindows.Text = "Windows Settings";
@@ -144,10 +150,9 @@ namespace BatRun
             this.comboBoxStartupMethod.Size = new System.Drawing.Size(190, 23);
             this.comboBoxStartupMethod.TabIndex = 6;
             this.comboBoxStartupMethod.Items.AddRange(new object[] {
-                "Disabled",
-                "Shortcut",
-                "Registry",
-                "Task"
+                LocalizedStrings.GetString("Disabled"),
+                LocalizedStrings.GetString("Shortcut"),
+                LocalizedStrings.GetString("Registry")
             });
             this.comboBoxStartupMethod.SelectedIndex = 0;
 
@@ -175,6 +180,30 @@ namespace BatRun
             this.checkBoxEnableLogging.TabIndex = 2;
             this.checkBoxEnableLogging.Text = "Enable logging (requires restart)";
 
+            // checkBoxHideESLoading
+            this.checkBoxHideESLoading.AutoSize = true;
+            this.checkBoxHideESLoading.Location = new System.Drawing.Point(15, 125);
+            this.checkBoxHideESLoading.Name = "checkBoxHideESLoading";
+            this.checkBoxHideESLoading.Size = new System.Drawing.Size(180, 19);
+            this.checkBoxHideESLoading.TabIndex = 8;
+            this.checkBoxHideESLoading.Text = "Hide ES during loading";
+
+            // checkBoxShowSplashScreen
+            this.checkBoxShowSplashScreen.AutoSize = true;
+            this.checkBoxShowSplashScreen.Location = new System.Drawing.Point(15, 150);
+            this.checkBoxShowSplashScreen.Name = "checkBoxShowSplashScreen";
+            this.checkBoxShowSplashScreen.Size = new System.Drawing.Size(180, 19);
+            this.checkBoxShowSplashScreen.TabIndex = 9;
+            this.checkBoxShowSplashScreen.Text = "Show splash screen on startup";
+
+            // checkBoxShowHotkeySplash
+            this.checkBoxShowHotkeySplash.AutoSize = true;
+            this.checkBoxShowHotkeySplash.Location = new System.Drawing.Point(15, 175);
+            this.checkBoxShowHotkeySplash.Name = "checkBoxShowHotkeySplash";
+            this.checkBoxShowHotkeySplash.Size = new System.Drawing.Size(180, 19);
+            this.checkBoxShowHotkeySplash.TabIndex = 10;
+            this.checkBoxShowHotkeySplash.Text = "Show RetroBat splash screen";
+
             // buttonSave
             this.buttonSave.Location = new System.Drawing.Point(236, 265);
             this.buttonSave.Name = "buttonSave";
@@ -194,7 +223,7 @@ namespace BatRun
             // ConfigurationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(405, 295);
+            this.ClientSize = new System.Drawing.Size(405, 320);
             this.Controls.Add(this.buttonCancel);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.groupBoxWindows);
@@ -230,6 +259,9 @@ namespace BatRun
         private System.Windows.Forms.CheckBox checkBoxEnableVibration;
         private System.Windows.Forms.CheckBox checkBoxMinimizeWindows;
         private System.Windows.Forms.CheckBox checkBoxEnableLogging;
+        private System.Windows.Forms.CheckBox checkBoxHideESLoading;
+        private System.Windows.Forms.CheckBox checkBoxShowSplashScreen;
+        private System.Windows.Forms.CheckBox checkBoxShowHotkeySplash;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonCancel;
     }

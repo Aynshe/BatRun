@@ -26,7 +26,8 @@ namespace BatRun
             // Appliquer le style sombre
             FormStyles.ApplyDarkStyle(this);
             
-            // Mettre à jour les textes
+            // Recharger les traductions avant de mettre à jour les textes
+            LocalizedStrings.LoadTranslations();
             UpdateLocalizedTexts();
             
             RefreshJoystickList();

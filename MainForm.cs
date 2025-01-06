@@ -19,6 +19,7 @@ namespace BatRun
         void SafeExecute(Action action);
         Task CheckForUpdates();
         string GetAppVersion();
+        Task StartRetrobat();
     }
 
     public partial class MainForm : Form
@@ -486,7 +487,7 @@ namespace BatRun
             // Bouton Shell avec une nouvelle couleur
             var shellButton = CreateStyledButton("Shell Launcher", Color.FromArgb(104, 33, 122));
             shellButton.Click += (s, e) => mainProgram.SafeExecute(() => {
-                var shellConfigForm = new ShellConfigurationForm();
+                var shellConfigForm = new ShellConfigurationForm(config, logger);
                 shellConfigForm.ShowDialog();
             });
             shellLayout.Controls.Add(shellButton, 0, 1);

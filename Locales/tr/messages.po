@@ -1,0 +1,33 @@
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "ES'yi yükleme sırasında gizle etkinleştirildiğinde aşağıdaki seçenekler otomatik olarak devre dışı bırakılır:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Başlangıçta açılış ekranını göster"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-RetroBat açılış ekranını göster"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Başlatırken aktif pencereleri küçült"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-RetroBat giriş videosu da devre dışı bırakılacak."
+
+msgid "Information"
+msgstr "Bilgi"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "MediaPlayer Ayarları"
+
+msgid "Available videos:"
+msgstr "Mevcut videolar:"
+
+msgid "Loop playback"
+msgstr "Döngüsel oynatma"
+
+msgid "Mute after first playback"
+msgstr "İlk oynatmadan sonra sessize al"
+
+msgid "Mute all audio"
+msgstr "Tüm sesi kapat" 

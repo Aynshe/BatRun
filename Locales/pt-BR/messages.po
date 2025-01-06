@@ -287,4 +287,22 @@ msgstr "Permitir apenas uma instância deste aplicativo"
 
 msgid "Manage Applications Hide"
 msgstr "Gerenciar aplicativos ocultos"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "As seguintes opções são automaticamente desativadas quando 'Ocultar ES durante o carregamento' está ativado:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Mostrar tela inicial na inicialização"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-Mostrar tela inicial do RetroBat"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Minimizar janelas ativas ao iniciar"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-O vídeo de introdução do RetroBat também será desativado."
+
+msgid "Information"
+msgstr "Informação"
   

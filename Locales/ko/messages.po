@@ -247,4 +247,76 @@ msgid "Allow only one instance of this application"
 msgstr "이 응용 프로그램의 인스턴스 하나만 허용"
 
 msgid "Manage Applications Hide"
-msgstr "숨겨진 응용 프로그램 관리" 
+msgstr "숨겨진 응용 프로그램 관리"
+
+msgid "Hide ES during loading"
+msgstr "로딩 중 ES 숨기기"
+
+msgid "Show splash screen on startup"
+msgstr "시작 시 스플래시 화면 표시"
+
+msgid "Show hotkey splash screen"
+msgstr "RetroBat 화면 표시"
+
+msgid "startup"
+msgstr "시작"
+
+msgid "Shortcut"
+msgstr "바로가기"
+
+msgid "Registry"
+msgstr "레지스트리"
+
+msgid "Task"
+msgstr "작업"
+
+msgid "Disabled"
+msgstr "비활성화"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "로딩 중 ES 숨기기가 활성화되면 다음 옵션이 자동으로 비활성화됩니다:"
+
+msgid "-Show splash screen on startup"
+msgstr "-시작 시 스플래시 화면 표시"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-RetroBat 스플래시 화면 표시"
+
+msgid "-Minimize active windows on launch"
+msgstr "-실행 시 활성 창 최소화"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-RetroBat 인트로 비디오도 비활성화됩니다."
+
+msgid "Information"
+msgstr "정보"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "미디어 플레이어 설정"
+
+msgid "Available videos:"
+msgstr "사용 가능한 동영상:"
+
+msgid "Loop playback"
+msgstr "반복 재생"
+
+msgid "Mute after first playback"
+msgstr "첫 재생 후 음소거"
+
+msgid "Mute all audio"
+msgstr "모든 오디오 음소거"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "'로딩 중 ES 숨기기' 옵션이 활성화되었습니다. 변경 사항을 적용하기 위해 BatRun이 다시 시작됩니다."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "'로딩 중 ES 숨기기' 옵션이 비활성화되었습니다. 변경 사항을 적용하기 위해 BatRun이 다시 시작됩니다."
+
+msgid "Restart Required"
+msgstr "재시작 필요"
+
+msgid "An error occurred while saving the configuration."
+msgstr "설정을 저장하는 중 오류가 발생했습니다."
+ 

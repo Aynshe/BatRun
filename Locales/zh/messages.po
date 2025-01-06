@@ -32,4 +32,46 @@ msgid "Shell Launcher"
 msgstr "Shell启动器"
 
 msgid "Menu Shell"
-msgstr "Shell菜单" 
+msgstr "Shell菜单"
+
+msgid "Hide ES during loading"
+msgstr "加载时隐藏ES"
+
+msgid "Show splash screen on startup"
+msgstr "启动时显示启动画面"
+
+msgid "Show hotkey splash screen"
+msgstr "显示RetroBat画面"
+
+msgid "startup"
+msgstr "启动"
+
+msgid "Shortcut"
+msgstr "快捷方式"
+
+msgid "Registry"
+msgstr "注册表"
+
+msgid "Task"
+msgstr "任务"
+
+msgid "Disabled"
+msgstr "禁用"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "启用"加载时隐藏ES"后，以下选项将自动禁用："
+
+msgid "-Show splash screen on startup"
+msgstr "-启动时显示启动画面"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-显示RetroBat启动画面"
+
+msgid "-Minimize active windows on launch"
+msgstr "-启动时最小化活动窗口"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-RetroBat介绍视频也将被禁用。"
+
+msgid "Information"
+msgstr "信息" 

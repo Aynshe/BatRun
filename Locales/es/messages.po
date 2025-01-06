@@ -216,4 +216,75 @@ msgstr "Cancelar"
 
 msgid "Manage Applications Hide"
 msgstr "Gestionar aplicaciones ocultas"
+
+msgid "Hide ES during loading"
+msgstr "Ocultar ES durante la carga"
+
+msgid "Show splash screen on startup"
+msgstr "Mostrar pantalla de inicio"
+
+msgid "Show hotkey splash screen"
+msgstr "Mostrar pantalla RetroBat"
+
+msgid "startup"
+msgstr "inicio"
+
+msgid "Shortcut"
+msgstr "Acceso directo"
+
+msgid "Registry"
+msgstr "Registro"
+
+msgid "Task"
+msgstr "Tarea"
+
+msgid "Disabled"
+msgstr "Desactivado"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "Las siguientes opciones se desactivan automáticamente cuando se activa 'Ocultar ES durante la carga':"
+
+msgid "-Show splash screen on startup"
+msgstr "-Mostrar pantalla de inicio al arrancar"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-Mostrar pantalla de inicio de RetroBat"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Minimizar ventanas activas al iniciar"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-El video de introducción de RetroBat también se desactivará."
+
+msgid "Information"
+msgstr "Información"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "Configuración del MediaPlayer"
+
+msgid "Available videos:"
+msgstr "Vídeos disponibles:"
+
+msgid "Loop playback"
+msgstr "Reproducción en bucle"
+
+msgid "Mute after first playback"
+msgstr "Silenciar después de la primera reproducción"
+
+msgid "Mute all audio"
+msgstr "Silenciar todo el audio"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "La opción 'Ocultar ES durante la carga' ha sido activada. BatRun se reiniciará para aplicar los cambios."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "La opción 'Ocultar ES durante la carga' ha sido desactivada. BatRun se reiniciará para aplicar los cambios."
+
+msgid "Restart Required"
+msgstr "Reinicio Requerido"
+
+msgid "An error occurred while saving the configuration."
+msgstr "Se produjo un error al guardar la configuración."
  

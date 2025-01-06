@@ -6,6 +6,10 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Diagnostics;
+using System.Security.Principal;
+using Microsoft.Win32;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace BatRun
 {
@@ -33,11 +37,19 @@ namespace BatRun
         private CheckBox? launchRetroBatCheckBox;
         private NumericUpDown? retroBatDelayNumeric;
         private Label retroBatDelayNumericLabel = new();
+        private readonly Logger logger;
+        private readonly ConfigurationForm? configForm;
 
-        public ShellConfigurationForm()
+        public ShellConfigurationForm(IniFile config, Logger logger, ConfigurationForm? configForm = null)
         {
             commands = [];
-            config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
+            this.config = config;
+            this.logger = logger;
+            this.configForm = configForm;
+            
+            // Recharger les traductions avant de mettre à jour les textes
+            LocalizedStrings.LoadTranslations();
+            UpdateLocalizedTexts();
             
             // Enregistrer le fournisseur d'encodage pour Windows-1252
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
@@ -47,7 +59,6 @@ namespace BatRun
                 Directory.CreateDirectory(commandsDirectory);
 
             InitializeComponent();
-            UpdateLocalizedTexts();
             LoadCommands();
 
             // Charger la configuration globale de RetroBAT
@@ -1063,6 +1074,49 @@ try {
             {
                 try
                 {
+                    // Sauvegarder l'état dans la configuration
+                    config.WriteValue("Shell", "EnableCustomUI", checkBox.Checked.ToString());
+
+                    // Gérer directement la suppression du démarrage automatique si activé
+                    if (checkBox.Checked)
+                    {
+                        string startupPath = Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.Startup),
+                            "BatRun.lnk");
+                            
+                        // Supprimer le raccourci de démarrage s'il existe
+                        if (File.Exists(startupPath))
+                        {
+                            try
+                            {
+                                File.Delete(startupPath);
+                                logger.LogInfo("Startup shortcut removed");
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogError($"Error removing startup shortcut: {ex.Message}");
+                            }
+                        }
+
+                        // Supprimer la clé de registre de démarrage
+                        try
+                        {
+                            using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
+                            if (key != null)
+                            {
+                                key.DeleteValue("BatRun", false);
+                                logger.LogInfo("Startup registry key removed");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError($"Error removing startup registry key: {ex.Message}");
+                        }
+                    }
+
+                    // Notifier ConfigurationForm du changement
+                    configForm?.UpdateStartupState(checkBox.Checked);
+
                     // Demander confirmation avant de procéder
                     var result = MessageBox.Show(
                         checkBox.Checked

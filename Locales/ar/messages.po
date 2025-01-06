@@ -1,0 +1,33 @@
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "A következő opciók automatikusan letiltásra kerülnek, amikor az 'ES elrejtése betöltés közben' engedélyezve van:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Kezdőképernyő megjelenítése indításkor"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-RetroBat kezdőképernyő megjelenítése"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Aktív ablakok minimalizálása indításkor"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-A RetroBat bevezető videó is letiltásra kerül."
+
+msgid "Information"
+msgstr "Információ"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "إعدادات مشغل الوسائط"
+
+msgid "Available videos:"
+msgstr "مقاطع الفيديو المتاحة:"
+
+msgid "Loop playback"
+msgstr "تكرار التشغيل"
+
+msgid "Mute after first playback"
+msgstr "كتم الصوت بعد التشغيل الأول"
+
+msgid "Mute all audio"
+msgstr "كتم كل الأصوات" 

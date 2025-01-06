@@ -20,4 +20,51 @@ msgid "Test Wallpaper"
 msgstr "Testar papel de parede"
 
 msgid "Close Wallpaper"
-msgstr "Fechar papel de parede" 
+msgstr "Fechar papel de parede"
+
+msgid "The following options are automatically disabled when Hide ES during loading is enabled:"
+msgstr "As seguintes opções são automaticamente desativadas quando 'Ocultar ES durante o carregamento' está ativado:"
+
+msgid "-Show splash screen on startup"
+msgstr "-Mostrar tela inicial na inicialização"
+
+msgid "-Show RetroBat splash screen"
+msgstr "-Mostrar tela inicial do RetroBat"
+
+msgid "-Minimize active windows on launch"
+msgstr "-Minimizar janelas ativas ao iniciar"
+
+msgid "-RetroBat intro video will also be disabled."
+msgstr "-O vídeo de introdução do RetroBat também será desativado."
+
+msgid "Information"
+msgstr "Informação"
+
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "Configurações do MediaPlayer"
+
+msgid "Available videos:"
+msgstr "Vídeos disponíveis:"
+
+msgid "Loop playback"
+msgstr "Reprodução em loop"
+
+msgid "Mute after first playback"
+msgstr "Silenciar após primeira reprodução"
+
+msgid "Mute all audio"
+msgstr "Silenciar todo o áudio"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "A opção 'Ocultar ES durante o carregamento' foi ativada. O BatRun será reiniciado para aplicar as alterações."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "A opção 'Ocultar ES durante o carregamento' foi desativada. O BatRun será reiniciado para aplicar as alterações."
+
+msgid "Restart Required"
+msgstr "Reinicialização Necessária"
+
+msgid "An error occurred while saving the configuration."
+msgstr "Ocorreu um erro ao salvar a configuração." 

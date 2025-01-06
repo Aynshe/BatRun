@@ -147,8 +147,8 @@ namespace BatRun
         private readonly LoggingConfig _loggingConfig = new LoggingConfig();
         private MainForm? mainForm;
 
-        // Ajout de DInputHandler
-        private DInputHandler dInputHandler;
+        // Ajout de DInputHandler avec initialisation
+        private DInputHandler dInputHandler = new DInputHandler(new Logger("BatRun.log"));
 
         private class GameController
         {
@@ -195,13 +195,42 @@ namespace BatRun
 
         private WallpaperManager? wallpaperManager;
 
-        public const string APP_VERSION = "2.0.0";
+        public const string APP_VERSION = "2.1.0";
+
+        private bool hideESLoading;
+        private static int esSystemSelectCount = 0;
+        private static DateTime lastESSystemSelectTime = DateTime.MinValue;
+        private static bool isESStarting = false;
+        private static readonly object esLockObject = new();
+
+        private bool skipFocusSequence = false;
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        private ESLoadingPlayer? esLoadingPlayer;
+
+        private DateTime lastStartButtonTime = DateTime.MinValue;
+        private const int START_BUTTON_COOLDOWN_MS = 1000; // 1 seconde de cooldown
 
         public Program()
         {
+            // Initialisation minimale
             config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
             logger = new Logger("BatRun.log");
-            
+            hideESLoading = config.ReadBool("Windows", "HideESLoading", false);
+            directInputMappings = new List<ButtonMapping>();
+
+            // Initialize RetroBat path first
+            InitializeRetrobatPath();
+            logger.Log("Starting BatRun");
+
+            // Démarrer l'écoute des signaux ES_System_select
+            if (hideESLoading)
+            {
+                StartESSystemSelectListener();
+            }
+
             // Initialize memory management
             InitializeMemoryManagement();
 
@@ -210,7 +239,7 @@ namespace BatRun
             {
                 try
                 {
-                    var shellExecutor = new ShellCommandExecutor(config, logger);
+                    var shellExecutor = new ShellCommandExecutor(config, logger, this, wallpaperManager);
                     await shellExecutor.ExecuteShellCommandsAsync();
                 }
                 catch (Exception ex)
@@ -237,18 +266,13 @@ namespace BatRun
                 logger.LogError($"Error loading icon: {ex.Message}", ex);
             }
 
-            // Initialiser le WallpaperManager
+            // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
             wallpaperManager = new WallpaperManager(config, logger, this);
 
             // Vérifier si explorer.exe est en cours d'exécution
             CheckExplorerAndInitialize();
 
-            logger.Log("Starting BatRun");
-            
-            // Initialize RetroBat path first
-            InitializeRetrobatPath();
-            
-            // Then initialize controllers with the correct path
+            // Initialize controllers
             InitializeControllers();
 
             // Initialisation de DInputHandler
@@ -260,27 +284,30 @@ namespace BatRun
             // Create a timer to check EmulationStation status
             var checkTimer = new System.Windows.Forms.Timer();
             checkTimer.Interval = 5000; // Check every 5 seconds
-            bool wasRunning = false; // Variable pour stocker l'état précédent
+            bool wasRunning = false;
             checkTimer.Tick += (sender, e) =>
             {
                 bool isRunning = IsEmulationStationRunning();
-                if (wasRunning && !isRunning)
+                bool shouldPause = isRunning || (esLoadingPlayer != null && hideESLoading);
+
+                if (wasRunning && !shouldPause)
                 {
-                    logger.Log("EmulationStation has stopped, resuming polling and media");
+                    logger.Log("EmulationStation has stopped and no loading video, resuming polling and media");
                     wallpaperManager?.ResumeMedia();
                     StartPolling();
                 }
-                else if (!wasRunning && isRunning)
+                else if (!wasRunning && shouldPause)
                 {
-                    logger.Log("EmulationStation has started, pausing media");
-                    wallpaperManager?.PauseMedia();
+                    logger.Log("EmulationStation has started or loading video is playing, pausing media");
+                    if (wallpaperManager != null)
+                    {
+                        wallpaperManager.EnablePauseAndBlackBackground();
+                        wallpaperManager.PauseMedia();
+                    }
                 }
-                wasRunning = isRunning; // Mettre à jour l'état précédent
+                wasRunning = shouldPause;
             };
             checkTimer.Start();
-
-            directInputMappings = new List<ButtonMapping>();
-            directInputMapping = new ButtonMapping();
         }
 
         private void InitializeMemoryManagement()
@@ -1070,20 +1097,51 @@ namespace BatRun
                     string retrobatPath = GetRetrobatPath();
                     if (!string.IsNullOrEmpty(retrobatPath))
                     {
-                        // Créer et afficher le splash sur le thread UI
-                        HotkeySplashForm? splash = null;
-                        await Task.Run(() =>
+                        if (hideESLoading)
                         {
-                            this.Invoke((MethodInvoker)delegate
-                            {
-                                splash = new HotkeySplashForm();
-                                splash.Show();
-                                Application.DoEvents(); // Forcer le rendu
-                            });
-                        });
+                            isESStarting = true;
+                            esSystemSelectCount = 0;
+                            lastESSystemSelectTime = DateTime.MinValue;
 
-                        // Attendre avec le splash visible
-                        await Task.Delay(2500);
+                            // Make sure wallpaper is paused before starting the video
+                            if (wallpaperManager != null)
+                            {
+                                wallpaperManager.EnablePauseAndBlackBackground();
+                                wallpaperManager.PauseMedia();
+                            }
+
+                            // Start loading video if configured
+                            esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager!);
+                            string videoPath = Path.Combine(AppContext.BaseDirectory, "ESloading", config.ReadValue("Windows", "ESLoadingVideo", "None"));
+                            await esLoadingPlayer.PlayLoadingVideo(videoPath);
+
+                            // Force WallpaperManager to front without disabling pause
+                            wallpaperManager?.BringToFront();
+
+                            // Disable focus sequence
+                            skipFocusSequence = true;
+                        }
+
+                        // Vérifier si l'affichage du splash est activé
+                        bool showHotkeySplash = config.ReadBool("Windows", "ShowHotkeySplash", true);
+                        HotkeySplashForm? splash = null;
+
+                        if (showHotkeySplash)
+                        {
+                            // Créer et afficher le splash sur le thread UI
+                            await Task.Run(() =>
+                            {
+                                this.Invoke((MethodInvoker)delegate
+                                {
+                                    splash = new HotkeySplashForm();
+                                    splash.Show();
+                                    Application.DoEvents(); // Forcer le rendu
+                                });
+                            });
+
+                            // Attendre avec le splash visible
+                            await Task.Delay(2500);
+                        }
 
                         MinimizeActiveWindows();
 
@@ -1095,7 +1153,14 @@ namespace BatRun
                         };
                         Process.Start(startInfo);
 
-                        // Fermer le splash de manière sre
+                        if (hideESLoading)
+                        {
+                            // Attendre au maximum 10 secondes pour les signaux ES_System_select
+                            await Task.Delay(10000);
+                            isESStarting = false;
+                        }
+
+                        // Fermer le splash de manière sûre
                         if (splash != null)
                         {
                             this.Invoke((MethodInvoker)delegate
@@ -1294,6 +1359,13 @@ namespace BatRun
 
         private async Task SetEmulationStationFocus()
         {
+            // Si skipFocusSequence est true, ne pas exécuter la séquence de focus
+            if (skipFocusSequence)
+            {
+                logger.LogInfo("Focus sequence skipped due to Hide ES during loading option");
+                return;
+            }
+
             // Read values from the INI file
             int focusDuration = config.ReadInt("Focus", "FocusDuration", 30000);
             int focusInterval = config.ReadInt("Focus", "FocusInterval", 5000);
@@ -1418,7 +1490,7 @@ namespace BatRun
                 var configMenuItem = new ToolStripMenuItem(strings.Configuration);
                 configMenuItem.DropDownItems.Add(strings.GeneralSettings, null, (s, e) => SafeExecute(ShowConfigWindow));
                 configMenuItem.DropDownItems.Add(strings.ControllerMappings, null, (s, e) => SafeExecute(OpenMappingConfiguration));
-                configMenuItem.DropDownItems.Add(strings.ShellLauncher, null, (s, e) => SafeExecute(ShowShellConfigWindow));
+                configMenuItem.DropDownItems.Add(strings.ShellLauncher, null, (s, e) => SafeExecute(() => ShowShellConfigWindow(null)));
                 contextMenu.Items.Add(configMenuItem);
                 
                 // Groupe Aide
@@ -2095,7 +2167,7 @@ namespace BatRun
             }
         }
 
-        public void ShowShellConfigWindow()
+        public void ShowShellConfigWindow(ConfigurationForm? configForm = null)
         {
             try 
             {
@@ -2104,7 +2176,7 @@ namespace BatRun
                     return;
                 }
 
-                var shellConfigForm = new ShellConfigurationForm();
+                var shellConfigForm = new ShellConfigurationForm(config, logger, configForm);
                 shellConfigForm.StartPosition = FormStartPosition.CenterScreen;
                 shellConfigForm.Show();
             }
@@ -2114,9 +2186,150 @@ namespace BatRun
             }
         }
 
+        private void StartESSystemSelectListener()
+        {
+            Task.Run(() =>
+            {
+                using (var eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, "BatRun_ES_System_Select"))
+                {
+                    while (true)
+                    {
+                        // Attendre le signal
+                        eventWaitHandle.WaitOne();
+
+                        // Traiter le signal dans l'instance principale
+                        this.Invoke(new Action(() =>
+                        {
+                            if (hideESLoading && isESStarting && esSystemSelectCount < 5)
+                            {
+                                HandleESSystemSelect();
+                            }
+                        }));
+                    }
+                }
+            });
+        }
+
+        private void HandleESSystemSelect()
+        {
+            try
+            {
+                lock (esLockObject)
+                {
+                    DateTime now = DateTime.Now;
+                    if ((now - lastESSystemSelectTime).TotalSeconds > 10)
+                    {
+                        // Réinitialiser le compteur si plus de 10 secondes se sont écoulées
+                        esSystemSelectCount = 0;
+                        lastESSystemSelectTime = now;
+                    }
+
+                    if (esSystemSelectCount < 5)
+                    {
+                        esSystemSelectCount++;
+                        lastESSystemSelectTime = now;
+                        logger.LogInfo($"Received ES_System_select signal ({esSystemSelectCount}/5)");
+
+                        // S'assurer que ESLoadingPlayer est fermé
+                        if (esLoadingPlayer != null)
+                        {
+                            logger.LogInfo("Closing ESLoadingPlayer from ES_System_select signal");
+                            esLoadingPlayer.CloseVideo();
+                            esLoadingPlayer.Dispose();
+                            esLoadingPlayer = null;
+                        }
+
+                        // Réactiver la mise en pause du mediaplayer et le fond noir
+                        if (wallpaperManager != null)
+                        {
+                            wallpaperManager.EnablePauseAndBlackBackground();
+                            wallpaperManager.SendToBack();
+                        }
+
+                        // Appliquer le focus sur EmulationStation
+                        FocusEmulationStation();
+
+                        // Si on atteint le maximum, désactiver isESStarting
+                        if (esSystemSelectCount >= 5)
+                        {
+                            isESStarting = false;
+                            logger.LogInfo("Maximum ES_System_select signals reached, stopping listener");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error handling ES system select: {ex.Message}", ex);
+            }
+        }
+
+        private void FocusEmulationStation()
+        {
+            try
+            {
+                Process[] processes = Process.GetProcessesByName("EmulationStation");
+                if (processes.Length > 0 && !processes[0].HasExited)
+                {
+                    IntPtr hWnd = processes[0].MainWindowHandle;
+                    if (hWnd != IntPtr.Zero)
+                    {
+                        // Allow focus change for this process
+                        NativeMethods.AllowSetForegroundWindow(processes[0].Id);
+
+                        // Get thread IDs
+                        uint foregroundThread = NativeMethods.GetWindowThreadProcessId(
+                            NativeMethods.GetForegroundWindow(), IntPtr.Zero);
+                        uint appThread = NativeMethods.GetCurrentThreadId();
+
+                        // Attach threads for focus
+                        bool threadAttached = false;
+                        if (foregroundThread != appThread)
+                        {
+                            threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
+                        }
+
+                        try
+                        {
+                            NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
+                            NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
+                            NativeMethods.BringWindowToTop(hWnd);
+                            NativeMethods.SetForegroundWindow(hWnd);
+                            
+                            logger.LogInfo("Focus forcefully applied to EmulationStation");
+                        }
+                        finally
+                        {
+                            // Detach threads if necessary
+                            if (threadAttached)
+                            {
+                                NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error focusing EmulationStation: {ex.Message}");
+            }
+        }
+
         [STAThread]
         static void Main()
         {
+            // Vérifier les arguments de ligne de commande en premier
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1 && args[1].Trim() == "-ES_System_select")
+            {
+                // Au lieu de créer une nouvelle instance, envoyer un signal à l'instance existante
+                using (var eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, "BatRun_ES_System_Select"))
+                {
+                    eventWaitHandle.Set(); // Envoyer le signal
+                    return; // Quitter immédiatement
+                }
+            }
+
             Logger? logger = null;
             try 
             {
@@ -2125,9 +2338,10 @@ namespace BatRun
                 Application.ThreadException += ApplicationOnThreadException;
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 
-                // Initialize logger as early as possible
-                logger = new Logger("BatRun.log");
-                logger.LogInfo("Application starting");
+                // Initialize logger as early as possible with a new file
+                logger = new Logger("BatRun.log", appendToExisting: false);
+                logger.ClearLogFile(); // S'assurer que le fichier est bien nouveau
+                logger.LogInfo("=== BatRun Starting - Version " + APP_VERSION + " ===");
 
                 // Prevent multiple instances
                 bool createdNew;
@@ -2145,21 +2359,31 @@ namespace BatRun
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
 
-                    // Créer et afficher le splash screen
-                    var splash = new SplashForm();
-                    splash.Show();
-                    Application.DoEvents(); // Force le rendu immédiat
+                    // Créer et afficher le splash screen seulement si activé dans la configuration
+                    var config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
+                    bool showSplashScreen = config.ReadBool("Windows", "ShowSplashScreen", true);
 
-                    // Créer un timer pour fermer le splash après 4 secondes
-                    var splashTimer = new System.Windows.Forms.Timer();
-                    splashTimer.Interval = 4000; // 4 secondes
-                    splashTimer.Tick += (s, e) =>
+                    SplashForm? splash = null;
+                    System.Windows.Forms.Timer? splashTimer = null;
+
+                    if (showSplashScreen)
                     {
-                        splashTimer.Stop();
-                        splash.Close();
-                        splash.Dispose();
-                    };
-                    splashTimer.Start();
+                        // Créer et afficher le splash screen
+                        splash = new SplashForm();
+                        splash.Show();
+                        Application.DoEvents(); // Force le rendu immédiat
+
+                        // Créer un timer pour fermer le splash après 4 secondes
+                        splashTimer = new System.Windows.Forms.Timer();
+                        splashTimer.Interval = 4000; // 4 secondes
+                        splashTimer.Tick += (s, e) =>
+                        {
+                            splashTimer.Stop();
+                            splash.Close();
+                            splash.Dispose();
+                        };
+                        splashTimer.Start();
+                    }
 
                     // Créer et configurer le programme principal en arrière-plan
                     var program = new Program();
@@ -2281,8 +2505,158 @@ namespace BatRun
                 CleanupControllers();
                 ForceGarbageCollection();
                 wallpaperManager?.CloseWallpaper();
+                esLoadingPlayer?.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        public static void SetESStartingState(bool state)
+        {
+            lock (esLockObject)
+            {
+                isESStarting = state;
+                if (state)
+                {
+                    // Réinitialiser les compteurs au démarrage
+                    esSystemSelectCount = 0;
+                    lastESSystemSelectTime = DateTime.MinValue;
+                }
+            }
+        }
+
+        // Ajouter la gestion du bouton Start pour arrêter la vidéo
+        private void HandleControllerInput(GameControllerButtons buttons)
+        {
+            // Vérifier si le bouton Start a été pressé récemment
+            if (buttons.HasFlag(GameControllerButtons.Start))
+            {
+                var now = DateTime.Now;
+                if ((now - lastStartButtonTime).TotalMilliseconds < START_BUTTON_COOLDOWN_MS)
+                {
+                    logger.LogInfo("Start button ignored due to cooldown");
+                    return;
+                }
+                lastStartButtonTime = now;
+
+                if (esLoadingPlayer != null)
+                {
+                    esLoadingPlayer.CloseVideo();
+                    esLoadingPlayer.Dispose();
+                    esLoadingPlayer = null;
+                    return;
+                }
+            }
+
+            // Gérer les autres entrées du contrôleur ici
+        }
+
+        public async Task StartRetrobat()
+        {
+            try
+            {
+                lock (launchLock)
+                {
+                    if ((DateTime.Now - lastLaunchTime).TotalMilliseconds < LAUNCH_COOLDOWN_MS)
+                    {
+                        logger.LogInfo("Launch request ignored due to cooldown");
+                        return;
+                    }
+                    lastLaunchTime = DateTime.Now;
+                }
+
+                // Nettoyer l'instance existante d'ESLoadingPlayer si elle existe
+                if (esLoadingPlayer != null)
+                {
+                    esLoadingPlayer.Dispose();
+                    esLoadingPlayer = null;
+                }
+
+                if (hideESLoading)
+                {
+                    if (wallpaperManager == null)
+                    {
+                        logger.LogError("WallpaperManager is null, cannot create ESLoadingPlayer");
+                        return;
+                    }
+                    esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager);
+                    string videoPath = GetEmulationStationVideoPath();
+                    if (!string.IsNullOrEmpty(videoPath))
+                    {
+                        await esLoadingPlayer.PlayLoadingVideo(videoPath);
+                    }
+                }
+                else
+                {
+                    // Appliquer la séquence standard quand ESLoadingPlayer n'est pas utilisé
+                    bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", true);
+                    if (minimizeWindows)
+                    {
+                        MinimizeActiveWindows();
+                    }
+                    else
+                    {
+                        logger.LogInfo("Window minimization disabled by configuration");
+                    }
+                }
+
+                string retroBatExe = GetRetrobatPath();
+                if (string.IsNullOrEmpty(retroBatExe))
+                {
+                    logger.LogError("RetroBAT executable not found");
+                    return;
+                }
+
+                logger.LogInfo("Starting RetroBAT");
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = retroBatExe,
+                    UseShellExecute = false,
+                    WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
+                };
+
+                Process.Start(startInfo);
+                isESStarting = true;
+
+                // Pause le média en cours si nécessaire
+                if (wallpaperManager != null)
+                {
+                    logger.LogInfo("EmulationStation has started or loading video is playing, pausing media");
+                    wallpaperManager.PauseMedia();
+                }
+
+                // Attendre la durée de l'intro si configurée
+                await CheckIntroSettings();
+
+                if (!hideESLoading)
+                {
+                    // Appliquer la séquence de focus
+                    await SetEmulationStationFocus();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error starting RetroBAT", ex);
+                if (esLoadingPlayer != null)
+                {
+                    esLoadingPlayer.Dispose();
+                    esLoadingPlayer = null;
+                }
+            }
+        }
+
+        private string GetEmulationStationVideoPath()
+        {
+            string selectedVideo = config.ReadValue("Windows", "ESLoadingVideo", "None");
+            if (selectedVideo != "None")
+            {
+                string videoPath = Path.Combine(AppContext.BaseDirectory, "ESloading", selectedVideo);
+                if (File.Exists(videoPath))
+                {
+                    return videoPath;
+                }
+                logger.LogError($"Selected video file not found: {videoPath}");
+            }
+            return string.Empty;
         }
     }
 

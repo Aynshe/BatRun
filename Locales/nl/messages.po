@@ -1,0 +1,28 @@
+# MediaPlayer Settings
+msgid "MediaPlayer Settings"
+msgstr "MediaPlayer Instellingen"
+
+msgid "Available videos:"
+msgstr "Beschikbare video's:"
+
+msgid "Loop playback"
+msgstr "Herhaal afspelen"
+
+msgid "Mute after first playback"
+msgstr "Dempen na eerste afspelen"
+
+msgid "Mute all audio"
+msgstr "Alle audio dempen"
+
+# Restart Messages
+msgid "The 'Hide ES during loading' option has been enabled. BatRun will restart to apply changes."
+msgstr "De optie 'ES verbergen tijdens laden' is ingeschakeld. BatRun wordt opnieuw gestart om de wijzigingen toe te passen."
+
+msgid "The 'Hide ES during loading' option has been disabled. BatRun will restart to apply changes."
+msgstr "De optie 'ES verbergen tijdens laden' is uitgeschakeld. BatRun wordt opnieuw gestart om de wijzigingen toe te passen."
+
+msgid "Restart Required"
+msgstr "Herstart Vereist"
+
+msgid "An error occurred while saving the configuration."
+msgstr "Er is een fout opgetreden bij het opslaan van de configuratie." 
