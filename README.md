@@ -17,9 +17,21 @@ https://github.com/user-attachments/assets/2e692905-ea64-4026-b146-be997264fc46
 _____________________________________________________________________________________________________________________________________________________
 ![image](https://github.com/user-attachments/assets/0a762082-a8b0-44c0-ab1b-9b41c8db7ef5)
 ![image](https://github.com/user-attachments/assets/da2d631e-b963-481f-b8c5-ee226e182f8d)
-![image](https://github.com/user-attachments/assets/011a8173-0d47-4479-8b1d-7dcce13925d9)
+![image](https://github.com/user-attachments/assets/dc5513f2-38e4-41dc-820c-8a0fd09acbb9)
 ![image](https://github.com/user-attachments/assets/a9c62c89-3316-4986-acb8-13950c2a0c75)![image](https://github.com/user-attachments/assets/02e44ecd-05ac-433d-8545-f43336643845)![image](https://github.com/user-attachments/assets/965b5ea4-b107-44b2-8ac2-9da324dcd644) 
 
+_____________________________________________________________________________________________________________________________________________________
+
+## New in version 2.1.0
+
+### New "Hide ES during loading" option
+- 🎬 Hide EmulationStation during loading with customizable video (RetroBat intro alternative / waits for ES loading completion / early video stop possible with Start)
+
+### Enabling this option automatically disables:
+- BatRun splash screen on startup (available without "Hide ES during loading")
+- BatRun splash screen when launching RetroBat (available without "Hide ES during loading")
+- Active windows minimization
+- RetroBat intro video
 _____________________________________________________________________________________________________________________________________________________
 
 # BatRun v2.0
@@ -110,6 +122,18 @@ ________________________________________________________________________________
 
 Developed by AI for Aynshe
 
+_____________________________________________________________________________________________________________________________________________________
+
+## Nouveautés de la version 2.1.0
+
+### Nouvelle option "Hide ES during loading"
+- 🎬 Masque EmulationStation pendant son chargement avec une vidéo personnalisable (alternative à l'intro RetroBat / attend la fin du chargement de ES / arrêt prématuré possible avec Start)
+
+### L'activation de cette option désactive automatiquement :
+- L'affichage du splash screen BatRun au démarrage (disponible sans "Hide ES during loading")
+- L'affichage du splash screen BatRun lors du lancement de RetroBat (disponible sans "Hide ES during loading")
+- La minimisation des fenêtres actives
+- La vidéo d'intro de RetroBat
 _____________________________________________________________________________________________________________________________________________________
 
 # BatRun v2.0
