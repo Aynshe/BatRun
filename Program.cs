@@ -195,7 +195,7 @@ namespace BatRun
 
         private WallpaperManager? wallpaperManager;
 
-        public const string APP_VERSION = "2.1.0";
+        public const string APP_VERSION = "2.1.1";
 
         private bool hideESLoading;
         private static int esSystemSelectCount = 0;
@@ -368,53 +368,9 @@ namespace BatRun
             if (!this.IsHandleCreated)
             {
                 CreateHandle();
-                InitializeAlternativeDesign();
             }
-            base.SetVisibleCore(value);
-        }
-
-        private void InitializeAlternativeDesign()
-        {
-            // Configuration de base de la fenêtre
-            this.Text = "BatRun";
-            this.Size = new Size(230, 90);
-            this.FormBorderStyle = FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(32, 32, 32);
-
-            // Création du TableLayoutPanel principal
-            var mainLayout = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                RowCount = 1,  // Changé de 2 à 1 car nous n'avons plus le label
-                ColumnCount = 1,
-                BackColor = Color.FromArgb(32, 32, 32)
-            };
-
-            // Configuration des lignes
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));  // Une seule ligne prenant 100%
-
-            // Bouton pour ouvrir MainForm
-            var openButton = new Button
-            {
-                Text = "Open BatRun Interface",
-                FlatStyle = FlatStyle.Flat,
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                Font = new Font("Segoe UI", 10),
-                Dock = DockStyle.Fill,
-                Margin = new Padding(10),
-                Cursor = Cursors.Hand
-            };
-            openButton.FlatAppearance.BorderColor = Color.FromArgb(67, 67, 70);
-            openButton.Click += (s, e) => ShowMainForm();
-
-            // Ajout des contrôles au layout
-            mainLayout.Controls.Add(openButton, 0, 0);
-
-            // Ajout du layout à la fenêtre
-            this.Controls.Add(mainLayout);
+            // Toujours cacher la fenêtre principale
+            base.SetVisibleCore(false);
         }
 
         private void InitializeControllers()
@@ -2126,40 +2082,23 @@ namespace BatRun
                 }
             }
 
-            // N'afficher l'interface alternative que si explorer n'est pas en cours ET qu'aucun wallpaper n'est actif
-            if (!isExplorerRunning && !isWallpaperActive)
+            // Dans tous les cas, minimiser dans le systray
+            if (this != null)
             {
-                if (this != null)
-                {
-                    this.WindowState = FormWindowState.Normal;
-                    this.ShowInTaskbar = true;
-                    this.Show();
-                }
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;
+                this.Hide();
             }
-            else
-            {
-                // Dans tous les autres cas, minimiser dans le systray
-                if (this != null)
-                {
-                    this.WindowState = FormWindowState.Minimized;
-                    this.ShowInTaskbar = false;
-                    this.Hide();
-                }
-                InitializeTrayIcon();
-            }
+            InitializeTrayIcon();
         }
 
         private async Task InitializeAsync()
         {
             try
-            {
-                // ... (code existant)
-
+            {               
                 // Exécuter les commandes shell configurées
                 var shellExecutor = new ShellCommandExecutor(config, logger);
-                await shellExecutor.ExecuteShellCommandsAsync();
-
-                // ... (code existant)
+                await shellExecutor.ExecuteShellCommandsAsync();              
             }
             catch (Exception ex)
             {
