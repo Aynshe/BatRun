@@ -195,7 +195,7 @@ namespace BatRun
 
         private WallpaperManager? wallpaperManager;
 
-        public const string APP_VERSION = "2.1.1";
+        public const string APP_VERSION = "2.1.2";
 
         private bool hideESLoading;
         private static int esSystemSelectCount = 0;
@@ -1053,12 +1053,17 @@ namespace BatRun
                     string retrobatPath = GetRetrobatPath();
                     if (!string.IsNullOrEmpty(retrobatPath))
                     {
-                        if (hideESLoading)
+                        // Toujours réinitialiser l'état au début d'un nouveau lancement
+                        lock (esLockObject)
                         {
                             isESStarting = true;
                             esSystemSelectCount = 0;
                             lastESSystemSelectTime = DateTime.MinValue;
+                            logger.LogInfo("ES state reset for new launch");
+                        }
 
+                        if (hideESLoading)
+                        {
                             // Make sure wallpaper is paused before starting the video
                             if (wallpaperManager != null)
                             {
@@ -1109,13 +1114,6 @@ namespace BatRun
                         };
                         Process.Start(startInfo);
 
-                        if (hideESLoading)
-                        {
-                            // Attendre au maximum 10 secondes pour les signaux ES_System_select
-                            await Task.Delay(10000);
-                            isESStarting = false;
-                        }
-
                         // Fermer le splash de manière sûre
                         if (splash != null)
                         {
@@ -1149,6 +1147,7 @@ namespace BatRun
                             esProcess.EnableRaisingEvents = true;
                             esProcess.Exited += async (sender, args) =>
                             {
+                                logger.LogInfo("EmulationStation process exited, cleaning up...");
                                 await Task.Run(() => RestoreActiveWindows().Wait());
                                 wallpaperManager?.ResumeMedia(); // Reprendre le média quand EmulationStation se ferme
                                 StartPolling();
@@ -1160,6 +1159,13 @@ namespace BatRun
                         else
                         {
                             logger.LogError("EmulationStation failed to start");
+                            // Réinitialiser l'état en cas d'échec
+                            lock (esLockObject)
+                            {
+                                isESStarting = false;
+                                esSystemSelectCount = 0;
+                                lastESSystemSelectTime = DateTime.MinValue;
+                            }
                         }
                     }
                     else
@@ -1175,6 +1181,13 @@ namespace BatRun
             catch (Exception ex)
             {
                 logger.LogError("Error launching Retrobat", ex);
+                // Réinitialiser l'état en cas d'erreur
+                lock (esLockObject)
+                {
+                    isESStarting = false;
+                    esSystemSelectCount = 0;
+                    lastESSystemSelectTime = DateTime.MinValue;
+                }
             }
         }
 
@@ -1308,9 +1321,26 @@ namespace BatRun
             combinationDetectedLogged = false;
             isBackButtonPressed = false;
             lastBackButtonTime = DateTime.MinValue;
+
+            // Réinitialiser les états d'ES et des notifications
+            lock (esLockObject)
+            {
+                isESStarting = false;
+                esSystemSelectCount = 0;
+                lastESSystemSelectTime = DateTime.MinValue;
+                
+                // Nettoyer l'instance ESLoadingPlayer si elle existe encore
+                if (esLoadingPlayer != null)
+                {
+                    esLoadingPlayer.CloseVideo();
+                    esLoadingPlayer.Dispose();
+                    esLoadingPlayer = null;
+                }
+            }
             
             logger.LogInfo("Window restoration complete");
             logger.LogInfo("Controller polling started");
+            logger.LogInfo("ES notification system reset");
         }
 
         private async Task SetEmulationStationFocus()
@@ -2139,7 +2169,8 @@ namespace BatRun
                         // Traiter le signal dans l'instance principale
                         this.Invoke(new Action(() =>
                         {
-                            if (hideESLoading && isESStarting && esSystemSelectCount < 5)
+                            bool isShellMode = config.ReadBool("Shell", "EnableCustomUI", false);
+                            if ((hideESLoading || isShellMode) && isESStarting && esSystemSelectCount < 5)
                             {
                                 HandleESSystemSelect();
                             }
@@ -2169,13 +2200,26 @@ namespace BatRun
                         lastESSystemSelectTime = now;
                         logger.LogInfo($"Received ES_System_select signal ({esSystemSelectCount}/5)");
 
-                        // S'assurer que ESLoadingPlayer est fermé
+                        // S'assurer que ESLoadingPlayer est fermé, même en mode shell
                         if (esLoadingPlayer != null)
                         {
-                            logger.LogInfo("Closing ESLoadingPlayer from ES_System_select signal");
-                            esLoadingPlayer.CloseVideo();
-                            esLoadingPlayer.Dispose();
-                            esLoadingPlayer = null;
+                            bool isShellMode = config.ReadBool("Shell", "EnableCustomUI", false);
+                            logger.LogInfo($"Closing ESLoadingPlayer from ES_System_select signal (Shell mode: {isShellMode})");
+                            
+                            // En mode shell, forcer la fermeture de la vidéo
+                            if (isShellMode)
+                            {
+                                esLoadingPlayer.CloseVideo();
+                                esLoadingPlayer.Dispose();
+                                esLoadingPlayer = null;
+                            }
+                            // En mode normal, fermer normalement
+                            else
+                            {
+                                esLoadingPlayer.CloseVideo();
+                                esLoadingPlayer.Dispose();
+                                esLoadingPlayer = null;
+                            }
                         }
 
                         // Réactiver la mise en pause du mediaplayer et le fond noir
@@ -2596,6 +2640,39 @@ namespace BatRun
                 logger.LogError($"Selected video file not found: {videoPath}");
             }
             return string.Empty;
+        }
+
+        private void RestoreWindows()
+        {
+            try
+            {
+                // Réinitialiser les états liés à ES
+                isESStarting = false;
+                esSystemSelectCount = 0;
+                lastESSystemSelectTime = DateTime.MinValue;
+
+                // Nettoyer ESLoadingPlayer si nécessaire
+                if (esLoadingPlayer != null)
+                {
+                    esLoadingPlayer.CloseVideo();
+                    esLoadingPlayer.Dispose();
+                    esLoadingPlayer = null;
+                    logger.LogInfo("ESLoadingPlayer cleaned up during window restoration");
+                }
+
+                // Réinitialiser le signal ES_System_select
+                using (var eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, "BatRun_ES_System_Select"))
+                {
+                    eventWaitHandle.Set(); // Envoyer un dernier signal pour débloquer la boucle d'attente
+                    logger.LogInfo("ES_System_select signal reset completed");
+                }
+
+                // ... existing code ...
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error restoring windows", ex);
+            }
         }
     }
 

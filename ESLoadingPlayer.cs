@@ -24,6 +24,7 @@ namespace BatRun
         private bool isVideoPlaying = false;
         private Task? controllerTask;
         private readonly CancellationTokenSource cancellationTokenSource = new();
+        private readonly object controllerLock = new object();
         private readonly WallpaperManager wallpaperManager;
         private bool firstPlayCompleted = false;
         private long videoLength = 0;
@@ -90,67 +91,86 @@ namespace BatRun
                 bool buttonPressed = false;
                 while (!cancellationTokenSource.Token.IsCancellationRequested && isVideoPlaying)
                 {
-                    SDL.SDL_Event evt;
-                    while (SDL.SDL_PollEvent(out evt) == 1)
+                    try
                     {
-                        if (evt.type == SDL.SDL_EventType.SDL_JOYBUTTONDOWN && !buttonPressed)
+                        SDL.SDL_Event evt;
+                        while (SDL.SDL_PollEvent(out evt) == 1)
                         {
-                            var joystickId = evt.jbutton.which;
-                            var buttonNumber = evt.jbutton.button;
-
-                            if (openJoysticks.TryGetValue(joystickId, out IntPtr joystick))
+                            if (evt.type == SDL.SDL_EventType.SDL_JOYBUTTONDOWN && !buttonPressed)
                             {
-                                var joystickName = SDL.SDL_JoystickName(joystick) ?? string.Empty;
-                                var guid = SDL.SDL_JoystickGetGUID(joystick);
-                                var joystickGuid = guid.ToString() ?? string.Empty;
+                                var joystickId = evt.jbutton.which;
+                                var buttonNumber = evt.jbutton.button;
 
-                                var controllerConfig = buttonMapping?.Controllers.FirstOrDefault(c => 
-                                    c.JoystickName == joystickName && c.DeviceGuid == joystickGuid);
-
-                                if (controllerConfig != null)
+                                if (openJoysticks.TryGetValue(joystickId, out IntPtr joystick))
                                 {
-                                    // Check if this is an XInput controller (has default mapping)
-                                    bool isXInput = controllerConfig.Mappings.TryGetValue("StartButton", out string? startButtonValue) 
-                                                  && startButtonValue == "Start";
+                                    var joystickName = SDL.SDL_JoystickName(joystick) ?? string.Empty;
+                                    var guid = SDL.SDL_JoystickGetGUID(joystick);
+                                    var joystickGuid = guid.ToString() ?? string.Empty;
 
-                                    bool isStartButton = false;
-                                    if (isXInput)
+                                    var controllerConfig = buttonMapping?.Controllers.FirstOrDefault(c => 
+                                        c.JoystickName == joystickName && c.DeviceGuid == joystickGuid);
+
+                                    if (controllerConfig != null)
                                     {
-                                        // Pour XInput, le bouton 7 est le bouton Start
-                                        isStartButton = (buttonNumber == 7);
-                                    }
-                                    else if (controllerConfig.Mappings.TryGetValue("StartButton", out startButtonValue) 
-                                            && !string.IsNullOrEmpty(startButtonValue))
-                                    {
-                                        // DirectInput handling
-                                        if (startButtonValue.StartsWith("Button ") && 
-                                            int.TryParse(startButtonValue.Substring(7), out int mappedButton))
+                                        // Check if this is an XInput controller (has default mapping)
+                                        bool isXInput = controllerConfig.Mappings.TryGetValue("StartButton", out string? startButtonValue) 
+                                                      && startButtonValue == "Start";
+
+                                        bool isStartButton = false;
+                                        if (isXInput)
                                         {
-                                            isStartButton = (buttonNumber == mappedButton);
+                                            // Pour XInput, le bouton 7 est le bouton Start
+                                            isStartButton = (buttonNumber == 7);
                                         }
-                                    }
+                                        else if (controllerConfig.Mappings.TryGetValue("StartButton", out startButtonValue) 
+                                                && !string.IsNullOrEmpty(startButtonValue))
+                                        {
+                                            // DirectInput handling
+                                            if (startButtonValue.StartsWith("Button ") && 
+                                                int.TryParse(startButtonValue.Substring(7), out int mappedButton))
+                                            {
+                                                isStartButton = (buttonNumber == mappedButton);
+                                            }
+                                        }
 
-                                    if (isStartButton)
-                                    {
-                                        buttonPressed = true;
-                                        await Task.Delay(250); // Debounce plus long
-                                        CloseVideo();
-                                        return;
+                                        if (isStartButton)
+                                        {
+                                            buttonPressed = true;
+                                            await Task.Delay(250, cancellationTokenSource.Token); // Utiliser le token pour le délai
+                                            if (!cancellationTokenSource.Token.IsCancellationRequested)
+                                            {
+                                                CloseVideo();
+                                            }
+                                            return;
+                                        }
                                     }
                                 }
                             }
+                            else if (evt.type == SDL.SDL_EventType.SDL_JOYBUTTONUP)
+                            {
+                                buttonPressed = false;
+                            }
                         }
-                        else if (evt.type == SDL.SDL_EventType.SDL_JOYBUTTONUP)
-                        {
-                            buttonPressed = false;
-                        }
+                        await Task.Delay(16, cancellationTokenSource.Token); // Utiliser le token pour le délai
                     }
-                    await Task.Delay(16); // ~60Hz polling rate
+                    catch (OperationCanceledException)
+                    {
+                        // Sortir proprement si la tâche est annulée
+                        return;
+                    }
                 }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Ignorer l'erreur si le CancellationTokenSource est disposé
+                return;
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error in MonitorControllerInput: {ex.Message}");
+                if (!(ex is OperationCanceledException))
+                {
+                    logger.LogError($"Error in MonitorControllerInput: {ex.Message}");
+                }
             }
         }
 
@@ -340,81 +360,84 @@ namespace BatRun
         {
             try
             {
-                isVideoPlaying = false;
-                
-                // Attendre que la tâche de surveillance du contrôleur se termine
-                if (controllerTask != null)
+                lock (controllerLock)
                 {
-                    try
+                    isVideoPlaying = false;
+                    
+                    // Arrêter proprement la tâche de monitoring des contrôleurs
+                    if (!cancellationTokenSource.IsCancellationRequested && !isDisposed)
                     {
-                        cancellationTokenSource.Cancel();
-                        controllerTask.Wait(1000); // Attendre au maximum 1 seconde
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError($"Error waiting for controller task: {ex.Message}");
-                    }
-                }
-
-                var mainForm = GetMainForm();
-                if (mainForm == null)
-                {
-                    logger.LogError("No main form found while trying to close video");
-                    return;
-                }
-
-                mainForm.Invoke(new Action(() =>
-                {
-                    try
-                    {
-                        if (mediaPlayer != null)
+                        try
                         {
-                            bool muteAll = config.ReadValue("Windows", "ESLoadingVideoMuteAll", "false") == "true";
-                            mediaPlayer.Mute = muteAll;
+                            cancellationTokenSource.Cancel();
                             
-                            mediaPlayer.Stop();
-                            mediaPlayer.Dispose();
-                            mediaPlayer = null;
-                        }
-
-                        if (videoView != null)
-                        {
-                            if (!videoView.IsDisposed)
+                            // Attendre que la tâche de monitoring se termine
+                            if (controllerTask != null)
                             {
-                                videoView.MediaPlayer = null;
-                                videoView.Dispose();
+                                try
+                                {
+                                    Task.WaitAll(new[] { controllerTask }, 1000); // Attendre max 1 seconde
+                                }
+                                catch (AggregateException)
+                                {
+                                    // Ignorer les exceptions de la tâche annulée
+                                }
                             }
-                            videoView = null;
                         }
-
-                        if (libVLC != null)
+                        catch (ObjectDisposedException)
                         {
-                            libVLC.Dispose();
-                            libVLC = null;
+                            // Ignorer si déjà disposé
                         }
-
-                        if (videoForm != null)
-                        {
-                            if (!videoForm.IsDisposed)
-                            {
-                                videoForm.Hide();
-                                videoForm.Close();
-                            }
-                            videoForm.Dispose();
-                            videoForm = null;
-                        }
-
-                        logger.LogInfo("ES loading video closed");
                     }
-                    catch (Exception ex)
+                }
+
+                if (videoForm != null && !videoForm.IsDisposed)
+                {
+                    if (videoForm.InvokeRequired)
                     {
-                        logger.LogError($"Error in UI thread while closing: {ex.Message}");
+                        videoForm.Invoke(new Action(() => CleanupVideoForm()));
                     }
-                }));
+                    else
+                    {
+                        CleanupVideoForm();
+                    }
+                }
+
+                CloseAllJoysticks();
+                logger.LogInfo("ES loading video closed");
             }
             catch (Exception ex)
             {
-                logger.LogError($"Error closing ES loading video: {ex.Message}", ex);
+                logger.LogError($"Error closing video: {ex.Message}");
+            }
+        }
+
+        private void CleanupVideoForm()
+        {
+            if (mediaPlayer != null)
+            {
+                mediaPlayer.Stop();
+                mediaPlayer.Dispose();
+                mediaPlayer = null;
+            }
+
+            if (videoView != null)
+            {
+                videoView.Dispose();
+                videoView = null;
+            }
+
+            if (libVLC != null)
+            {
+                libVLC.Dispose();
+                libVLC = null;
+            }
+
+            if (videoForm != null && !videoForm.IsDisposed)
+            {
+                videoForm.Close();
+                videoForm.Dispose();
+                videoForm = null;
             }
         }
 
@@ -422,26 +445,43 @@ namespace BatRun
         {
             if (!isDisposed)
             {
-                isVideoPlaying = false;
-                CloseAllJoysticks();
-                
-                // Attendre que la tâche de surveillance du contrôleur se termine
-                if (controllerTask != null)
+                isDisposed = true;
+
+                try
                 {
+                    // Arrêter la tâche de monitoring des contrôleurs
+                    if (!cancellationTokenSource.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            cancellationTokenSource.Cancel();
+                            // Attendre brièvement que la tâche se termine
+                            if (controllerTask != null)
+                            {
+                                Task.WaitAll(new[] { controllerTask }, 500);
+                            }
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                            // Ignorer si déjà disposé
+                        }
+                    }
+
+                    CloseVideo();
+                    
                     try
                     {
-                        cancellationTokenSource.Cancel();
-                        controllerTask.Wait(1000); // Attendre au maximum 1 seconde
+                        cancellationTokenSource.Dispose();
                     }
-                    catch (Exception ex)
+                    catch (ObjectDisposedException)
                     {
-                        logger.LogError($"Error waiting for controller task: {ex.Message}");
+                        // Ignorer si déjà disposé
                     }
                 }
-
-                cancellationTokenSource.Dispose();
-                CloseVideo();
-                isDisposed = true;
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error during disposal: {ex.Message}");
+                }
             }
         }
     }
