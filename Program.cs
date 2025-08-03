@@ -1811,7 +1811,7 @@ namespace BatRun
             };
             discordLink.Click += (s, e) => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
             {
-                FileName = "https://discord.com/invite/k8mg99cY6F",
+                FileName = "https://discord.gg/GVcPNxwzuT",
                 UseShellExecute = true
             });
 
