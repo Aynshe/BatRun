@@ -115,7 +115,7 @@ ________________________________________________________________________________
 
 ## Support
 
-- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F) “Aynshe”
+- [Discord RetroBat](https://discord.gg/GVcPNxwzuT) “Aynshe”
 - [Source Code](https://github.com/Aynshe/BatRun)
 
 ## Credits
@@ -216,7 +216,7 @@ ________________________________________________________________________________
 
 ## Support
 
-- [Discord RetroBat](https://discord.com/invite/k8mg99cY6F)  “Aynshe”
+- [Discord RetroBat](https://discord.gg/GVcPNxwzuT)  “Aynshe”
 - [Code Source](https://github.com/Aynshe/BatRun)
 
 ## Crédits
