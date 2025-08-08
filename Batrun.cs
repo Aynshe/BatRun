@@ -104,7 +104,7 @@ namespace BatRun
             };
 
             var contextMenu = new ContextMenuStrip();
-            contextMenu.Items.Add("Show Config", null, (s, e) => new ConfigurationForm(config, logger, null).Show());
+            contextMenu.Items.Add("Show Config", null, (s, e) => new ConfigurationForm(config, logger, null, retroBatService.GetRetrobatPath()).Show());
             contextMenu.Items.Add("Exit", null, (s, e) => Exit());
             trayIcon.ContextMenuStrip = contextMenu;
         }

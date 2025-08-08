@@ -15,7 +15,8 @@ namespace BatRun
         private readonly IniFile config;
         private readonly string startupPath;
         private readonly Logger logger;
-        private readonly IBatRunProgram program;
+        private readonly IBatRunProgram? program;
+        private readonly string retrobatPath;
 
         private const string RUN_REGISTRY_KEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string APP_NAME = "BatRun";
@@ -28,11 +29,12 @@ namespace BatRun
 
         private bool isInitializing = true;
 
-        public ConfigurationForm(IniFile config, Logger logger, IBatRunProgram program)
+        public ConfigurationForm(IniFile config, Logger logger, IBatRunProgram? program, string retrobatPath)
         {
             this.config = config;
             this.logger = logger;
             this.program = program;
+            this.retrobatPath = retrobatPath;
             
             InitializeComponent();
 
@@ -684,7 +686,7 @@ namespace BatRun
             {
                 config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
                 
-                var wallpaperManager = new WallpaperManager(config, logger, program);
+                var wallpaperManager = new WallpaperManager(config, logger, program, this.retrobatPath);
                 if (Process.GetProcessesByName("explorer").Length > 0)
                 {
                     if (checkBoxEnableWithExplorer.Checked)
@@ -749,7 +751,7 @@ namespace BatRun
                     config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
 
                     // Créer une nouvelle instance et afficher le fond d'écran
-                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    var wallpaperManager = new WallpaperManager(config, logger, program, this.retrobatPath);
                     wallpaperManager.ShowWallpaper(forceShow: true);
                 }
                 catch (Exception ex)
@@ -775,7 +777,7 @@ namespace BatRun
                     GC.WaitForPendingFinalizers();
 
                     // Ensuite, fermer proprement le wallpaper
-                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    var wallpaperManager = new WallpaperManager(config, logger, program, this.retrobatPath);
                     wallpaperManager.CloseWallpaper();
                 }
                 catch (Exception ex)
@@ -1093,10 +1095,9 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
         {
             try
             {
-                string? retroBatPath = Program.GetRetrobatPath();
-                if (!string.IsNullOrEmpty(retroBatPath))
+                if (!string.IsNullOrEmpty(this.retrobatPath))
                 {
-                    string? retroBatFolder = Path.GetDirectoryName(retroBatPath);
+                    string? retroBatFolder = Path.GetDirectoryName(this.retrobatPath);
                     if (!string.IsNullOrEmpty(retroBatFolder))
                     {
                         string esVideoPath = Path.Combine(retroBatFolder, "emulationstation", ".emulationstation", "video");
