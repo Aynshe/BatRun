@@ -1035,6 +1035,30 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                     {
                         File.Delete(scriptFile);
                     }
+
+                    // Réactiver la vidéo d'intro dans retrobat.ini
+                    string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "retrobat.ini");
+                    if (File.Exists(retrobatIniPath))
+                    {
+                        var lines = File.ReadAllLines(retrobatIniPath);
+                        bool foundIntroLine = false;
+                        for (int i = 0; i < lines.Length; i++)
+                        {
+                            if (lines[i].StartsWith("EnableIntro="))
+                            {
+                                lines[i] = "EnableIntro=1";
+                                foundIntroLine = true;
+                                break;
+                            }
+                        }
+                        if (!foundIntroLine)
+                        {
+                            Array.Resize(ref lines, lines.Length + 1);
+                            lines[lines.Length - 1] = "EnableIntro=1";
+                        }
+                        File.WriteAllLines(retrobatIniPath, lines);
+                        logger.LogInfo("Enabled RetroBat intro video");
+                    }
                 }
             }
         }
