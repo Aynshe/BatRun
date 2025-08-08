@@ -320,9 +320,8 @@ namespace BatRun
                 Close();
 
                     // Redémarrer l'application
-                    int currentPid = Process.GetCurrentProcess().Id;
-                    Process.Start(Application.ExecutablePath, $"-waitforpid {currentPid}");
-                    Application.Exit();
+                    Application.Restart();
+                    Environment.Exit(0);
                 }
                 else
                 {
@@ -987,11 +986,11 @@ namespace BatRun
             }
 
             // Créer ou supprimer le script system-selected
-            string retrobatPath = program.GetRetrobatPath();
+            string retrobatPath = GetRetrobatPath();
             if (!string.IsNullOrEmpty(retrobatPath))
             {
                 // Gérer le script system-selected
-                string scriptPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "emulationstation", ".emulationstation", "scripts", "system-selected");
+                string scriptPath = Path.Combine(retrobatPath, "emulationstation", ".emulationstation", "scripts", "system-selected");
                 Directory.CreateDirectory(scriptPath); // Crée le dossier s'il n'existe pas
 
                 string scriptFile = Path.Combine(scriptPath, "notify_batrun.bat");
@@ -1005,14 +1004,14 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                     File.WriteAllText(scriptFile, scriptContent);
 
                     // Désactiver la vidéo d'intro dans retrobat.ini
-                    string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "retrobat.ini");
+                    string retrobatIniPath = Path.Combine(retrobatPath, "retrobat.ini");
                     if (File.Exists(retrobatIniPath))
                     {
                         var lines = File.ReadAllLines(retrobatIniPath);
                         bool foundIntroLine = false;
                         for (int i = 0; i < lines.Length; i++)
                         {
-                            if (lines[i].Trim().StartsWith("EnableIntro="))
+                            if (lines[i].StartsWith("EnableIntro="))
                             {
                                 lines[i] = "EnableIntro=0";
                                 foundIntroLine = true;
@@ -1035,34 +1034,30 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                     {
                         File.Delete(scriptFile);
                     }
-
-                    // Réactiver la vidéo d'intro dans retrobat.ini
-                    string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "retrobat.ini");
-                    if (File.Exists(retrobatIniPath))
-                    {
-                        var lines = File.ReadAllLines(retrobatIniPath);
-                        bool foundIntroLine = false;
-                        for (int i = 0; i < lines.Length; i++)
-                        {
-                            if (lines[i].Trim().StartsWith("EnableIntro="))
-                            {
-                                lines[i] = "EnableIntro=1";
-                                foundIntroLine = true;
-                                break;
-                            }
-                        }
-                        if (!foundIntroLine)
-                        {
-                            Array.Resize(ref lines, lines.Length + 1);
-                            lines[lines.Length - 1] = "EnableIntro=1";
-                        }
-                        File.WriteAllLines(retrobatIniPath, lines);
-                        logger.LogInfo("Enabled RetroBat intro video");
-                    }
                 }
             }
         }
 
+        private string GetRetrobatPath()
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RetroBat");
+                if (key != null)
+                {
+                    string? path = key.GetValue("LatestKnownInstallPath") as string;
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        return path;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error getting RetroBat path: {ex.Message}");
+            }
+            return string.Empty; // Retourner une chaîne vide au lieu de null
+        }
 
         // Ajouter une méthode pour mettre à jour l'état du démarrage automatique
         public void UpdateStartupState(bool isCustomUIEnabled)
@@ -1098,7 +1093,7 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
         {
             try
             {
-                string? retroBatPath = program.GetRetrobatPath();
+                string? retroBatPath = Program.GetRetrobatPath();
                 if (!string.IsNullOrEmpty(retroBatPath))
                 {
                     string? retroBatFolder = Path.GetDirectoryName(retroBatPath);

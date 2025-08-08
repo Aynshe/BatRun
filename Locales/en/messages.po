@@ -325,4 +325,29 @@ msgstr "Allow only one instance of this application"
 
 msgid "Manage Applications Hide"
 msgstr "Manage Applications Hide"
+
+# Auto-launch Game Selection
+msgid "Select Game for Auto-Launch"
+msgstr "Select Game for Auto-Launch"
+
+msgid "Select a random game"
+msgstr "Select a random game"
+
+msgid "Select System"
+msgstr "Select System"
+
+msgid "Select Game"
+msgstr "Select Game"
+
+msgid "Select"
+msgstr "Select"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "None"
+msgstr "None"
+
+msgid "Random Game"
+msgstr "Random Game"
  

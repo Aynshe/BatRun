@@ -536,4 +536,29 @@ msgstr "Une erreur s'est produite lors de la sauvegarde de la configuration."
 
 msgid "OK"
 msgstr "OK"
+
+# Auto-launch Game Selection
+msgid "Select Game for Auto-Launch"
+msgstr "Sélectionner un jeu pour le lancement auto"
+
+msgid "Select a random game"
+msgstr "Sélectionner un jeu aléatoire"
+
+msgid "Select System"
+msgstr "Sélectionner un système"
+
+msgid "Select Game"
+msgstr "Sélectionner un jeu"
+
+msgid "Select"
+msgstr "Sélectionner"
+
+msgid "Back"
+msgstr "Retour"
+
+msgid "None"
+msgstr "Aucun"
+
+msgid "Random Game"
+msgstr "Jeu aléatoire"
  

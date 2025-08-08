@@ -382,7 +382,7 @@ namespace BatRun
                     {
                         try
                         {
-                            string retroBatPath = program.GetRetrobatPath();
+                            string retroBatPath = Program.GetRetrobatPath();
                             if (!string.IsNullOrEmpty(retroBatPath))
                             {
                                 string retroBatFolder = Path.GetDirectoryName(retroBatPath) ?? string.Empty;
@@ -702,7 +702,7 @@ namespace BatRun
         {
             try
             {
-                string retroBatPath = program.GetRetrobatPath();
+                string retroBatPath = Program.GetRetrobatPath();
                 if (!string.IsNullOrEmpty(retroBatPath))
                 {
                     string retroBatFolder = Path.GetDirectoryName(retroBatPath) ?? string.Empty;

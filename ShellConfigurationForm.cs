@@ -40,6 +40,9 @@ namespace BatRun
         private readonly Logger logger;
         private readonly ConfigurationForm? configForm;
 
+        private Label selectedGameLabel = new();
+        private Button selectGameButton = new();
+
         public ShellConfigurationForm(IniFile config, Logger logger, ConfigurationForm? configForm = null)
         {
             commands = [];
@@ -60,6 +63,7 @@ namespace BatRun
 
             InitializeComponent();
             LoadCommands();
+            LoadAutoLaunchGameSetting();
 
             // Charger la configuration globale de RetroBAT
             if (launchRetroBatCheckBox != null)
@@ -145,7 +149,7 @@ namespace BatRun
             var topPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 80,
+                Height = 120, // Increased height for the new controls
                 BackColor = Color.Transparent,
                 Padding = new Padding(10)
             };
@@ -202,6 +206,39 @@ namespace BatRun
             retroBatPanel.Controls.Add(retroBatDelayNumericLabel);
 
             topPanel.Controls.Add(retroBatPanel);
+
+            // Third line: Auto-launch game selection
+            var autoLaunchPanel = new Panel
+            {
+                Location = new Point(10, 80),
+                Width = 800,
+                Height = 30,
+                BackColor = Color.Transparent
+            };
+
+            selectGameButton = new Button
+            {
+                Location = new Point(0, 0),
+                Text = LocalizedStrings.GetString("Select Game for Auto-Launch"),
+                AutoSize = true,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(60, 60, 60),
+                ForeColor = Color.White
+            };
+            selectGameButton.Click += SelectGameButton_Click;
+            autoLaunchPanel.Controls.Add(selectGameButton);
+
+            selectedGameLabel = new Label
+            {
+                Location = new Point(selectGameButton.Right + 10, 5),
+                Text = "None",
+                AutoSize = true,
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 9F, FontStyle.Italic)
+            };
+            autoLaunchPanel.Controls.Add(selectedGameLabel);
+
+            topPanel.Controls.Add(autoLaunchPanel);
 
             // Panneau des boutons d'action
             var actionPanel = new FlowLayoutPanel
@@ -766,8 +803,55 @@ try {
             }
         }
 
+        private void LoadAutoLaunchGameSetting()
+        {
+            bool isRandom = config.ReadBool("Shell", "AutoLaunchRandom", false);
+            string gameName = config.ReadValue("Shell", "AutoLaunchGameName", "");
+
+            if (isRandom)
+            {
+                selectedGameLabel.Text = "Random Game";
+            }
+            else if (!string.IsNullOrEmpty(gameName))
+            {
+                selectedGameLabel.Text = gameName;
+            }
+            else
+            {
+                selectedGameLabel.Text = "None";
+            }
+        }
+
+        private void SelectGameButton_Click(object? sender, EventArgs e)
+        {
+            using (var gameSelectionForm = new GameSelectionForm(logger))
+            {
+                if (gameSelectionForm.ShowDialog() == DialogResult.OK)
+                {
+                    if (gameSelectionForm.SelectRandomGame)
+                    {
+                        config.WriteValue("Shell", "AutoLaunchRandom", "true");
+                        config.WriteValue("Shell", "AutoLaunchGamePath", "");
+                        config.WriteValue("Shell", "AutoLaunchGameName", "");
+                        selectedGameLabel.Text = "Random Game";
+                    }
+                    else if (gameSelectionForm.SelectedGame != null)
+                    {
+                        var game = gameSelectionForm.SelectedGame;
+                        config.WriteValue("Shell", "AutoLaunchRandom", "false");
+                        config.WriteValue("Shell", "AutoLaunchGamePath", game.Path);
+                        config.WriteValue("Shell", "AutoLaunchGameName", game.Name);
+                        selectedGameLabel.Text = game.Name;
+                    }
+                }
+            }
+        }
+
         private void SaveButton_Click(object? sender, EventArgs e)
         {
+            // Logic for saving the auto-launch game is handled in SelectGameButton_Click.
+            // Here we just need to save the other shell commands.
+
             // Nettoyer toutes les anciennes entrées de configuration
             int oldCommandCount = config.ReadInt("Shell", "CommandCount", 0);
             int oldAppCount = config.ReadInt("Shell", "AppCount", 0);

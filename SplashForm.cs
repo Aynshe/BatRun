@@ -64,7 +64,7 @@ namespace BatRun
             // Version Label
             versionLabel = new Label
             {
-                Text = $"v{Batrun.APP_VERSION}",
+                Text = $"v{Program.APP_VERSION}",
                 Font = new Font("Segoe UI", 12F, FontStyle.Regular),
                 ForeColor = Color.LightGray,
                 TextAlign = ContentAlignment.MiddleCenter,

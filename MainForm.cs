@@ -20,7 +20,6 @@ namespace BatRun
         Task CheckForUpdates();
         string GetAppVersion();
         Task StartRetrobat();
-        string GetRetrobatPath();
     }
 
     public partial class MainForm : Form

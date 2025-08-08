@@ -1,32 +1,41 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using BatRun;
 using Microsoft.Win32;
 
 namespace BatRun
 {
     public class RetroBatService
     {
-        private readonly Logger _logger;
-        private readonly IniFile _config;
-        private string _retrobatPath = "";
+        private readonly Logger logger;
+        private readonly IniFile config;
+        private string retrobatPath = "";
+        private readonly Action minimizeWindows;
+        private readonly Func<Task> restoreWindows;
 
-        public RetroBatService(Logger logger, IniFile config)
+        public RetroBatService(Logger logger, IniFile config, Action minimizeWindows, Func<Task> restoreWindows)
         {
-            _logger = logger;
-            _config = config;
-            InitializeRetrobatPath();
+            this.logger = logger;
+            this.config = config;
+            this.minimizeWindows = minimizeWindows;
+            this.restoreWindows = restoreWindows;
         }
 
-        public string GetRetrobatPath()
+        public string GetRetrobatPath() => retrobatPath;
+
+        public void Initialize()
         {
-            return _retrobatPath;
+            logger.Log("Initializing RetroBat Service...");
+            FindRetrobatPath();
         }
 
-        private void InitializeRetrobatPath()
+        private void FindRetrobatPath()
         {
-            _logger.Log("Searching for RetroBat path");
+            logger.Log("Searching for RetroBat path...");
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(@"Software\RetroBat");
@@ -35,109 +44,174 @@ namespace BatRun
                     var path = key.GetValue("LatestKnownInstallPath") as string;
                     if (!string.IsNullOrEmpty(path))
                     {
-                        _retrobatPath = Path.Combine(path, "retrobat.exe");
-                        _logger.Log($"RetroBat path found in registry: {_retrobatPath}");
+                        retrobatPath = Path.Combine(path, "retrobat.exe");
+                        logger.Log($"RetroBat path found in registry: {retrobatPath}");
                         return;
                     }
                 }
             }
+            catch (Exception ex) { logger.LogError("Error reading registry", ex); }
+
+            retrobatPath = @"C:\Retrobat\retrobat.exe"; // Default path
+            logger.Log($"Using default path: {retrobatPath}");
+        }
+
+        public async Task LaunchRetrobat()
+        {
+            if (IsRetrobatRunning() || IsEmulationStationRunning())
+            {
+                logger.LogInfo("RetroBat or EmulationStation is already running.");
+                return;
+            }
+
+            if (!File.Exists(retrobatPath))
+            {
+                logger.LogError($"RetroBat executable not found at: {retrobatPath}");
+                MessageBox.Show($"Unable to find RetroBat at {retrobatPath}", "BatRun", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                // The UI logic (splash screen) has been moved to Batrun.cs
+                // This service is now only responsible for the process itself.
+                minimizeWindows();
+
+                Process.Start(new ProcessStartInfo { FileName = retrobatPath, UseShellExecute = false });
+
+                // Launch the auto-launch handler in the background
+                _ = HandleAutoLaunchAsync();
+
+                Process? esProcess = await WaitForProcess("emulationstation", 10, 2000);
+
+                if (esProcess != null)
+                {
+                    esProcess.EnableRaisingEvents = true;
+                    esProcess.Exited += async (s, e) => {
+                        logger.LogInfo("EmulationStation process exited.");
+                        await restoreWindows();
+                    };
+                    await SetEmulationStationFocus();
+                }
+                else
+                {
+                    logger.LogError("EmulationStation failed to start.");
+                    await restoreWindows(); // Restore windows if ES fails to start
+                }
+            }
             catch (Exception ex)
             {
-                _logger.LogError("Error reading registry", ex);
+                logger.LogError("Error launching Retrobat", ex);
             }
+        }
 
-            _retrobatPath = @"C:\Retrobat\retrobat.exe"; // Default path
-            _logger.Log($"Using default path: {_retrobatPath}");
-
-            if (!File.Exists(_retrobatPath))
+        private async Task<Process?> WaitForProcess(string processName, int maxAttempts, int delay)
+        {
+            for(int i=0; i < maxAttempts; i++)
             {
-                var error = $"Unable to find RetroBat at {_retrobatPath}";
-                _logger.LogError(error);
+                var processes = Process.GetProcessesByName(processName);
+                if (processes.Length > 0)
+                {
+                    return processes[0];
+                }
+                await Task.Delay(delay);
             }
+            return null;
+        }
+
+        private async Task SetEmulationStationFocus()
+        {
+            int focusDuration = config.ReadInt("Focus", "FocusDuration", 30000);
+            int focusInterval = config.ReadInt("Focus", "FocusInterval", 5000);
+
+            logger.LogInfo($"Starting focus sequence for EmulationStation (Duration: {focusDuration}ms, Interval: {focusInterval}ms)");
+
+            var stopwatch = Stopwatch.StartNew();
+            while (stopwatch.ElapsedMilliseconds < focusDuration)
+            {
+                var process = Process.GetProcessesByName("emulationstation").FirstOrDefault();
+                if (process?.MainWindowHandle != IntPtr.Zero)
+                {
+                    // This is a simplified focus attempt. The complex thread attachment logic
+                    // might be better suited inside a dedicated NativeMethods helper class if needed.
+                    NativeMethods.SetForegroundWindow(process.MainWindowHandle);
+                    logger.LogInfo("Focus applied to EmulationStation.");
+                }
+                await Task.Delay(focusInterval);
+            }
+            logger.LogInfo("End of focus sequence for EmulationStation.");
+        }
+
+        public bool IsRetrobatRunning()
+        {
+            return Process.GetProcessesByName("retrobat").Length > 0;
         }
 
         public bool IsEmulationStationRunning()
         {
-            try
-            {
-                var processes = System.Diagnostics.Process.GetProcessesByName("emulationstation");
-                return processes.Length > 0 && !processes[0].HasExited;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error checking EmulationStation", ex);
-                return false;
-            }
+            return Process.GetProcessesByName("emulationstation").Length > 0;
         }
 
-        public void LaunchEmulationStation()
+        private async Task HandleAutoLaunchAsync()
         {
-            try
+            bool isRandom = config.ReadBool("Shell", "AutoLaunchRandom", false);
+            string gamePath = config.ReadValue("Shell", "AutoLaunchGamePath", "");
+            string gameName = config.ReadValue("Shell", "AutoLaunchGameName", "");
+
+            // Only proceed if a game is configured for auto-launch
+            if (!isRandom && string.IsNullOrEmpty(gamePath))
             {
-                _logger.LogInfo("Launching EmulationStation");
-
-                if (IsEmulationStationRunning())
-                {
-                    _logger.LogInfo("EmulationStation is already running");
-                    return;
-                }
-
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = _retrobatPath,
-                    Arguments = "-es",
-                    UseShellExecute = false,
-                    CreateNoWindow = false
-                });
-
-                _logger.LogInfo("EmulationStation launched successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error launching EmulationStation", ex);
-            }
-        }
-
-        public async Task Launch()
-        {
-            if (string.IsNullOrEmpty(_retrobatPath) || !File.Exists(_retrobatPath))
-            {
-                _logger.LogError("Retrobat path is not valid, cannot launch.");
+                logger.LogInfo("No game configured for auto-launch.");
                 return;
             }
 
-            await CheckIntroSettings();
+            logger.LogInfo("Auto-launch sequence started. Waiting for EmulationStation API...");
 
-            System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
+            var esApi = new EmulationStationApi(logger);
+            bool apiAvailable = false;
+            for (int i = 0; i < 30; i++) // Wait up to 30 seconds
             {
-                FileName = _retrobatPath,
-                UseShellExecute = false
-            };
-            System.Diagnostics.Process.Start(startInfo);
-        }
-
-        private async Task CheckIntroSettings()
-        {
-            string retrobatIniPath = Path.Combine(Path.GetDirectoryName(_retrobatPath) ?? string.Empty, "retrobat.ini");
-            if (File.Exists(retrobatIniPath))
-            {
-                var lines = await File.ReadAllLinesAsync(retrobatIniPath);
-                string? enableIntro = lines.FirstOrDefault(line => line.StartsWith("EnableIntro="))?.Split('=')[1];
-                string? videoDuration = lines.FirstOrDefault(line => line.StartsWith("VideoDuration="))?.Split('=')[1];
-
-                if (enableIntro == "1" && videoDuration != null && int.TryParse(videoDuration, out int duration))
+                if (await esApi.IsApiAvailableAsync())
                 {
-                    _logger.LogInfo($"Waiting for intro video duration: {duration} ms");
-                    await Task.Delay(duration);
+                    apiAvailable = true;
+                    logger.LogInfo("EmulationStation API is available.");
+                    break;
+                }
+                await Task.Delay(1000);
+            }
+
+            if (!apiAvailable)
+            {
+                logger.LogError("EmulationStation API did not become available in time. Aborting auto-launch.");
+                return;
+            }
+
+            Game? gameToLaunch = null;
+
+            if (isRandom)
+            {
+                logger.LogInfo("Selecting a random game to launch.");
+                var allGames = await esApi.GetAllGamesAsync();
+                if (allGames.Count > 0)
+                {
+                    var random = new Random();
+                    gameToLaunch = allGames[random.Next(allGames.Count)];
                 }
                 else
                 {
-                    _logger.LogInfo("Intro video not enabled, proceeding without delay.");
+                    logger.LogError("Could not find any games to select for random launch.");
+                    return;
                 }
             }
             else
             {
-                _logger.LogError("Retrobat.ini file not found.");
+                gameToLaunch = new Game { Path = gamePath, Name = gameName, System = "Unknown" };
+            }
+
+            if (gameToLaunch != null)
+            {
+                await Task.Delay(2000); // Small delay to ensure ES is ready to receive commands
+                await esApi.LaunchGameAsync(gameToLaunch);
             }
         }
     }
