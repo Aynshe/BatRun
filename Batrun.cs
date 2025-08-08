@@ -181,7 +181,7 @@ namespace BatRun
                                 splash = new HotkeySplashForm();
                                 splash.Show();
                                 Application.DoEvents();
-                            });
+                            }, null);
                         });
                         await Task.Delay(2500);
                     }
@@ -1067,7 +1067,7 @@ namespace BatRun
                             {
                                 HandleESSystemSelect();
                             }
-                        });
+                        }, null);
                     }
                 }
             });
