@@ -1012,7 +1012,7 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                         bool foundIntroLine = false;
                         for (int i = 0; i < lines.Length; i++)
                         {
-                            if (lines[i].StartsWith("EnableIntro="))
+                            if (lines[i].Trim().StartsWith("EnableIntro="))
                             {
                                 lines[i] = "EnableIntro=0";
                                 foundIntroLine = true;
@@ -1044,7 +1044,7 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                         bool foundIntroLine = false;
                         for (int i = 0; i < lines.Length; i++)
                         {
-                            if (lines[i].StartsWith("EnableIntro="))
+                            if (lines[i].Trim().StartsWith("EnableIntro="))
                             {
                                 lines[i] = "EnableIntro=1";
                                 foundIntroLine = true;
