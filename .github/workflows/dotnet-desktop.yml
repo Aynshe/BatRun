@@ -1,0 +1,33 @@
+name: Build BatRun
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Build BatRun project
+      run: dotnet build BatRun.csproj --configuration Release
+
+    # Étape optionnelle si un jour tu ajoutes des tests
+    # - name: Run tests
+    #   run: dotnet test Path\To\TestProject.csproj --configuration Release
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BatRun-Build
+        path: bin/Release/**
