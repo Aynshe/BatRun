@@ -209,7 +209,7 @@ namespace BatRun
             }
         }
 
-        private void StartPolling()
+        public void StartPolling()
         {
             try
             {

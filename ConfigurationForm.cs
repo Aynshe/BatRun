@@ -986,11 +986,11 @@ namespace BatRun
             }
 
             // Créer ou supprimer le script system-selected
-            string retrobatPath = GetRetrobatPath();
+            string retrobatPath = program.GetRetrobatPath();
             if (!string.IsNullOrEmpty(retrobatPath))
             {
                 // Gérer le script system-selected
-                string scriptPath = Path.Combine(retrobatPath, "emulationstation", ".emulationstation", "scripts", "system-selected");
+                string scriptPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "emulationstation", ".emulationstation", "scripts", "system-selected");
                 Directory.CreateDirectory(scriptPath); // Crée le dossier s'il n'existe pas
 
                 string scriptFile = Path.Combine(scriptPath, "notify_batrun.bat");
@@ -1038,26 +1038,6 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
             }
         }
 
-        private string GetRetrobatPath()
-        {
-            try
-            {
-                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\RetroBat");
-                if (key != null)
-                {
-                    string? path = key.GetValue("LatestKnownInstallPath") as string;
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        return path;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error getting RetroBat path: {ex.Message}");
-            }
-            return string.Empty; // Retourner une chaîne vide au lieu de null
-        }
 
         // Ajouter une méthode pour mettre à jour l'état du démarrage automatique
         public void UpdateStartupState(bool isCustomUIEnabled)
@@ -1093,7 +1073,7 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
         {
             try
             {
-                string? retroBatPath = Program.GetRetrobatPath();
+                string? retroBatPath = program.GetRetrobatPath();
                 if (!string.IsNullOrEmpty(retroBatPath))
                 {
                     string? retroBatFolder = Path.GetDirectoryName(retroBatPath);
