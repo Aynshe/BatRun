@@ -1067,7 +1067,7 @@ namespace BatRun
                             {
                                 HandleESSystemSelect();
                             }
-                        }));
+                        });
                     }
                 }
             });
