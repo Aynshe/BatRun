@@ -16,10 +16,9 @@ namespace BatRun
             this.logger = logger;
         }
 
-        public void LoadDatabase(string retrobatPath)
+        public void LoadDatabase(string retrobatDir)
         {
-            // Get the RetroBat directory from the full path to retrobat.exe
-            string retrobatDir = Path.GetDirectoryName(retrobatPath) ?? string.Empty;
+            // The parameter is now the directory, not the full exe path.
             string dbPath = Path.Combine(retrobatDir, "system", "tools", "gamecontrollerdb.txt");
             logger.LogInfo($"Looking for SDL controller database at: {dbPath}");
 
