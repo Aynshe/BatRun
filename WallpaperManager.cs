@@ -11,7 +11,8 @@ namespace BatRun
     {
         private readonly IniFile config;
         private readonly Logger logger;
-        private readonly IBatRunProgram program;
+        private readonly IBatRunProgram? program;
+        private readonly string retrobatPath;
         private readonly Random random = new Random();
         private Form? wallpaperForm;
         private Button? overlayButton;
@@ -79,11 +80,12 @@ namespace BatRun
 
         private Form? blackBackground;
 
-        public WallpaperManager(IniFile config, Logger logger, IBatRunProgram program)
+        public WallpaperManager(IniFile config, Logger logger, IBatRunProgram? program, string retrobatPath)
         {
             this.config = config;
             this.logger = logger;
             this.program = program;
+            this.retrobatPath = retrobatPath;
             this.applicationManager = new ApplicationManager(config, logger);
 
             lock (instanceLock)
@@ -382,10 +384,9 @@ namespace BatRun
                     {
                         try
                         {
-                            string retroBatPath = Program.GetRetrobatPath();
-                            if (!string.IsNullOrEmpty(retroBatPath))
+                            if (!string.IsNullOrEmpty(this.retrobatPath))
                             {
-                                string retroBatFolder = Path.GetDirectoryName(retroBatPath) ?? string.Empty;
+                                string retroBatFolder = Path.GetDirectoryName(this.retrobatPath) ?? string.Empty;
                                 if (Directory.Exists(retroBatFolder))
                                 {
                                     Process.Start("explorer.exe", retroBatFolder);
@@ -702,10 +703,9 @@ namespace BatRun
         {
             try
             {
-                string retroBatPath = Program.GetRetrobatPath();
-                if (!string.IsNullOrEmpty(retroBatPath))
+                if (!string.IsNullOrEmpty(this.retrobatPath))
                 {
-                    string retroBatFolder = Path.GetDirectoryName(retroBatPath) ?? string.Empty;
+                    string retroBatFolder = Path.GetDirectoryName(this.retrobatPath) ?? string.Empty;
                     string esVideoPath = Path.Combine(retroBatFolder, "emulationstation", ".emulationstation", "video");
                     if (Directory.Exists(esVideoPath))
                     {

@@ -8,28 +8,63 @@ namespace BatRun
 {
     internal static class NativeMethods
     {
-        // Native methods will be kept here temporarily to avoid breaking dependencies.
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+
         [DllImport("user32.dll")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
-        // ... other native methods from the original file ...
+
+        [DllImport("user32.dll")]
+        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        public static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern int GetWindowTextLength(IntPtr hWnd);
+
+        public const int SW_RESTORE = 9;
+        public const int SW_SHOW = 5;
+        public const int SW_MINIMIZE = 6;
     }
 
     public class IniFile
     {
-        // The IniFile class will be kept here temporarily.
-        private string filePath;
+        private readonly string filePath;
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern long WritePrivateProfileString(string section, string key, string? val, string filePath);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
         private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
 
         public IniFile(string filePath)
         {
-            this.filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
+            this.filePath = Path.Combine(AppContext.BaseDirectory, filePath);
         }
 
         public void WriteValue(string section, string key, string value)
@@ -42,6 +77,18 @@ namespace BatRun
             StringBuilder retVal = new StringBuilder(255);
             GetPrivateProfileString(section, key, defaultValue, retVal, 255, this.filePath);
             return retVal.ToString();
+        }
+
+        public int ReadInt(string section, string key, int defaultValue)
+        {
+            string value = ReadValue(section, key, defaultValue.ToString());
+            return int.TryParse(value, out int result) ? result : defaultValue;
+        }
+
+        public bool ReadBool(string section, string key, bool defaultValue)
+        {
+            string value = ReadValue(section, key, defaultValue.ToString()).ToLower();
+            return value == "true" || value == "1";
         }
     }
 

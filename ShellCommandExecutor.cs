@@ -16,12 +16,15 @@ namespace BatRun
         private readonly IBatRunProgram? program;
         private readonly WallpaperManager? wallpaperManager;
 
-        public ShellCommandExecutor(IniFile config, Logger logger, IBatRunProgram? program = null, WallpaperManager? wallpaperManager = null)
+        private readonly string retrobatPath;
+
+        public ShellCommandExecutor(IniFile config, Logger logger, string retrobatPath, IBatRunProgram? program = null, WallpaperManager? wallpaperManager = null)
         {
             this.config = config;
             this.logger = logger;
             this.program = program;
             this.wallpaperManager = wallpaperManager;
+            this.retrobatPath = retrobatPath;
             this.applicationManager = new ApplicationManager(config, logger);
             
             // Enregistrer le fournisseur d'encodage pour Windows-1252
@@ -236,21 +239,20 @@ namespace BatRun
                     else
                     {
                         // Fallback au lancement direct si le programme principal n'est pas disponible
-                        string retroBatExe = Program.GetRetrobatPath();
-                        if (!string.IsNullOrEmpty(retroBatExe) && File.Exists(retroBatExe))
+                        if (!string.IsNullOrEmpty(this.retrobatPath) && File.Exists(this.retrobatPath))
                         {
                             logger.LogInfo("Launching RetroBAT");
                             var startInfo = new ProcessStartInfo
                             {
-                                FileName = retroBatExe,
+                                FileName = this.retrobatPath,
                                 UseShellExecute = false,
-                                WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
+                                WorkingDirectory = Path.GetDirectoryName(this.retrobatPath) ?? string.Empty
                             };
                             Process.Start(startInfo);
                         }
                         else
                         {
-                            logger.LogError($"RetroBAT executable not found at: {retroBatExe}");
+                            logger.LogError($"RetroBAT executable not found at: {this.retrobatPath}");
                         }
                     }
                 }

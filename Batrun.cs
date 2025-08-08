@@ -26,16 +26,29 @@ namespace BatRun
 
             config = new IniFile("config.ini");
 
-            wallpaperManager = new WallpaperManager(config, logger, null); // The form reference can be tricky here.
-
             retroBatService = new RetroBatService(logger, config, MinimizeActiveWindows, RestoreActiveWindows);
-            retroBatService.Initialize();
+            retroBatService.Initialize(); // Initialize service to get the path
 
+            wallpaperManager = new WallpaperManager(config, logger, null, retroBatService.GetRetrobatPath()); // The form reference can be tricky here.
             controllerService = new ControllerService(logger, OnHotkeyCombination, config, retroBatService.GetRetrobatPath());
             controllerService.Initialize();
 
             InitializeTrayIcon();
             controllerService.StartPolling();
+
+            // Execute shell commands from original Program.cs constructor
+            Task.Run(async () =>
+            {
+                try
+                {
+                    var shellExecutor = new ShellCommandExecutor(config, logger, retroBatService.GetRetrobatPath(), null, wallpaperManager);
+                    await shellExecutor.ExecuteShellCommandsAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error executing shell commands", ex);
+                }
+            });
         }
 
         public void Run()
