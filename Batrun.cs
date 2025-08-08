@@ -31,9 +31,7 @@ namespace BatRun
         // Ajout de DInputHandler avec initialisation
         private DInputHandler dInputHandler = new DInputHandler(new Logger("BatRun.log"));
 
-        private object launchLock = new object();
-        private DateTime lastLaunchTime = DateTime.MinValue;
-        private const int LAUNCH_COOLDOWN_MS = 5000; // 5 seconds between launches
+        private bool _isLaunching = false;
 
         private List<IntPtr> activeWindows = new List<IntPtr>();
 
@@ -140,6 +138,13 @@ namespace BatRun
 
         private async Task LaunchRetrobat()
         {
+            if (_isLaunching)
+            {
+                logger.LogInfo("Launch already in progress.");
+                return;
+            }
+            _isLaunching = true;
+
             try
             {
                 if (!_retroBatService.IsEmulationStationRunning())
@@ -254,6 +259,10 @@ namespace BatRun
                     esSystemSelectCount = 0;
                     lastESSystemSelectTime = DateTime.MinValue;
                 }
+            }
+            finally
+            {
+                _isLaunching = false;
             }
         }
 
@@ -1209,18 +1218,15 @@ namespace BatRun
 
         public async Task StartRetrobat()
         {
+            if (_isLaunching)
+            {
+                logger.LogInfo("Launch already in progress.");
+                return;
+            }
+            _isLaunching = true;
+
             try
             {
-                lock (launchLock)
-                {
-                    if ((DateTime.Now - lastLaunchTime).TotalMilliseconds < LAUNCH_COOLDOWN_MS)
-                    {
-                        logger.LogInfo("Launch request ignored due to cooldown");
-                        return;
-                    }
-                    lastLaunchTime = DateTime.Now;
-                }
-
                 // Nettoyer l'instance existante d'ESLoadingPlayer si elle existe
                 if (esLoadingPlayer != null)
                 {
@@ -1288,6 +1294,10 @@ namespace BatRun
                     esLoadingPlayer.Dispose();
                     esLoadingPlayer = null;
                 }
+            }
+            finally
+            {
+                _isLaunching = false;
             }
         }
 

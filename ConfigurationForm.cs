@@ -320,8 +320,8 @@ namespace BatRun
                 Close();
 
                     // Redémarrer l'application
-                    Application.Restart();
-                    Environment.Exit(0);
+                    Process.Start(Application.ExecutablePath);
+                    Application.Exit();
                 }
                 else
                 {
