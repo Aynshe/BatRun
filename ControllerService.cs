@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BatRun.Properties;
 using Newtonsoft.Json;
 using SDL2;
 using SharpDX.XInput;
@@ -210,7 +209,7 @@ namespace BatRun
             }
         }
 
-        private void StartPolling()
+        public void StartPolling()
         {
             try
             {

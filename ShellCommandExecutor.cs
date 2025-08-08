@@ -236,21 +236,24 @@ namespace BatRun
                     else
                     {
                         // Fallback au lancement direct si le programme principal n'est pas disponible
-                        string retroBatExe = Program.GetRetrobatPath();
-                        if (!string.IsNullOrEmpty(retroBatExe) && File.Exists(retroBatExe))
+                        if (program != null)
                         {
-                            logger.LogInfo("Launching RetroBAT");
-                            var startInfo = new ProcessStartInfo
+                            string retroBatExe = program.GetRetrobatPath();
+                            if (!string.IsNullOrEmpty(retroBatExe) && File.Exists(retroBatExe))
                             {
-                                FileName = retroBatExe,
-                                UseShellExecute = false,
-                                WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
-                            };
-                            Process.Start(startInfo);
-                        }
-                        else
-                        {
-                            logger.LogError($"RetroBAT executable not found at: {retroBatExe}");
+                                logger.LogInfo("Launching RetroBAT");
+                                var startInfo = new ProcessStartInfo
+                                {
+                                    FileName = retroBatExe,
+                                    UseShellExecute = false,
+                                    WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
+                                };
+                                Process.Start(startInfo);
+                            }
+                            else
+                            {
+                                logger.LogError($"RetroBAT executable not found at: {retroBatExe}");
+                            }
                         }
                     }
                 }

@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using SDL2;
 using Microsoft.Win32;
 using System.Text;
+using System.Threading;
 using BatRun; // Ajout de l'espace de noms
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -14,124 +15,7 @@ using SharpDX.DirectInput;
 
 namespace BatRun
 {
-    internal static class NativeMethods
-    {
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
 
-        [DllImport("user32.dll")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("user32.dll")]
-        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
-        [DllImport("user32.dll")]
-        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr ProcessId);
-
-        [DllImport("kernel32.dll")]
-        public static extern uint GetCurrentThreadId();
-
-        [DllImport("user32.dll")]
-        public static extern bool BringWindowToTop(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        public static extern bool AllowSetForegroundWindow(int dwProcessId);
-
-        public delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        public static extern bool IsWindowVisible(IntPtr hWnd);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetWindowText(IntPtr hWnd, StringBuilder strText, int maxCount);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetWindowTextLength(IntPtr hWnd);
-
-        public const int SW_RESTORE = 9;
-        public const int SW_SHOW = 5;
-        public const int SW_SHOWNOACTIVATE = 4;
-        public const int SW_MINIMIZE = 6;
-
-        [DllImport("kernel32.dll")]
-        public static extern bool SetProcessWorkingSetSize(IntPtr process, int minimumWorkingSetSize, int maximumWorkingSetSize);
-    }
-
-    public class IniFile
-    {
-        private string filePath;
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern uint GetPrivateProfileString(
-            string lpAppName,
-            string lpKeyName,
-            string lpDefault,
-            StringBuilder lpReturnedString,
-            uint nSize,
-            string lpFileName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern bool WritePrivateProfileString(
-            string lpAppName,
-            string lpKeyName,
-            string lpString,
-            string lpFileName);
-
-        public IniFile(string filePath)
-        {
-            this.filePath = filePath;
-            EnsureConfigFileExists();
-        }
-
-        private void EnsureConfigFileExists()
-        {
-            if (!File.Exists(filePath))
-            {
-                var directoryPath = Path.GetDirectoryName(filePath);
-                if (!string.IsNullOrEmpty(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
-                }
-
-                // Write default values
-                WriteValue("Focus", "FocusDuration", "9000");
-                WriteValue("Focus", "FocusInterval", "3000");
-                WriteValue("Windows", "MinimizeWindows", "true");
-                WriteValue("Logging", "EnableLogging", "false");
-            }
-        }
-
-        public void WriteValue(string section, string key, string value)
-        {
-            WritePrivateProfileString(section, key, value, filePath);
-        }
-
-        public string ReadValue(string section, string key, string defaultValue)
-        {
-            StringBuilder result = new StringBuilder(255);
-            GetPrivateProfileString(section, key, defaultValue, result, (uint)result.Capacity, filePath);
-            return result.ToString();
-        }
-
-        public int ReadInt(string section, string key, int defaultValue)
-        {
-            string value = ReadValue(section, key, defaultValue.ToString());
-            return int.TryParse(value, out int result) ? result : defaultValue;
-        }
-
-        public bool ReadBool(string section, string key, bool defaultValue)
-        {
-            string value = ReadValue(section, key, defaultValue.ToString()).ToLower();
-            return value == "true" || value == "1";
-        }
-    }
 
     public class Batrun : IBatRunProgram, IDisposable
     {
@@ -147,14 +31,13 @@ namespace BatRun
         // Ajout de DInputHandler avec initialisation
         private DInputHandler dInputHandler = new DInputHandler(new Logger("BatRun.log"));
 
-        private object launchLock = new object();
-        private DateTime lastLaunchTime = DateTime.MinValue;
-        private const int LAUNCH_COOLDOWN_MS = 5000; // 5 seconds between launches
+        private bool _isLaunching = false;
 
         private List<IntPtr> activeWindows = new List<IntPtr>();
 
         private bool _emulationStationPollingLogged = false;
 
+        private Icon? _appIcon;
         private WallpaperManager? wallpaperManager;
 
         public const string APP_VERSION = "2.1.2";
@@ -171,9 +54,11 @@ namespace BatRun
 
         private DateTime lastStartButtonTime = DateTime.MinValue;
         private const int START_BUTTON_COOLDOWN_MS = 1000; // 1 seconde de cooldown
+        private readonly SynchronizationContext _syncContext;
 
         public Batrun()
         {
+            _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
             // Initialisation minimale
             config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
             logger = new Logger("BatRun.log");
@@ -253,6 +138,13 @@ namespace BatRun
 
         private async Task LaunchRetrobat()
         {
+            if (_isLaunching)
+            {
+                logger.LogInfo("Launch already in progress.");
+                return;
+            }
+            _isLaunching = true;
+
             try
             {
                 if (!_retroBatService.IsEmulationStationRunning())
@@ -289,12 +181,12 @@ namespace BatRun
                     {
                         await Task.Run(() =>
                         {
-                            this.Invoke((MethodInvoker)delegate
+                            _syncContext.Post(_ =>
                             {
                                 splash = new HotkeySplashForm();
                                 splash.Show();
                                 Application.DoEvents();
-                            });
+                            }, null);
                         });
                         await Task.Delay(2500);
                     }
@@ -305,11 +197,11 @@ namespace BatRun
 
                     if (splash != null)
                     {
-                        this.Invoke((MethodInvoker)delegate
+                        _syncContext.Post(_ =>
                         {
                             splash.Close();
                             splash.Dispose();
-                        });
+                        }, null);
                     }
 
                     int maxAttempts = 10;
@@ -367,6 +259,10 @@ namespace BatRun
                     esSystemSelectCount = 0;
                     lastESSystemSelectTime = DateTime.MinValue;
                 }
+            }
+            finally
+            {
+                _isLaunching = false;
             }
         }
 
@@ -609,21 +505,20 @@ namespace BatRun
             try
             {
                 string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
-                Icon? appIcon = null;
 
                 if (File.Exists(iconPath))
                 {
-                    appIcon = new Icon(iconPath);
+                    _appIcon = new Icon(iconPath);
                 }
                 else
                 {
                     logger.LogError($"Icon file not found at: {iconPath}");
-                    appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                    _appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
                 }
 
                 trayIcon = new NotifyIcon
                 {
-                    Icon = appIcon,
+                    Icon = _appIcon,
                     Text = "BatRun",
                     Visible = true
                 };
@@ -847,7 +742,7 @@ namespace BatRun
             configForm.ShowDialog();
 
             // Recharger les mappings après la configuration
-            LoadDirectInputMappings();
+            _controllerService.LoadDirectInputMappings();
         }
 
         public void OpenLogFile()
@@ -1019,7 +914,7 @@ namespace BatRun
 
             while (elapsedTime < maxWaitTime)
             {
-                if (IsEmulationStationRunning())
+                if (_retroBatService.IsEmulationStationRunning())
                 {
                     // Lancer EmulationStation
                     LaunchEmulationStation();
@@ -1051,9 +946,9 @@ namespace BatRun
                 mainForm = new MainForm(this, logger, config);
 
                 // S'assurer que l'icône est héritée du programme principal
-                if (this.Icon != null)
+                if (_appIcon != null)
                 {
-                    mainForm.Icon = (Icon)this.Icon.Clone();
+                    mainForm.Icon = (Icon)_appIcon.Clone();
                 }
             }
 
@@ -1062,7 +957,7 @@ namespace BatRun
             mainForm.WindowState = FormWindowState.Normal;
             mainForm.ShowInTaskbar = true;
             mainForm.BringToFront();
-            main.Activate();
+            mainForm.Activate();
         }
 
         public async Task CheckForUpdates()
@@ -1093,6 +988,11 @@ namespace BatRun
             return APP_VERSION;
         }
 
+        public string GetRetrobatPath()
+        {
+            return _retroBatService.GetRetrobatPath();
+        }
+
         private void CheckExplorerAndInitialize()
         {
             bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
@@ -1121,12 +1021,6 @@ namespace BatRun
             }
 
             // Dans tous les cas, minimiser dans le systray
-            if (this != null)
-            {
-                this.WindowState = FormWindowState.Minimized;
-                this.ShowInTaskbar = false;
-                this.Hide();
-            }
             InitializeTrayIcon();
         }
 
@@ -1175,14 +1069,14 @@ namespace BatRun
                         eventWaitHandle.WaitOne();
 
                         // Traiter le signal dans l'instance principale
-                        this.Invoke(new Action(() =>
+                        _syncContext.Post(_ =>
                         {
                             bool isShellMode = config.ReadBool("Shell", "EnableCustomUI", false);
                             if ((hideESLoading || isShellMode) && isESStarting && esSystemSelectCount < 5)
                             {
                                 HandleESSystemSelect();
                             }
-                        }));
+                        }, null);
                     }
                 }
             });
@@ -1324,18 +1218,15 @@ namespace BatRun
 
         public async Task StartRetrobat()
         {
+            if (_isLaunching)
+            {
+                logger.LogInfo("Launch already in progress.");
+                return;
+            }
+            _isLaunching = true;
+
             try
             {
-                lock (launchLock)
-                {
-                    if ((DateTime.Now - lastLaunchTime).TotalMilliseconds < LAUNCH_COOLDOWN_MS)
-                    {
-                        logger.LogInfo("Launch request ignored due to cooldown");
-                        return;
-                    }
-                    lastLaunchTime = DateTime.Now;
-                }
-
                 // Nettoyer l'instance existante d'ESLoadingPlayer si elle existe
                 if (esLoadingPlayer != null)
                 {
@@ -1371,7 +1262,7 @@ namespace BatRun
                     }
                 }
 
-                string retroBatExe = GetRetrobatPath();
+                string retroBatExe = _retroBatService.GetRetrobatPath();
                 if (string.IsNullOrEmpty(retroBatExe))
                 {
                     logger.LogError("RetroBAT executable not found");
@@ -1379,14 +1270,7 @@ namespace BatRun
                 }
 
                 logger.LogInfo("Starting RetroBAT");
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = retroBatExe,
-                    UseShellExecute = false,
-                    WorkingDirectory = Path.GetDirectoryName(retroBatExe) ?? string.Empty
-                };
-
-                Process.Start(startInfo);
+                await _retroBatService.Launch();
                 isESStarting = true;
 
                 // Pause le média en cours si nécessaire
@@ -1395,9 +1279,6 @@ namespace BatRun
                     logger.LogInfo("EmulationStation has started or loading video is playing, pausing media");
                     wallpaperManager.PauseMedia();
                 }
-
-                // Attendre la durée de l'intro si configurée
-                await CheckIntroSettings();
 
                 if (!hideESLoading)
                 {
@@ -1413,6 +1294,10 @@ namespace BatRun
                     esLoadingPlayer.Dispose();
                     esLoadingPlayer = null;
                 }
+            }
+            finally
+            {
+                _isLaunching = false;
             }
         }
 
@@ -1479,8 +1364,4 @@ namespace BatRun
         }
     }
 
-    public class LoggingConfig
-    {
-        public bool IsDetailedLoggingEnabled { get; set; } = false;
-    }
 }
