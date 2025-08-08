@@ -14,6 +14,18 @@ namespace BatRun
         static void Main()
         {
             string[] args = Environment.GetCommandLineArgs();
+
+            if (args.Length > 1 && args[0] == "-waitforpid")
+            {
+                try
+                {
+                    int pid = int.Parse(args[1]);
+                    Process oldProcess = Process.GetProcessById(pid);
+                    oldProcess.WaitForExit(5000); // Wait up to 5 seconds
+                }
+                catch (Exception) { /* Ignore errors */ }
+            }
+
             if (args.Length > 1 && args[1].Trim() == "-ES_System_select")
             {
                 using (var eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, "BatRun_ES_System_Select"))

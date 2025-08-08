@@ -320,7 +320,8 @@ namespace BatRun
                 Close();
 
                     // Redémarrer l'application
-                    Process.Start(Application.ExecutablePath);
+                    int currentPid = Process.GetCurrentProcess().Id;
+                    Process.Start(Application.ExecutablePath, $"-waitforpid {currentPid}");
                     Application.Exit();
                 }
                 else
