@@ -39,6 +39,8 @@ namespace BatRun
         private Label retroBatDelayNumericLabel = new();
         private readonly Logger logger;
         private readonly ConfigurationForm? configForm;
+        private ComboBox? comboBoxWallpaper;
+        private ComboBox? comboBoxWallpaperFolder;
 
         private Label selectedGameLabel = new();
         private Button selectGameButton = new();
@@ -853,6 +855,7 @@ try {
             // Here we just need to save the other shell commands.
 
             // This is where the warning was. Providing a default value.
+            // And now the variables should be in scope.
             config.WriteValue("Wallpaper", "Selected", comboBoxWallpaper?.SelectedItem?.ToString() ?? "None");
             config.WriteValue("Wallpaper", "SelectedFolder", comboBoxWallpaperFolder?.SelectedItem?.ToString() ?? "/");
 
