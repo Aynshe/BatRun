@@ -10,7 +10,7 @@ namespace BatRun
     {
         private readonly EmulationStationApi esApi;
         private readonly Logger logger;
-        private List<SystemInfo> systems;
+        private List<SystemInfo>? systems;
         private SystemInfo? selectedSystem;
 
         public Game? SelectedGame { get; private set; }
@@ -43,17 +43,22 @@ namespace BatRun
 
             systems = await esApi.GetSystemsAsync();
             systemListBox.Items.Clear();
-            foreach (var system in systems.Where(s => s.totalGames > 0))
+            if (systems != null)
             {
-                systemListBox.Items.Add(system.fullname);
+                foreach (var system in systems.Where(s => s.totalGames > 0 && s.fullname != null))
+                {
+                    systemListBox.Items.Add(system.fullname!);
+                }
             }
         }
 
         private async void SystemListBox_DoubleClick(object sender, EventArgs e)
         {
-            if (systemListBox.SelectedItem == null) return;
+            if (systemListBox.SelectedItem == null || systems == null) return;
 
-            string selectedSystemName = systemListBox.SelectedItem.ToString();
+            string? selectedSystemName = systemListBox.SelectedItem.ToString();
+            if (selectedSystemName == null) return;
+
             selectedSystem = systems.FirstOrDefault(s => s.fullname == selectedSystemName);
 
             if (selectedSystem != null)
@@ -69,6 +74,7 @@ namespace BatRun
             gameListBox.Visible = true;
             backButton.Visible = true;
 
+            if (system.name == null) return;
             var games = await esApi.GetGamesForSystemAsync(system.name);
             gameListBox.Items.Clear();
             gameListBox.DataSource = games;

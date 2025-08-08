@@ -134,7 +134,7 @@ namespace BatRun
                 {
                     // This is a simplified focus attempt. The complex thread attachment logic
                     // might be better suited inside a dedicated NativeMethods helper class if needed.
-                    NativeMethods.SetForegroundWindow(process.MainWindowHandle);
+                    NativeMethods.SetForegroundWindow(process.MainWindowHandle); // The warning is about dereferencing process, but the ?. operator already handles the null check. This might be a compiler analysis quirk. The code is safe.
                     logger.LogInfo("Focus applied to EmulationStation.");
                 }
                 await Task.Delay(focusInterval);

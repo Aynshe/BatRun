@@ -852,6 +852,11 @@ try {
             // Logic for saving the auto-launch game is handled in SelectGameButton_Click.
             // Here we just need to save the other shell commands.
 
+            // This is where the warning was. Providing a default value.
+            config.WriteValue("Wallpaper", "Selected", comboBoxWallpaper?.SelectedItem?.ToString() ?? "None");
+            config.WriteValue("Wallpaper", "SelectedFolder", comboBoxWallpaperFolder?.SelectedItem?.ToString() ?? "/");
+
+
             // Nettoyer toutes les anciennes entrées de configuration
             int oldCommandCount = config.ReadInt("Shell", "CommandCount", 0);
             int oldAppCount = config.ReadInt("Shell", "AppCount", 0);

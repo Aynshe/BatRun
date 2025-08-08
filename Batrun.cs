@@ -13,7 +13,7 @@ namespace BatRun
         private readonly IniFile config;
         private readonly ControllerService controllerService;
         private readonly RetroBatService retroBatService;
-        private NotifyIcon trayIcon;
+        private NotifyIcon? trayIcon;
         private List<IntPtr> activeWindows = new List<IntPtr>();
         private WallpaperManager? wallpaperManager;
         private ESLoadingPlayer? esLoadingPlayer;
@@ -150,11 +150,14 @@ namespace BatRun
             controllerService.Cleanup();
             wallpaperManager?.CloseWallpaper();
             esLoadingPlayer?.Dispose();
-            trayIcon.Visible = false;
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+            }
             Application.Exit();
         }
 
-        protected override void OnMainFormClosed(object sender, EventArgs e)
+        protected override void OnMainFormClosed(object? sender, EventArgs e)
         {
             // This is called when Application.Exit() is called.
             // We override it to make sure we clean up properly.
