@@ -16,6 +16,7 @@ namespace BatRun
         private readonly string startupPath;
         private readonly Logger logger;
         private readonly IBatRunProgram program;
+        private readonly LibVLCSharp.Shared.LibVLC _libVLC;
 
         private const string RUN_REGISTRY_KEY = @"Software\Microsoft\Windows\CurrentVersion\Run";
         private const string APP_NAME = "BatRun";
@@ -28,11 +29,12 @@ namespace BatRun
 
         private bool isInitializing = true;
 
-        public ConfigurationForm(IniFile config, Logger logger, IBatRunProgram program)
+        public ConfigurationForm(IniFile config, Logger logger, IBatRunProgram program, LibVLCSharp.Shared.LibVLC libVLC)
         {
             this.config = config;
             this.logger = logger;
             this.program = program;
+            this._libVLC = libVLC;
             
             InitializeComponent();
 
@@ -685,7 +687,7 @@ namespace BatRun
             {
                 config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
                 
-                var wallpaperManager = new WallpaperManager(config, logger, program);
+                var wallpaperManager = new WallpaperManager(config, logger, program, _libVLC);
                 if (Process.GetProcessesByName("explorer").Length > 0)
                 {
                     if (checkBoxEnableWithExplorer.Checked)
@@ -750,7 +752,7 @@ namespace BatRun
                     config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
 
                     // Créer une nouvelle instance et afficher le fond d'écran
-                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    var wallpaperManager = new WallpaperManager(config, logger, program, _libVLC);
                     wallpaperManager.ShowWallpaper(forceShow: true);
                 }
                 catch (Exception ex)
@@ -776,7 +778,7 @@ namespace BatRun
                     GC.WaitForPendingFinalizers();
 
                     // Ensuite, fermer proprement le wallpaper
-                    var wallpaperManager = new WallpaperManager(config, logger, program);
+                    var wallpaperManager = new WallpaperManager(config, logger, program, _libVLC);
                     wallpaperManager.CloseWallpaper();
                 }
                 catch (Exception ex)

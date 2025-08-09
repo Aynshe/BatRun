@@ -32,12 +32,14 @@ namespace BatRun
         private Label? versionLabel;
         private Panel? updateStatusPanel;
         private Label? updateStatusLabel;
+        private readonly LibVLCSharp.Shared.LibVLC _libVLC;
 
-        public MainForm(IBatRunProgram program, Logger logger, IniFile config)
+        public MainForm(IBatRunProgram program, Logger logger, IniFile config, LibVLCSharp.Shared.LibVLC libVLC)
         {
             this.mainProgram = program;
             this.logger = logger;
             this.config = config;
+            this._libVLC = libVLC;
             this.updateChecker = new UpdateChecker(logger, program.GetAppVersion());
             InitializeComponent();
 
@@ -488,7 +490,7 @@ namespace BatRun
             // Bouton Shell avec une nouvelle couleur
             var shellButton = CreateStyledButton("Shell Launcher", Color.FromArgb(104, 33, 122));
             shellButton.Click += (s, e) => mainProgram.SafeExecute(() => {
-                var shellConfigForm = new ShellConfigurationForm(config, logger);
+                var shellConfigForm = new ShellConfigurationForm(config, logger, null, _libVLC);
                 shellConfigForm.ShowDialog();
             });
             shellLayout.Controls.Add(shellButton, 0, 1);

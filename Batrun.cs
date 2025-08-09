@@ -725,7 +725,7 @@ namespace BatRun
                     return;
                 }
 
-                var configForm = new ConfigurationForm(config, logger, this);
+                var configForm = new ConfigurationForm(config, logger, this, _libVLC);
                 configForm.Show();
             }
             catch (Exception ex)
@@ -946,7 +946,7 @@ namespace BatRun
         {
             if (mainForm == null || mainForm.IsDisposed)
             {
-                mainForm = new MainForm(this, logger, config);
+                mainForm = new MainForm(this, logger, config, _libVLC);
 
                 // S'assurer que l'icône est héritée du programme principal
                 if (_appIcon != null)

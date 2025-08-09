@@ -12,7 +12,7 @@ namespace BatRun
     {
         private readonly Dictionary<string, string> _metadata;
         private readonly string _romsBasePath;
-        private LibVLC? _libVLC;
+        private readonly LibVLC _libVLC;
 
         public MetadataViewerForm(Dictionary<string, string> metadata, string retrobatBasePath, string systemName, LibVLC libVLC)
         {
