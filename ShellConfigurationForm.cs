@@ -13,13 +13,22 @@ using System.Globalization;
 
 namespace BatRun
 {
+    public enum CommandType
+    {
+        Application,
+        Command,
+        ScrapedGame
+    }
+
     public class ShellCommand
     {
         public bool IsEnabled { get; set; }
         public string Path { get; set; } = string.Empty;
         public int DelaySeconds { get; set; }
         public int Order { get; set; }
-        public bool IsCommand { get; set; }
+        public CommandType Type { get; set; } = CommandType.Application;
+        public string? GameSystemName { get; set; } // For ScrapedGame
+        public string? GamePath { get; set; } // For ScrapedGame, this is the ROM path
         public bool AutoHide { get; set; }
         public bool DoubleLaunch { get; set; }
         public int DoubleLaunchDelay { get; set; }
@@ -66,6 +75,10 @@ namespace BatRun
                 launchRetroBatCheckBox.Checked = config.ReadBool("Shell", "LaunchRetroBatAtEnd", false);
             if (retroBatDelayNumeric != null)
                 retroBatDelayNumeric.Value = config.ReadInt("Shell", "RetroBatDelay", 0);
+
+            var randomGameCheckBox = this.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
+            if (randomGameCheckBox != null)
+                randomGameCheckBox.Checked = config.ReadBool("Shell", "LaunchRandomGame", false);
         }
 
         private void UpdateLocalizedTexts()
@@ -108,6 +121,34 @@ namespace BatRun
             }
         }
 
+        private void ScrapButton_Click(object? sender, EventArgs e)
+        {
+            var scraper = new EmulationStationScraper(); // Assuming default IP is fine
+            using var gameSelectionForm = new GameSelectionForm(scraper);
+
+            if (gameSelectionForm.ShowDialog() == DialogResult.OK)
+            {
+                var selectedGame = gameSelectionForm.SelectedGame;
+                var selectedSystem = gameSelectionForm.SelectedSystem;
+
+                if (selectedGame != null && selectedSystem != null)
+                {
+                    var command = new ShellCommand
+                    {
+                        IsEnabled = true,
+                        Path = $"{selectedGame.Name} ({selectedSystem.fullname})", // Display path
+                        DelaySeconds = 0,
+                        Order = commands.Count,
+                        Type = CommandType.ScrapedGame,
+                        GameSystemName = selectedSystem.name,
+                        GamePath = selectedGame.Path // The actual ROM path for launching
+                    };
+                    commands.Add(command);
+                    AddCommandToListView(command);
+                }
+            }
+        }
+
         private void InitializeComponent()
         {
             // Configuration de base de la fenêtre
@@ -145,7 +186,7 @@ namespace BatRun
             var topPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 80,
+                Height = 110, // Increased height for the new checkbox
                 BackColor = Color.Transparent,
                 Padding = new Padding(10)
             };
@@ -203,6 +244,18 @@ namespace BatRun
 
             topPanel.Controls.Add(retroBatPanel);
 
+            // Troisième ligne : Launch Random Game
+            var randomGameCheckBox = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Launch a random game at startup (Shell Launcher only)"),
+                AutoSize = true,
+                Location = new Point(10, 70),
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                Name = "randomGameCheckBox" // Give it a name to find it later
+            };
+            topPanel.Controls.Add(randomGameCheckBox);
+
             // Panneau des boutons d'action
             var actionPanel = new FlowLayoutPanel
             {
@@ -237,8 +290,21 @@ namespace BatRun
             };
             removeButton.Click += RemoveButton_Click;
 
+            var scrapButton = new Button
+            {
+                Text = "Scrap Game",
+                Width = 100,
+                Height = 30,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(28, 151, 62),
+                ForeColor = Color.White,
+                Margin = new Padding(10, 0, 5, 0)
+            };
+            scrapButton.Click += ScrapButton_Click;
+
             actionPanel.Controls.Add(addButton);
             actionPanel.Controls.Add(removeButton);
+            actionPanel.Controls.Add(scrapButton);
 
             // ListView pour les commandes
             commandListView = new ListView
@@ -422,7 +488,7 @@ try {
                         Path = path,
                         DelaySeconds = delay,
                         Order = order,
-                        IsCommand = false,
+                        Type = CommandType.Application,
                         AutoHide = autoHide,
                         DoubleLaunch = doubleLaunch,
                         DoubleLaunchDelay = doubleLaunchDelay,
@@ -431,6 +497,27 @@ try {
                         RetroBatDelay = retroBatDelay
                     };
                     tempCommands.Add((command, order));
+                }
+            }
+
+            // Charger les jeux scrapés
+            int scrapedGameCount = config.ReadInt("Shell", "ScrapedGameCount", 0);
+            for (int i = 0; i < scrapedGameCount; i++)
+            {
+                string displayName = config.ReadValue("Shell", $"ScrapedGame{i}DisplayName", "");
+                if (!string.IsNullOrEmpty(displayName))
+                {
+                    var command = new ShellCommand
+                    {
+                        IsEnabled = config.ReadBool("Shell", $"ScrapedGame{i}Enabled", false),
+                        Path = displayName,
+                        DelaySeconds = config.ReadInt("Shell", $"ScrapedGame{i}Delay", 0),
+                        Order = config.ReadInt("Shell", $"ScrapedGame{i}Order", i),
+                        Type = CommandType.ScrapedGame,
+                        GameSystemName = config.ReadValue("Shell", $"ScrapedGame{i}SystemName", ""),
+                        GamePath = config.ReadValue("Shell", $"ScrapedGame{i}GamePath", "")
+                    };
+                    tempCommands.Add((command, command.Order));
                 }
             }
 
@@ -455,7 +542,7 @@ try {
             item.SubItems.Add(command.Path);
             item.SubItems.Add(command.IsEnabled ? "✓" : "");
             item.SubItems.Add(command.DelaySeconds.ToString());
-            item.SubItems.Add(command.IsCommand ? LocalizedStrings.GetString("Command") : LocalizedStrings.GetString("Application"));
+            item.SubItems.Add(GetCommandTypeString(command.Type));
             item.SubItems.Add(command.AutoHide ? "✓" : "");
             item.SubItems.Add(command.DoubleLaunch ? "✓" : "");
 
@@ -463,7 +550,7 @@ try {
             commandListView.Items.Add(item);
 
             // Si c'est une application et que AutoHide est activé, ajouter son exécutable à la liste persistante
-            if (!command.IsCommand && command.AutoHide)
+            if (command.Type == CommandType.Application && command.AutoHide)
             {
                 string executableName = Path.GetFileName(command.Path);
                 if (!string.IsNullOrEmpty(executableName))
@@ -490,6 +577,17 @@ try {
                     }
                 }
             }
+        }
+
+        private string GetCommandTypeString(CommandType type)
+        {
+            return type switch
+            {
+                CommandType.Application => LocalizedStrings.GetString("Application"),
+                CommandType.Command => LocalizedStrings.GetString("Command"),
+                CommandType.ScrapedGame => LocalizedStrings.GetString("Scraped Game"),
+                _ => string.Empty,
+            };
         }
 
         private void AddButton_Click(object? sender, EventArgs e)
@@ -524,7 +622,7 @@ try {
                             Path = dialog.FileName,
                             DelaySeconds = delay,
                             Order = commands.Count,
-                            IsCommand = false,
+                            Type = CommandType.Application,
                             OnlyOneInstance = onlyOneInstance
                         };
                         commands.Add(command);
@@ -641,7 +739,7 @@ try {
                             Path = textBox.Text,
                             DelaySeconds = delay,
                             Order = commands.Count,
-                            IsCommand = true
+                            Type = CommandType.Command
                         };
                         commands.Add(command);
                         AddCommandToListView(command);
@@ -803,17 +901,20 @@ try {
             config.WriteValue("Shell", "LaunchRetroBatAtEnd", launchRetroBatCheckBox?.Checked.ToString() ?? "False");
             config.WriteValue("Shell", "RetroBatDelay", retroBatDelayNumeric?.Value.ToString() ?? "0");
 
+            var randomGameCheckBox = this.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
+            if (randomGameCheckBox != null)
+                config.WriteValue("Shell", "LaunchRandomGame", randomGameCheckBox.Checked.ToString());
+
+            int scrapedGameCount = 0;
             foreach (var command in commands)
+            {
+                switch (command.Type)
                 {
-                    if (command.IsCommand)
-                    {
+                    case CommandType.Command:
                         // Sauvegarder la commande dans un fichier batch
                         string batchFile = Path.Combine(commandsDirectory, $"command_{commandCount}.bat");
-                        
-                        // Utiliser l'encodage Windows-1252 (ANSI) pour les fichiers batch
                         File.WriteAllText(batchFile, command.Path, Encoding.GetEncoding(1252));
                         
-                        // Sauvegarder les métadonnées dans config.ini
                         config.WriteValue("Shell", $"Command{commandCount}Path", batchFile);
                         config.WriteValue("Shell", $"Command{commandCount}Enabled", command.IsEnabled.ToString());
                         config.WriteValue("Shell", $"Command{commandCount}Delay", command.DelaySeconds.ToString());
@@ -822,10 +923,9 @@ try {
                         config.WriteValue("Shell", $"Command{commandCount}DoubleLaunch", command.DoubleLaunch.ToString());
                         config.WriteValue("Shell", $"Command{commandCount}DoubleLaunchDelay", command.DoubleLaunchDelay.ToString());
                         commandCount++;
-                    }
-                    else
-                    {
-                        // Sauvegarder l'application dans config.ini
+                        break;
+
+                    case CommandType.Application:
                         config.WriteValue("Shell", $"App{appCount}Path", command.Path);
                         config.WriteValue("Shell", $"App{appCount}Enabled", command.IsEnabled.ToString());
                         config.WriteValue("Shell", $"App{appCount}Delay", command.DelaySeconds.ToString());
@@ -835,12 +935,24 @@ try {
                         config.WriteValue("Shell", $"App{appCount}DoubleLaunchDelay", command.DoubleLaunchDelay.ToString());
                         config.WriteValue("Shell", $"App{appCount}OnlyOneInstance", command.OnlyOneInstance.ToString());
                         appCount++;
-                    }
+                        break;
+
+                    case CommandType.ScrapedGame:
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}DisplayName", command.Path);
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Enabled", command.IsEnabled.ToString());
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Delay", command.DelaySeconds.ToString());
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Order", order.ToString());
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}SystemName", command.GameSystemName);
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}GamePath", command.GamePath);
+                        scrapedGameCount++;
+                        break;
+                }
                 order++;
             }
 
             config.WriteValue("Shell", "CommandCount", commandCount.ToString());
             config.WriteValue("Shell", "AppCount", appCount.ToString());
+            config.WriteValue("Shell", "ScrapedGameCount", scrapedGameCount.ToString());
             
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -937,9 +1049,17 @@ try {
 
         private static void EditCommand(ShellCommand command, ListViewItem item)
         {
+            if (command.Type == CommandType.ScrapedGame)
+            {
+                // For now, scraped games are not editable in this way.
+                // In the future, this could re-open the selection form.
+                MessageBox.Show("Scraped game commands cannot be edited directly.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
             using var commandForm = new Form
             {
-                Text = command.IsCommand ? "Edit Command" : "Edit Application Path",
+                Text = command.Type == CommandType.Command ? "Edit Command" : "Edit Application Path",
                 Size = new Size(800, 400),  // Retour à la taille d'origine
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
@@ -961,27 +1081,20 @@ try {
                 AcceptsTab = true
             };
 
-            if (command.IsCommand)
-            {
-                textBox.Text = command.Path;
-            }
-            else
-            {
-                textBox.Text = command.Path;
-            }
+            textBox.Text = command.Path;
 
-                var browseButton = new Button
-                {
-                    Text = "Browse...",
-                    Size = new Size(80, 30),
+            var browseButton = new Button
+            {
+                Text = "Browse...",
+                Size = new Size(80, 30),
                 Location = new Point(690, 10),
-                    BackColor = Color.FromArgb(60, 60, 60),
-                    ForeColor = Color.White,
-                    FlatStyle = FlatStyle.Flat,
-                    Visible = !command.IsCommand
-                };
+                BackColor = Color.FromArgb(60, 60, 60),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Visible = command.Type == CommandType.Application
+            };
 
-                browseButton.Click += (s, e) =>
+            browseButton.Click += (s, e) =>
                 {
                     using var dialog = new OpenFileDialog
                     {
@@ -1021,7 +1134,7 @@ try {
                 AutoSize = true,
                 ForeColor = Color.White,
                 Checked = command.OnlyOneInstance,
-                Visible = !command.IsCommand
+                Visible = command.Type == CommandType.Application
                 };
 
                 var okButton = new Button
@@ -1058,14 +1171,14 @@ try {
                 {
                     command.Path = textBox.Text;
                     command.DelaySeconds = (int)delayNumeric.Value;
-                if (!command.IsCommand)
-                {
-                    command.OnlyOneInstance = onlyOneInstanceCheckBox.Checked;
-                }
+                    if (command.Type == CommandType.Application)
+                    {
+                        command.OnlyOneInstance = onlyOneInstanceCheckBox.Checked;
+                    }
 
                     item.SubItems[1].Text = command.Path;
-                item.SubItems[3].Text = command.DelaySeconds.ToString();
-            }
+                    item.SubItems[3].Text = command.DelaySeconds.ToString();
+                }
         }
 
         private void WindowsPolicyCheckBox_CheckedChanged(object? sender, EventArgs e)
