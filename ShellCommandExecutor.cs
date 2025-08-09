@@ -299,7 +299,10 @@ namespace BatRun
             // If it's a random launch, we need to pick a game now
             if (isRandomLaunch)
             {
-                var allGames = await scraper.GetAllGamesAsync();
+                string randomSystem = config.ReadValue("Shell", "RandomLaunchSystem", "all");
+                logger.LogInfo($"Random launch mode active. Selected system: {randomSystem}");
+
+                var allGames = await scraper.GetAllGamesAsync(randomSystem == "all" ? null : randomSystem);
                 if (allGames.Count > 0)
                 {
                     var random = new Random();

@@ -45,7 +45,8 @@ namespace BatRun
                 response.EnsureSuccessStatusCode();
                 var content = await response.Content.ReadAsStringAsync();
                 var systems = JsonConvert.DeserializeObject<List<SystemInfo>>(content);
-                return systems ?? new List<SystemInfo>();
+                // Filter out the 'retrobat' system as it's not a real game system
+                return systems?.Where(s => s.name != "retrobat").ToList() ?? new List<SystemInfo>();
             }
             catch (Exception ex)
             {
@@ -93,14 +94,25 @@ namespace BatRun
             return games;
         }
 
-        public async Task<List<Game>> GetAllGamesAsync()
+        public async Task<List<Game>> GetAllGamesAsync(string? systemName = null)
         {
             var allGames = new List<Game>();
-            var systems = await GetSystemsAsync();
+            List<SystemInfo> systemsToScan;
 
-            foreach (var system in systems.Where(s => s.totalGames > 0))
+            if (!string.IsNullOrEmpty(systemName))
             {
-                var games = await GetGamesForSystemAsync(system.name ?? "");
+                // If a specific system is requested, just create a list with that one
+                systemsToScan = new List<SystemInfo> { new SystemInfo { name = systemName } };
+            }
+            else
+            {
+                // Otherwise, get all systems (already filtered)
+                systemsToScan = await GetSystemsAsync();
+            }
+
+            foreach (var system in systemsToScan.Where(s => s.name != null))
+            {
+                var games = await GetGamesForSystemAsync(system.name!);
                 allGames.AddRange(games);
             }
 

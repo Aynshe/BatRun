@@ -47,6 +47,7 @@ namespace BatRun
         private NumericUpDown? retroBatDelayNumeric;
         private Label retroBatDelayNumericLabel = new();
         private Label? postLaunchGameLabel;
+        private ComboBox? randomSystemComboBox;
         private string _postLaunchGamePath = string.Empty;
         private string _postLaunchGameDisplayName = string.Empty;
         private readonly Logger logger;
@@ -81,7 +82,14 @@ namespace BatRun
 
             var randomGameCheckBox = this.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
             if (randomGameCheckBox != null)
+            {
                 randomGameCheckBox.Checked = config.ReadBool("Shell", "LaunchRandomGame", false);
+                // If it's checked on load, we need to trigger the population of the combobox
+                if (randomGameCheckBox.Checked)
+                {
+                    RandomGameCheckBox_CheckedChanged(randomGameCheckBox, EventArgs.Empty);
+                }
+            }
 
             _postLaunchGameDisplayName = config.ReadValue("PostLaunch", "DisplayName", "");
             _postLaunchGamePath = config.ReadValue("PostLaunch", "GamePath", "");
@@ -138,6 +146,49 @@ namespace BatRun
             if (postLaunchGameLabel != null)
             {
                 postLaunchGameLabel.Text = "Game to launch after RetroBat: None";
+            }
+        }
+
+        private async void RandomGameCheckBox_CheckedChanged(object? sender, EventArgs e)
+        {
+            if (randomSystemComboBox == null) return;
+
+            var checkBox = sender as CheckBox;
+            if (checkBox?.Checked == true)
+            {
+                randomSystemComboBox.Enabled = true;
+                await PopulateRandomSystemComboBox();
+            }
+            else
+            {
+                randomSystemComboBox.Enabled = false;
+                randomSystemComboBox.DataSource = null;
+            }
+        }
+
+        private async Task PopulateRandomSystemComboBox()
+        {
+            if (randomSystemComboBox == null) return;
+
+            randomSystemComboBox.Items.Clear();
+
+            var scraper = new EmulationStationScraper();
+            var systems = await scraper.GetSystemsAsync();
+
+            var allSystemsItem = new SystemInfo { name = "all", fullname = "All Systems" };
+            var dataSource = new List<SystemInfo> { allSystemsItem };
+            dataSource.AddRange(systems);
+
+            randomSystemComboBox.DataSource = dataSource;
+            randomSystemComboBox.DisplayMember = "fullname";
+            randomSystemComboBox.ValueMember = "name";
+
+            // Load the saved setting
+            string savedSystem = config.ReadValue("Shell", "RandomLaunchSystem", "all");
+            var selectedSystem = dataSource.FirstOrDefault(s => s.name == savedSystem);
+            if (selectedSystem != null)
+            {
+                randomSystemComboBox.SelectedItem = selectedSystem;
             }
         }
 
@@ -266,7 +317,19 @@ namespace BatRun
                 ForeColor = Color.White,
                 Name = "randomGameCheckBox"
             };
+            randomGameCheckBox.CheckedChanged += RandomGameCheckBox_CheckedChanged;
             topPanel.Controls.Add(randomGameCheckBox);
+
+            randomSystemComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Width = 300,
+                Location = new Point(randomGameCheckBox.Right + 10, 68),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Enabled = false
+            };
+            topPanel.Controls.Add(randomSystemComboBox);
 
             // Quatrième ligne : Post-Launch Game
             postLaunchGameLabel = new Label
@@ -921,6 +984,16 @@ try {
             // Save post-launch game settings
             config.WriteValue("PostLaunch", "DisplayName", _postLaunchGameDisplayName);
             config.WriteValue("PostLaunch", "GamePath", _postLaunchGamePath);
+
+            // Save random launch system setting
+            if (randomGameCheckBox != null && randomGameCheckBox.Checked && randomSystemComboBox?.SelectedItem is SystemInfo selectedSystem)
+            {
+                config.WriteValue("Shell", "RandomLaunchSystem", selectedSystem.name ?? "all");
+            }
+            else
+            {
+                config.WriteValue("Shell", "RandomLaunchSystem", "all"); // Default to all if not checked or nothing selected
+            }
 
             foreach (var command in commands)
             {
