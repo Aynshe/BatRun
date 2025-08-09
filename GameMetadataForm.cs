@@ -20,11 +20,11 @@ namespace BatRun
         private MediaPlayer _mediaPlayer;
 
         // UI Controls as fields
-        private VideoView _videoView;
-        private TableLayoutPanel _infoPanel;
-        private PictureBox _imagePictureBox;
-        private PictureBox _marqueePictureBox;
-        private TabControl _mediaTabControl;
+        private VideoView? _videoView;
+        private TableLayoutPanel? _infoPanel;
+        private PictureBox? _imagePictureBox;
+        private PictureBox? _marqueePictureBox;
+        private TabControl? _mediaTabControl;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath)
@@ -100,32 +100,35 @@ namespace BatRun
             imageTab.Controls.Add(_imagePictureBox);
 
             // Marquee Tab Content
-            _marqueePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.ScaleDown };
+            _marqueePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
             marqueeTab.Controls.Add(_marqueePictureBox);
         }
 
-        private void MediaTabControl_DrawItem(object sender, DrawItemEventArgs e)
+        private void MediaTabControl_DrawItem(object? sender, DrawItemEventArgs e)
         {
             var g = e.Graphics;
+            if (_mediaTabControl == null) return;
             var tab = _mediaTabControl.TabPages[e.Index];
             var rect = e.Bounds;
             var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+            var font = e.Font ?? this.Font;
+
             if (e.State == DrawItemState.Selected)
             {
                 g.FillRectangle(new SolidBrush(Color.FromArgb(0, 122, 204)), e.Bounds);
-                g.DrawString(tab.Text, e.Font, Brushes.White, rect, sf);
+                g.DrawString(tab.Text, font, Brushes.White, rect, sf);
             }
             else
             {
                 g.FillRectangle(new SolidBrush(Color.FromArgb(45, 45, 48)), e.Bounds);
-                g.DrawString(tab.Text, e.Font, Brushes.White, rect, sf);
+                g.DrawString(tab.Text, font, Brushes.White, rect, sf);
             }
         }
 
-        private void MediaTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        private void MediaTabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
             // Stop video when switching away from the video tab
-            if (_mediaTabControl.SelectedTab.Text != "Video")
+            if (_mediaTabControl?.SelectedTab?.Text != "Video")
             {
                 _mediaPlayer.Stop();
             }

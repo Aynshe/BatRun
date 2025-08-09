@@ -209,7 +209,7 @@ namespace BatRun
             }
         }
 
-        private void GameListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void GameListView_MouseDoubleClick(object? sender, MouseEventArgs e)
         {
             if (_gameListView?.SelectedItems.Count > 0 && _systemComboBox?.SelectedItem is SystemInfo selectedSystem)
             {
@@ -218,8 +218,7 @@ namespace BatRun
 
                 try
                 {
-                    // These would ideally be injected via DI, but for now, we instantiate them.
-                    var logger = new Logger(new LoggingConfig());
+                    var logger = new Logger("BatRun_metadata.log", true);
                     var config = new IniFile("config.ini");
                     var retrobatService = new RetroBatService(logger, config);
 
@@ -229,6 +228,12 @@ namespace BatRun
                     if (string.IsNullOrEmpty(retrobatRoot) || !System.IO.Directory.Exists(retrobatRoot))
                     {
                         MessageBox.Show("Could not determine RetroBat installation directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    if (string.IsNullOrEmpty(selectedSystem.name))
+                    {
+                        MessageBox.Show("Selected system has no name, cannot find gamelist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
 
