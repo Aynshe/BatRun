@@ -72,7 +72,7 @@ namespace BatRun
                 RowCount = 2,
                 Padding = new Padding(10)
             };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 300F)); // Further increased Info Panel height
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 380F)); // Final increase to Info Panel height
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Media Panel fills rest
             this.Controls.Add(mainLayout);
 
@@ -253,8 +253,8 @@ namespace BatRun
                 Text = labelText,
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(5, 8, 5, 8), // Increased vertical padding
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+                Padding = new Padding(5, 8, 5, 8),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             var value = new TextBox {
                 Text = valueText,
@@ -283,7 +283,7 @@ namespace BatRun
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.TopLeft,
                 Padding = new Padding(5),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             _descriptionTextBox = new RichTextBox {
                 Text = descText,
