@@ -78,19 +78,6 @@ namespace BatRun
                     });
                 }
 
-                // Charger les jeux scrapés
-                int scrapedGameCount = config.ReadInt("Shell", "ScrapedGameCount", 0);
-                for (int i = 0; i < scrapedGameCount; i++)
-                {
-                    shellItems.Add(new ShellCommand {
-                        Type = CommandType.ScrapedGame,
-                        Path = config.ReadValue("Shell", $"ScrapedGame{i}DisplayName", ""), // For logging
-                        GamePath = config.ReadValue("Shell", $"ScrapedGame{i}GamePath", ""), // For execution
-                        IsEnabled = config.ReadBool("Shell", $"ScrapedGame{i}Enabled", false),
-                        DelaySeconds = config.ReadInt("Shell", $"ScrapedGame{i}Delay", 0),
-                        Order = config.ReadInt("Shell", $"ScrapedGame{i}Order", i)
-                    });
-                }
 
                 // Random Game Launch Logic
                 if (launchRandomGame && !shellItems.Any(item => item.IsEnabled))
@@ -219,22 +206,6 @@ namespace BatRun
                                 applicationManager.CheckForPersistentWindows();
                                 break;
 
-                            case CommandType.ScrapedGame:
-                                logger.LogInfo($"Launching scraped game: {item.Path}");
-                                var scraper = new EmulationStationScraper();
-                                if (!string.IsNullOrEmpty(item.GamePath))
-                                {
-                                    bool success = await scraper.LaunchGameAsync(item.GamePath);
-                                    if (!success)
-                                    {
-                                        logger.LogError($"Failed to launch scraped game: {item.Path}");
-                                    }
-                                }
-                                else
-                                {
-                                    logger.LogError($"GamePath is missing for scraped game: {item.Path}");
-                                }
-                                break;
                         }
                     }
                     catch (Exception ex)
@@ -261,6 +232,7 @@ namespace BatRun
                     if (program != null)
                     {
                         await program.StartRetrobat();
+                        await HandlePostLaunchGameAsync();
                     }
                     else
                     {
@@ -291,6 +263,48 @@ namespace BatRun
             {
                 logger.LogError("Error in ExecuteShellCommandsAsync", ex);
             }
+        }
+
+        private async Task HandlePostLaunchGameAsync()
+        {
+            string gamePath = config.ReadValue("PostLaunch", "GamePath", "");
+            if (string.IsNullOrEmpty(gamePath))
+            {
+                return; // No post-launch game configured
+            }
+
+            string displayName = config.ReadValue("PostLaunch", "DisplayName", gamePath);
+            logger.LogInfo($"A post-launch game is configured: {displayName}. Waiting for RetroBat API...");
+
+            var scraper = new EmulationStationScraper();
+            const int maxAttempts = 12; // 12 attempts * 5 seconds = 60 seconds timeout
+            const int delaySeconds = 5;
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                logger.LogInfo($"Pinging EmulationStation API, attempt {i + 1}/{maxAttempts}...");
+                if (await scraper.PingServerAsync())
+                {
+                    logger.LogInfo("API is available. Launching game.");
+                    bool success = await scraper.LaunchGameAsync(gamePath);
+                    if (success)
+                    {
+                        logger.LogInfo($"Successfully launched {displayName}.");
+                    }
+                    else
+                    {
+                        logger.LogError($"Failed to launch {displayName} via API.");
+                    }
+                    return; // Exit after successful or failed launch attempt
+                }
+
+                if (i < maxAttempts - 1)
+                {
+                    await Task.Delay(delaySeconds * 1000);
+                }
+            }
+
+            logger.LogError($"Timed out waiting for EmulationStation API. Could not launch {displayName}.");
         }
 
         private async Task HandleAutoHide(Process process, string path)

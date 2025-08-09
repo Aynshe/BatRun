@@ -46,6 +46,9 @@ namespace BatRun
         private CheckBox? launchRetroBatCheckBox;
         private NumericUpDown? retroBatDelayNumeric;
         private Label retroBatDelayNumericLabel = new();
+        private Label? postLaunchGameLabel;
+        private string _postLaunchGamePath = string.Empty;
+        private string _postLaunchGameDisplayName = string.Empty;
         private readonly Logger logger;
         private readonly ConfigurationForm? configForm;
 
@@ -79,6 +82,13 @@ namespace BatRun
             var randomGameCheckBox = this.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
             if (randomGameCheckBox != null)
                 randomGameCheckBox.Checked = config.ReadBool("Shell", "LaunchRandomGame", false);
+
+            _postLaunchGameDisplayName = config.ReadValue("PostLaunch", "DisplayName", "");
+            _postLaunchGamePath = config.ReadValue("PostLaunch", "GamePath", "");
+            if (postLaunchGameLabel != null && !string.IsNullOrEmpty(_postLaunchGameDisplayName))
+            {
+                postLaunchGameLabel.Text = $"Game to launch after RetroBat: {_postLaunchGameDisplayName}";
+            }
         }
 
         private void UpdateLocalizedTexts()
@@ -121,6 +131,16 @@ namespace BatRun
             }
         }
 
+        private void ClearPostLaunchGameButton_Click(object? sender, EventArgs e)
+        {
+            _postLaunchGamePath = string.Empty;
+            _postLaunchGameDisplayName = string.Empty;
+            if (postLaunchGameLabel != null)
+            {
+                postLaunchGameLabel.Text = "Game to launch after RetroBat: None";
+            }
+        }
+
         private void ScrapButton_Click(object? sender, EventArgs e)
         {
             var scraper = new EmulationStationScraper(); // Assuming default IP is fine
@@ -131,20 +151,12 @@ namespace BatRun
                 var selectedGame = gameSelectionForm.SelectedGame;
                 var selectedSystem = gameSelectionForm.SelectedSystem;
 
-                if (selectedGame != null && selectedSystem != null)
+                if (selectedGame != null && selectedSystem != null && postLaunchGameLabel != null)
                 {
-                    var command = new ShellCommand
-                    {
-                        IsEnabled = true,
-                        Path = $"{selectedGame.Name} ({selectedSystem.fullname})", // Display path
-                        DelaySeconds = 0,
-                        Order = commands.Count,
-                        Type = CommandType.ScrapedGame,
-                        GameSystemName = selectedSystem.name,
-                        GamePath = selectedGame.Path // The actual ROM path for launching
-                    };
-                    commands.Add(command);
-                    AddCommandToListView(command);
+                    _postLaunchGameDisplayName = $"{selectedGame.Name} ({selectedSystem.fullname})";
+                    _postLaunchGamePath = selectedGame.Path ?? string.Empty;
+
+                    postLaunchGameLabel.Text = $"Game to launch after RetroBat: {_postLaunchGameDisplayName}";
                 }
             }
         }
@@ -186,7 +198,7 @@ namespace BatRun
             var topPanel = new Panel
             {
                 Dock = DockStyle.Top,
-                Height = 110, // Increased height for the new checkbox
+                Height = 140, // Increased height for the new controls
                 BackColor = Color.Transparent,
                 Padding = new Padding(10)
             };
@@ -252,9 +264,32 @@ namespace BatRun
                 Location = new Point(10, 70),
                 BackColor = Color.Transparent,
                 ForeColor = Color.White,
-                Name = "randomGameCheckBox" // Give it a name to find it later
+                Name = "randomGameCheckBox"
             };
             topPanel.Controls.Add(randomGameCheckBox);
+
+            // Quatrième ligne : Post-Launch Game
+            postLaunchGameLabel = new Label
+            {
+                Text = "Game to launch after RetroBat: None",
+                AutoSize = true,
+                Location = new Point(10, 100),
+                ForeColor = Color.White
+            };
+            topPanel.Controls.Add(postLaunchGameLabel);
+
+            var clearPostLaunchGameButton = new Button
+            {
+                Text = "Clear",
+                Width = 60,
+                Height = 22,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(87, 87, 87),
+                ForeColor = Color.White,
+                Location = new Point(450, 98)
+            };
+            clearPostLaunchGameButton.Click += ClearPostLaunchGameButton_Click;
+            topPanel.Controls.Add(clearPostLaunchGameButton);
 
             // Panneau des boutons d'action
             var actionPanel = new FlowLayoutPanel
@@ -500,27 +535,6 @@ try {
                 }
             }
 
-            // Charger les jeux scrapés
-            int scrapedGameCount = config.ReadInt("Shell", "ScrapedGameCount", 0);
-            for (int i = 0; i < scrapedGameCount; i++)
-            {
-                string displayName = config.ReadValue("Shell", $"ScrapedGame{i}DisplayName", "");
-                if (!string.IsNullOrEmpty(displayName))
-                {
-                    var command = new ShellCommand
-                    {
-                        IsEnabled = config.ReadBool("Shell", $"ScrapedGame{i}Enabled", false),
-                        Path = displayName,
-                        DelaySeconds = config.ReadInt("Shell", $"ScrapedGame{i}Delay", 0),
-                        Order = config.ReadInt("Shell", $"ScrapedGame{i}Order", i),
-                        Type = CommandType.ScrapedGame,
-                        GameSystemName = config.ReadValue("Shell", $"ScrapedGame{i}SystemName", ""),
-                        GamePath = config.ReadValue("Shell", $"ScrapedGame{i}GamePath", "")
-                    };
-                    tempCommands.Add((command, command.Order));
-                }
-            }
-
             // Trier les commandes par ordre
             commands.Clear();
             foreach (var (command, _) in tempCommands.OrderBy(x => x.order))
@@ -585,7 +599,6 @@ try {
             {
                 CommandType.Application => LocalizedStrings.GetString("Application"),
                 CommandType.Command => LocalizedStrings.GetString("Command"),
-                CommandType.ScrapedGame => LocalizedStrings.GetString("Scraped Game"),
                 _ => string.Empty,
             };
         }
@@ -905,7 +918,10 @@ try {
             if (randomGameCheckBox != null)
                 config.WriteValue("Shell", "LaunchRandomGame", randomGameCheckBox.Checked.ToString());
 
-            int scrapedGameCount = 0;
+            // Save post-launch game settings
+            config.WriteValue("PostLaunch", "DisplayName", _postLaunchGameDisplayName);
+            config.WriteValue("PostLaunch", "GamePath", _postLaunchGamePath);
+
             foreach (var command in commands)
             {
                 switch (command.Type)
@@ -937,22 +953,12 @@ try {
                         appCount++;
                         break;
 
-                    case CommandType.ScrapedGame:
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}DisplayName", command.Path);
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Enabled", command.IsEnabled.ToString());
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Delay", command.DelaySeconds.ToString());
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Order", order.ToString());
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}SystemName", command.GameSystemName ?? "");
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}GamePath", command.GamePath ?? "");
-                        scrapedGameCount++;
-                        break;
                 }
                 order++;
             }
 
             config.WriteValue("Shell", "CommandCount", commandCount.ToString());
             config.WriteValue("Shell", "AppCount", appCount.ToString());
-            config.WriteValue("Shell", "ScrapedGameCount", scrapedGameCount.ToString());
             
             this.DialogResult = DialogResult.OK;
             this.Close();
@@ -1049,14 +1055,6 @@ try {
 
         private static void EditCommand(ShellCommand command, ListViewItem item)
         {
-            if (command.Type == CommandType.ScrapedGame)
-            {
-                // For now, scraped games are not editable in this way.
-                // In the future, this could re-open the selection form.
-                MessageBox.Show("Scraped game commands cannot be edited directly.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
             using var commandForm = new Form
             {
                 Text = command.Type == CommandType.Command ? "Edit Command" : "Edit Application Path",
