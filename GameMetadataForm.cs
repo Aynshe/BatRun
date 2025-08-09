@@ -22,6 +22,7 @@ namespace BatRun
         private readonly Game _selectedGame;
         private readonly string _gamelistPath;
         private readonly string _romsFolderPath;
+        private readonly string _retrobatRootPath;
         private XElement? _gameMetadata;
 
         private LibVLC _libVLC;
@@ -34,16 +35,18 @@ namespace BatRun
         private PictureBox? _marqueePictureBox;
         private PictureBox? _thumbnailPictureBox;
         private PictureBox? _fanartPictureBox;
+        private PictureBox? _bezelPictureBox;
         private TabControl? _mediaTabControl;
         private RichTextBox? _descriptionTextBox;
         private System.Windows.Forms.Timer? _scrollTimer;
 
 
-        public GameMetadataForm(Game selectedGame, string gamelistPath)
+        public GameMetadataForm(Game selectedGame, string gamelistPath, string retrobatRoot)
         {
             _selectedGame = selectedGame;
             _gamelistPath = gamelistPath;
             _romsFolderPath = Path.GetDirectoryName(gamelistPath) ?? "";
+            _retrobatRootPath = retrobatRoot;
 
             Core.Initialize();
             _libVLC = new LibVLC();
@@ -124,7 +127,8 @@ namespace BatRun
 
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
-            _videoView = new VideoView { Dock = DockStyle.Fill, MediaPlayer = _mediaPlayer };
+            _bezelPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.StretchImage };
+            _videoView = new VideoView { Dock = DockStyle.Fill, MediaPlayer = _mediaPlayer, Padding = new Padding(60) };
             var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.FromArgb(45, 45, 48) };
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var pauseButton = new Button { Text = "Pause", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
@@ -133,8 +137,13 @@ namespace BatRun
             pauseButton.Click += (s, e) => _mediaPlayer.SetPause(true);
             stopButton.Click += (s, e) => _mediaPlayer.Stop();
             videoControls.Controls.AddRange(new Control[] { playButton, pauseButton, stopButton });
+
             videoPanel.Controls.Add(_videoView);
+            videoPanel.Controls.Add(_bezelPictureBox);
             videoPanel.Controls.Add(videoControls);
+            _videoView.BringToFront();
+            videoControls.BringToFront();
+
             videoTab.Controls.Add(videoPanel);
         }
 
@@ -209,6 +218,16 @@ namespace BatRun
             if (_marqueePictureBox != null) LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
             if (_thumbnailPictureBox != null) LoadMediaIntoPictureBox(_thumbnailPictureBox, GetMetaValue("thumbnail"));
             if (_fanartPictureBox != null) LoadMediaIntoPictureBox(_fanartPictureBox, GetMetaValue("fanart"));
+
+            // Load Bezel
+            if (_bezelPictureBox != null && _selectedGame.System != null)
+            {
+                string bezelPath = Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems", $"{_selectedGame.System}.png");
+                if (File.Exists(bezelPath))
+                {
+                    _bezelPictureBox.Image = Image.FromFile(bezelPath);
+                }
+            }
 
             // Load Video
             string videoPath = GetMetaValue("video");

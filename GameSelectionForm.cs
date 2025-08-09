@@ -253,7 +253,7 @@ namespace BatRun
                         logger.Log($"Game launch URL: {selectedGame.PlayUrl}");
                     }
 
-                    var metadataForm = new GameMetadataForm(selectedGame, gamelistPath);
+                    var metadataForm = new GameMetadataForm(selectedGame, gamelistPath, retrobatRoot);
                     metadataForm.ShowDialog();
                 }
                 catch (Exception ex)
