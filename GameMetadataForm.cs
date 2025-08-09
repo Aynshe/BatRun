@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
+using PdfiumViewer;
 
 namespace BatRun
 {
@@ -24,7 +25,11 @@ namespace BatRun
         private TableLayoutPanel? _infoPanel;
         private PictureBox? _imagePictureBox;
         private PictureBox? _marqueePictureBox;
+        private PictureBox? _thumbnailPictureBox;
+        private PictureBox? _fanartPictureBox;
+        private PdfViewer? _pdfViewer;
         private TabControl? _mediaTabControl;
+        private RichTextBox? _descriptionTextBox;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath)
@@ -39,6 +44,7 @@ namespace BatRun
 
             InitializeComponent();
             LoadGameMetadata();
+            InitializeTimer();
         }
 
         private void InitializeComponent()
@@ -58,7 +64,7 @@ namespace BatRun
                 RowCount = 2,
                 Padding = new Padding(10)
             };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 220F)); // Info Panel height
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 260F)); // Increased Info Panel height
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Media Panel fills rest
             this.Controls.Add(mainLayout);
 
@@ -86,7 +92,10 @@ namespace BatRun
             var imageTab = new TabPage("Image");
             var videoTab = new TabPage("Video");
             var marqueeTab = new TabPage("Marquee");
-            _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab });
+            var thumbnailTab = new TabPage("Thumbnail");
+            var fanartTab = new TabPage("Fanart");
+            var manualTab = new TabPage("Manual");
+            _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab, thumbnailTab, fanartTab, manualTab });
             _mediaTabControl.SelectedIndex = 1; // Default to Video tab
 
             // Media Controls
@@ -97,6 +106,18 @@ namespace BatRun
             // Marquee
             _marqueePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
             marqueeTab.Controls.Add(_marqueePictureBox);
+
+            // Thumbnail
+            _thumbnailPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
+            thumbnailTab.Controls.Add(_thumbnailPictureBox);
+
+            // Fanart
+            _fanartPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
+            fanartTab.Controls.Add(_fanartPictureBox);
+
+            // Manual (PDF)
+            _pdfViewer = new PdfViewer { Dock = DockStyle.Fill };
+            manualTab.Controls.Add(_pdfViewer);
 
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
@@ -173,6 +194,7 @@ namespace BatRun
             AddInfoRow("Rating", GetMetaValue("rating"));
             AddInfoRow("Play Count", GetMetaValue("playcount"));
             AddInfoRow("Last Played", GetMetaValue("lastplayed"));
+            // Description is now last
             AddDescriptionRow(GetMetaValue("desc"));
 
             _infoPanel.ResumeLayout();
@@ -180,15 +202,12 @@ namespace BatRun
 
         private void PopulateMediaTabs()
         {
-            if (_imagePictureBox != null)
-            {
-                LoadMediaIntoPictureBox(_imagePictureBox, GetMetaValue("image"));
-            }
-            if (_marqueePictureBox != null)
-            {
-                LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
-            }
+            if (_imagePictureBox != null) LoadMediaIntoPictureBox(_imagePictureBox, GetMetaValue("image"));
+            if (_marqueePictureBox != null) LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
+            if (_thumbnailPictureBox != null) LoadMediaIntoPictureBox(_thumbnailPictureBox, GetMetaValue("thumbnail"));
+            if (_fanartPictureBox != null) LoadMediaIntoPictureBox(_fanartPictureBox, GetMetaValue("fanart"));
 
+            // Load Video
             string videoPath = GetMetaValue("video");
             if (!string.IsNullOrEmpty(videoPath))
             {
@@ -199,6 +218,28 @@ namespace BatRun
                     _mediaPlayer.Media = media;
                     media.Dispose(); // LibVLC clones the media object, so we can dispose our reference
                     _mediaPlayer.Play();
+                }
+            }
+
+            // Load Manual (PDF)
+            if (_pdfViewer != null)
+            {
+                string manualPath = GetMetaValue("manual");
+                if (!string.IsNullOrEmpty(manualPath))
+                {
+                    string fullManualPath = Path.Combine(_romsFolderPath, manualPath.TrimStart('.', '/', '\\'));
+                    if (File.Exists(fullManualPath))
+                    {
+                        try
+                        {
+                            _pdfViewer.Document = PdfDocument.Load(fullManualPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Handle potential PDF loading errors
+                            MessageBox.Show($"Could not load PDF manual.\nError: {ex.Message}", "PDF Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
             }
         }
@@ -230,7 +271,7 @@ namespace BatRun
                 Text = labelText,
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(5),
+                Padding = new Padding(5, 8, 5, 8), // Increased vertical padding
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
             var value = new TextBox {
@@ -240,7 +281,7 @@ namespace BatRun
                 BorderStyle = BorderStyle.None,
                 BackColor = Color.FromArgb(60, 63, 65), // Darker textbox background
                 ForeColor = Color.Gainsboro,
-                Padding = new Padding(5),
+                Padding = new Padding(5, 8, 5, 8), // Increased vertical padding
                 Font = new Font("Segoe UI", 10F)
             };
 
@@ -262,7 +303,7 @@ namespace BatRun
                 Padding = new Padding(5),
                 Font = new Font("Segoe UI", 10F, FontStyle.Bold)
             };
-            var value = new RichTextBox {
+            _descriptionTextBox = new RichTextBox {
                 Text = descText,
                 Dock = DockStyle.Fill,
                 ReadOnly = true,
@@ -270,15 +311,51 @@ namespace BatRun
                 BackColor = Color.FromArgb(60, 63, 65),
                 ForeColor = Color.Gainsboro,
                 Padding = new Padding(5),
-                Font = new Font("Segoe UI", 10F)
+                Font = new Font("Segoe UI", 10F),
+                ScrollBars = RichTextBoxScrollBars.None
             };
 
             _infoPanel.Controls.Add(label, 0, _infoPanel.RowCount - 1);
-            _infoPanel.Controls.Add(value, 1, _infoPanel.RowCount - 1);
+            _infoPanel.Controls.Add(_descriptionTextBox, 1, _infoPanel.RowCount - 1);
+        }
+
+        private void InitializeTimer()
+        {
+            _scrollTimer = new System.Windows.Forms.Timer();
+            _scrollTimer.Interval = 50; // Controls scroll speed
+            _scrollTimer.Tick += ScrollTimer_Tick;
+            _scrollTimer.Start();
+        }
+
+        private void ScrollTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_descriptionTextBox == null || !_scrollTimer!.Enabled) return;
+
+            // Get the current scroll position
+            Point pos = _descriptionTextBox.GetPositionFromCharIndex(0);
+            pos.Y -= 1; // Scroll up by 1 pixel
+
+            // If we have scrolled past the top, loop back to the bottom
+            if (pos.Y < -_descriptionTextBox.ClientSize.Height)
+            {
+                // To scroll to the bottom, we set the selection to the end and scroll to it
+                _descriptionTextBox.Select(_descriptionTextBox.Text.Length, 0);
+                _descriptionTextBox.ScrollToCaret();
+            }
+            else
+            {
+                // This is a workaround to scroll pixel by pixel since WinForms doesn't support it directly
+                _descriptionTextBox.Select(0, 0);
+                _descriptionTextBox.ScrollToCaret();
+                _descriptionTextBox.Select(0, -pos.Y);
+                _descriptionTextBox.ScrollToCaret();
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            _scrollTimer?.Stop();
+            _scrollTimer?.Dispose();
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
