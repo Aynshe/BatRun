@@ -79,11 +79,12 @@ namespace BatRun
 
         private Form? blackBackground;
 
-        public WallpaperManager(IniFile config, Logger logger, IBatRunProgram program)
+        public WallpaperManager(IniFile config, Logger logger, IBatRunProgram program, LibVLC libVLC)
         {
             this.config = config;
             this.logger = logger;
             this.program = program;
+            this.libVLC = libVLC;
             this.applicationManager = new ApplicationManager(config, logger);
 
             lock (instanceLock)
@@ -93,29 +94,6 @@ namespace BatRun
 
             try
             {
-                // Initialiser LibVLC avec le chemin vers les DLLs
-                string libVLCPath = Path.Combine(AppContext.BaseDirectory, "libvlc");
-                if (!Directory.Exists(libVLCPath))
-                {
-                    logger.LogError($"LibVLC directory not found at: {libVLCPath}");
-                    return;
-                }
-
-                // Vérifier la présence des DLLs essentielles
-                string[] requiredDlls = { "libvlc.dll", "libvlccore.dll" };
-                foreach (var dll in requiredDlls)
-                {
-                    string dllPath = Path.Combine(libVLCPath, dll);
-                    if (!File.Exists(dllPath))
-                    {
-                        logger.LogError($"Required LibVLC DLL not found: {dllPath}");
-                        return;
-                    }
-                }
-
-                Core.Initialize(libVLCPath);
-                logger.LogInfo($"LibVLC initialized successfully from: {libVLCPath}");
-
                 // Initialize the EmulationStation monitor timer
                 emulationStationMonitorTimer = new System.Windows.Forms.Timer();
                 emulationStationMonitorTimer.Interval = 2000; // Check every 2 seconds
@@ -635,15 +613,11 @@ namespace BatRun
                     }
                 }
 
-                libVLC = new LibVLC(
-                    "--quiet",
-                    "--no-video-title-show",
-                    "--no-snapshot-preview",
-                    "--no-stats",
-                    "--no-sub-autodetect-file",
-                    "--no-osd",
-                    "--no-video-deco"
-                );
+                if (this.libVLC == null)
+                {
+                    logger.LogError("LibVLC instance is null in InitializeVideoPlayer.");
+                    return;
+                }
 
                 videoView = new VideoView
                 {
@@ -864,8 +838,8 @@ namespace BatRun
 
                 if (libVLC != null)
                 {
-                    Core.Initialize(null);
-                    libVLC.Dispose();
+                    // Core.Initialize(null); // This is not needed and can cause issues.
+                    // libVLC.Dispose(); // Do not dispose the shared instance.
                     libVLC = null;
                 }
 

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using LibVLCSharp.Shared;
 
 namespace BatRun
 {
@@ -43,6 +44,7 @@ namespace BatRun
             Logger? logger = null;
             try
             {
+                Core.Initialize();
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
                 Application.ThreadException += ApplicationOnThreadException;
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

@@ -14,22 +14,14 @@ namespace BatRun
         private readonly string _romsBasePath;
         private LibVLC? _libVLC;
 
-        public MetadataViewerForm(Dictionary<string, string> metadata, string retrobatBasePath, string systemName)
+        public MetadataViewerForm(Dictionary<string, string> metadata, string retrobatBasePath, string systemName, LibVLC libVLC)
         {
             _metadata = metadata;
             _romsBasePath = Path.Combine(Path.GetDirectoryName(retrobatBasePath) ?? "", "roms", systemName);
-
-            Core.Initialize();
-            _libVLC = new LibVLC();
+            _libVLC = libVLC;
 
             InitializeComponent();
             PopulateControls();
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            _libVLC?.Dispose();
-            base.OnFormClosing(e);
         }
 
         private void InitializeComponent()

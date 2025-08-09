@@ -11,6 +11,7 @@ namespace BatRun
         private readonly EmulationStationScraper _scraper;
         private readonly string _retrobatPath;
         private readonly Logger _logger;
+        private readonly LibVLCSharp.Shared.LibVLC _libVLC;
         private ComboBox? _systemComboBox;
         private ListView? _gameListView;
         private Button? _okButton;
@@ -20,11 +21,12 @@ namespace BatRun
         public Game? SelectedGame { get; private set; }
         public SystemInfo? SelectedSystem { get; private set; }
 
-        public GameSelectionForm(EmulationStationScraper scraper, string retrobatPath, Logger logger)
+        public GameSelectionForm(EmulationStationScraper scraper, string retrobatPath, Logger logger, LibVLCSharp.Shared.LibVLC libVLC)
         {
             _scraper = scraper;
             _retrobatPath = retrobatPath;
             _logger = logger;
+            _libVLC = libVLC;
             InitializeComponent();
             this.Load += async (s, e) => await LoadSystemsAsync();
         }
@@ -232,7 +234,7 @@ namespace BatRun
 
                         if (metadata.Count > 0)
                         {
-                            using var viewer = new MetadataViewerForm(metadata, _retrobatPath, system.name);
+                            using var viewer = new MetadataViewerForm(metadata, _retrobatPath, system.name, _libVLC);
                             viewer.ShowDialog();
                         }
                         else

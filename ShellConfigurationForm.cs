@@ -52,13 +52,15 @@ namespace BatRun
         private string _postLaunchGameDisplayName = string.Empty;
         private readonly Logger logger;
         private readonly ConfigurationForm? configForm;
+        private readonly LibVLCSharp.Shared.LibVLC _libVLC;
 
-        public ShellConfigurationForm(IniFile config, Logger logger, ConfigurationForm? configForm = null)
+        public ShellConfigurationForm(IniFile config, Logger logger, ConfigurationForm? configForm, LibVLCSharp.Shared.LibVLC libVLC)
         {
-            commands = [];
             this.config = config;
             this.logger = logger;
             this.configForm = configForm;
+            this._libVLC = libVLC;
+            commands = [];
             
             // Recharger les traductions avant de mettre à jour les textes
             LocalizedStrings.LoadTranslations();
@@ -203,7 +205,7 @@ namespace BatRun
             }
 
             var scraper = new EmulationStationScraper(logger); // Assuming default IP is fine
-            using var gameSelectionForm = new GameSelectionForm(scraper, retrobatPath, logger);
+            using var gameSelectionForm = new GameSelectionForm(scraper, retrobatPath, logger, _libVLC);
 
             if (gameSelectionForm.ShowDialog() == DialogResult.OK)
             {

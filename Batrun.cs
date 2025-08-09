@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using System.Text;
 using System.Threading;
 using BatRun; // Ajout de l'espace de noms
+using LibVLCSharp.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpDX.XInput;
@@ -55,10 +56,12 @@ namespace BatRun
         private DateTime lastStartButtonTime = DateTime.MinValue;
         private const int START_BUTTON_COOLDOWN_MS = 1000; // 1 seconde de cooldown
         private readonly SynchronizationContext _syncContext;
+        public readonly LibVLC _libVLC;
 
         public Batrun()
         {
             _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
+            _libVLC = new LibVLC();
             // Initialisation minimale
             config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
             logger = new Logger("BatRun.log");
@@ -94,7 +97,7 @@ namespace BatRun
             });
 
             // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
-            wallpaperManager = new WallpaperManager(config, logger, this);
+            wallpaperManager = new WallpaperManager(config, logger, this, _libVLC);
 
             // Vérifier si explorer.exe est en cours d'exécution
             CheckExplorerAndInitialize();
@@ -166,7 +169,7 @@ namespace BatRun
                             wallpaperManager.PauseMedia();
                         }
 
-                        esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager!);
+                        esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager!, _libVLC);
                         string videoPath = Path.Combine(AppContext.BaseDirectory, "ESloading", config.ReadValue("Windows", "ESLoadingVideo", "None"));
                         await esLoadingPlayer.PlayLoadingVideo(videoPath);
 
@@ -1047,7 +1050,7 @@ namespace BatRun
                     return;
                 }
 
-                var shellConfigForm = new ShellConfigurationForm(config, logger, configForm);
+                var shellConfigForm = new ShellConfigurationForm(config, logger, configForm, _libVLC);
                 shellConfigForm.StartPosition = FormStartPosition.CenterScreen;
                 shellConfigForm.Show();
             }
@@ -1241,7 +1244,7 @@ namespace BatRun
                         logger.LogError("WallpaperManager is null, cannot create ESLoadingPlayer");
                         return;
                     }
-                    esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager);
+                    esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager, _libVLC);
                     string videoPath = GetEmulationStationVideoPath();
                     if (!string.IsNullOrEmpty(videoPath))
                     {
@@ -1361,6 +1364,7 @@ namespace BatRun
             _controllerService?.Dispose();
             wallpaperManager?.CloseWallpaper();
             esLoadingPlayer?.Dispose();
+            _libVLC?.Dispose();
         }
     }
 
