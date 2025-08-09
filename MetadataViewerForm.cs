@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
+using LibVLCSharp.Shared;
+using LibVLCSharp.WinForms;
 
 namespace BatRun
 {
@@ -10,14 +12,24 @@ namespace BatRun
     {
         private readonly Dictionary<string, string> _metadata;
         private readonly string _romsBasePath;
+        private LibVLC? _libVLC;
 
         public MetadataViewerForm(Dictionary<string, string> metadata, string retrobatBasePath, string systemName)
         {
             _metadata = metadata;
             _romsBasePath = Path.Combine(Path.GetDirectoryName(retrobatBasePath) ?? "", "roms", systemName);
 
+            Core.Initialize();
+            _libVLC = new LibVLC();
+
             InitializeComponent();
             PopulateControls();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            _libVLC?.Dispose();
+            base.OnFormClosing(e);
         }
 
         private void InitializeComponent()
@@ -43,14 +55,14 @@ namespace BatRun
             mainLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             this.Controls.Add(mainLayout);
 
-            // Left Panel (Image)
-            var pictureBox = new PictureBox
+            // Left Panel (Media Tabs)
+            var mediaTabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BorderStyle = BorderStyle.FixedSingle
+                Alignment = TabAlignment.Left,
+                Multiline = true,
             };
-            mainLayout.Controls.Add(pictureBox, 0, 0);
+            mainLayout.Controls.Add(mediaTabControl, 0, 0);
 
             // Right Panel (Details)
             var detailsLayout = new TableLayoutPanel
@@ -104,18 +116,48 @@ namespace BatRun
 
             // --- Populate with data ---
 
-            // Image
-            if (_metadata.TryGetValue("image", out string? imagePath))
+            // Dynamically create tabs for available media
+            var mediaTypes = new[] { "image", "marquee", "thumbnail", "video" };
+            foreach (var mediaType in mediaTypes)
             {
-                // The path in gamelist.xml is relative, e.g., "./images/mygame.png"
-                string fullImagePath = Path.Combine(_romsBasePath, imagePath.TrimStart('.', '/'));
-                if (File.Exists(fullImagePath))
+                if (_metadata.ContainsKey(mediaType))
                 {
-                    try
+                    var tabPage = new TabPage(char.ToUpper(mediaType[0]) + mediaType.Substring(1))
                     {
-                        pictureBox.Image = Image.FromFile(fullImagePath);
+                        BackColor = Color.FromArgb(45, 45, 48)
+                    };
+
+                    string mediaPath = Path.Combine(_romsBasePath, _metadata[mediaType].TrimStart('.', '/'));
+                    if (File.Exists(mediaPath))
+                    {
+                        if (mediaType == "video")
+                        {
+                            var videoView = new VideoView { Dock = DockStyle.Fill };
+                            var mediaPlayer = new MediaPlayer(_libVLC);
+                            videoView.MediaPlayer = mediaPlayer;
+                            tabPage.Controls.Add(videoView);
+                            mediaTabControl.TabPages.Add(tabPage); // Add tab only if media exists
+                            mediaPlayer.Play(new Media(_libVLC, new Uri(mediaPath)));
+                        }
+                        else
+                        {
+                            var pictureBox = new PictureBox
+                            {
+                                Dock = DockStyle.Fill,
+                                SizeMode = PictureBoxSizeMode.Zoom
+                            };
+                            try
+                            {
+                                pictureBox.Image = Image.FromFile(mediaPath);
+                                tabPage.Controls.Add(pictureBox);
+                                mediaTabControl.TabPages.Add(tabPage); // Add tab only if media exists
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Failed to load image {mediaPath}: {ex.Message}");
+                            }
+                        }
                     }
-                    catch (Exception ex) { Console.WriteLine($"Error loading image: {ex.Message}"); }
                 }
             }
 

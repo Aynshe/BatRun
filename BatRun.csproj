@@ -10,7 +10,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
@@ -70,7 +70,7 @@
       <LibVLCDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)$(BaseOutputPath)$(Configuration)/$(TargetFramework)/libvlc'))</LibVLCDir>
     </PropertyGroup>
     <ItemGroup>
-      <LibVLCFiles Include="$(NuGetPackageRoot)\videolan.libvlc.windows\3.0.20\build\x64\**\*.*" />
+      <LibVLCFiles Include="$(NuGetPackageRoot)\videolan.libvlc.windows\3.0.20\build\x86\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(LibVLCFiles)" DestinationFiles="@(LibVLCFiles->'$(LibVLCDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Message Text="Copied LibVLC files to: $(LibVLCDir)" Importance="high" />
