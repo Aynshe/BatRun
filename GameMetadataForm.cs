@@ -41,6 +41,8 @@ namespace BatRun
         private RichTextBox? _descriptionTextBox;
         private System.Windows.Forms.Timer? _scrollTimer;
         private BezelInfo? _bezelInfo;
+        private double _bezelAspectRatio = 0;
+        private bool _isResizing = false;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath, string retrobatRoot)
@@ -58,6 +60,7 @@ namespace BatRun
             LoadGameMetadata();
 
             this.Shown += (s, e) => InitializeTimer();
+            this.Resize += GameMetadataForm_Resize;
         }
 
         private void InitializeComponent()
@@ -130,7 +133,7 @@ namespace BatRun
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
             videoPanel.Resize += (s, e) => UpdateVideoPosition();
-            _bezelPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.StretchImage };
+            _bezelPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
             _videoView = new VideoView { Dock = DockStyle.None, MediaPlayer = _mediaPlayer };
             var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.FromArgb(45, 45, 48) };
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
@@ -240,6 +243,10 @@ namespace BatRun
                     {
                         string json = File.ReadAllText(bezelInfoPath);
                         _bezelInfo = JsonConvert.DeserializeObject<BezelInfo>(json);
+                        if (_bezelInfo != null && _bezelInfo.Height > 0)
+                        {
+                            _bezelAspectRatio = (double)_bezelInfo.Width / _bezelInfo.Height;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -305,6 +312,19 @@ namespace BatRun
             int newH = (int)(container.Height * ratioH);
 
             _videoView.Bounds = new Rectangle(newX, newY, newW, newH);
+        }
+
+        private void GameMetadataForm_Resize(object? sender, EventArgs e)
+        {
+            if (_isResizing || _bezelAspectRatio == 0) return;
+
+            _isResizing = true;
+
+            // Maintain aspect ratio
+            int newHeight = (int)(this.ClientSize.Width / _bezelAspectRatio);
+            this.ClientSize = new Size(this.ClientSize.Width, newHeight);
+
+            _isResizing = false;
         }
 
         private void LoadMediaIntoPictureBox(PictureBox pb, string relativePath)
