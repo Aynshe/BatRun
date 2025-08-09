@@ -39,8 +39,6 @@ namespace BatRun
         {
             try
             {
-                // Random Game Launch Logic
-                bool launchRandomGame = config.ReadBool("Shell", "LaunchRandomGame", false);
                 int commandCount = config.ReadInt("Shell", "CommandCount", 0);
                 int appCount = config.ReadInt("Shell", "AppCount", 0);
                 logger.LogInfo($"Found {commandCount} commands and {appCount} applications to execute");
@@ -231,8 +229,13 @@ namespace BatRun
                     // Lancer RetroBAT en utilisant le programme principal si disponible
                     if (program != null)
                     {
+                        // Determine if focus should be suppressed
+                        bool launchRandom = config.ReadBool("Shell", "LaunchRandomGame", false) && !shellItems.Any(item => item.IsEnabled);
+                        string postLaunchPath = config.ReadValue("PostLaunch", "GamePath", "");
+                        bool suppressFocus = launchRandom || !string.IsNullOrEmpty(postLaunchPath);
+
                         // Start the Retrobat process but don't wait for it to complete yet.
-                        Task retrobatTask = program.StartRetrobat();
+                        Task retrobatTask = program.StartRetrobat(suppressFocus);
 
                         // Now, while the Retrobat process is running, handle the post-launch game.
                         await HandlePostLaunchGameAsync();

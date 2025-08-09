@@ -19,7 +19,7 @@ namespace BatRun
         void SafeExecute(Action action);
         Task CheckForUpdates();
         string GetAppVersion();
-        Task StartRetrobat();
+        Task StartRetrobat(bool suppressFocus = false);
         string GetRetrobatPath();
     }
 
