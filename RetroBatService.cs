@@ -35,7 +35,9 @@ namespace BatRun
                     var path = key.GetValue("LatestKnownInstallPath") as string;
                     if (!string.IsNullOrEmpty(path))
                     {
-                        _retrobatPath = Path.Combine(path, "retrobat.exe");
+                        // Normalize the path by removing any trailing slashes to prevent double backslashes
+                        string normalizedPath = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                        _retrobatPath = Path.Combine(normalizedPath, "retrobat.exe");
                         _logger.Log($"RetroBat path found in registry: {_retrobatPath}");
                         return;
                     }
