@@ -127,7 +127,7 @@ namespace BatRun
         {
             try
             {
-                var response = await httpClient.GetAsync($"{baseUrl}/ping");
+                var response = await httpClient.GetAsync($"{baseUrl}/systems");
                 return response.IsSuccessStatusCode;
             }
             catch
