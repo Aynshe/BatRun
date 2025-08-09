@@ -1216,7 +1216,7 @@ namespace BatRun
         }
 
 
-        public async Task StartRetrobat()
+        public async Task StartRetrobat(bool suppressFocus = false)
         {
             if (_isLaunching)
             {
@@ -1280,7 +1280,7 @@ namespace BatRun
                     wallpaperManager.PauseMedia();
                 }
 
-                if (!hideESLoading)
+                if (!hideESLoading && !suppressFocus)
                 {
                     // Appliquer la séquence de focus
                     await SetEmulationStationFocus();

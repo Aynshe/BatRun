@@ -39,178 +39,148 @@ namespace BatRun
         {
             try
             {
+                bool launchRandomGame = config.ReadBool("Shell", "LaunchRandomGame", false);
                 int commandCount = config.ReadInt("Shell", "CommandCount", 0);
                 int appCount = config.ReadInt("Shell", "AppCount", 0);
                 logger.LogInfo($"Found {commandCount} commands and {appCount} applications to execute");
 
-                // Créer une liste pour stocker tous les éléments
-                var shellItems = new List<(bool IsCommand, string Path, bool Enabled, int Delay, int Order, bool AutoHide, bool DoubleLaunch, int DoubleLaunchDelay, bool OnlyOneInstance)>();
+                var shellItems = new List<ShellCommand>();
 
                 // Charger les commandes
                 for (int i = 0; i < commandCount; i++)
-                    {
-                        string batchPath = config.ReadValue("Shell", $"Command{i}Path", "");
-                        bool enabled = config.ReadBool("Shell", $"Command{i}Enabled", false);
-                        int delay = config.ReadInt("Shell", $"Command{i}Delay", 0);
-                        int order = config.ReadInt("Shell", $"Command{i}Order", i);
-                    bool autoHide = config.ReadBool("Shell", $"Command{i}AutoHide", false);
-                    bool doubleLaunch = config.ReadBool("Shell", $"Command{i}DoubleLaunch", false);
-                    int doubleLaunchDelay = config.ReadInt("Shell", $"Command{i}DoubleLaunchDelay", 0);
-
-                    shellItems.Add((true, batchPath, enabled, delay, order, autoHide, doubleLaunch, doubleLaunchDelay, false));
+                {
+                    shellItems.Add(new ShellCommand {
+                        Type = CommandType.Command,
+                        Path = config.ReadValue("Shell", $"Command{i}Path", ""),
+                        IsEnabled = config.ReadBool("Shell", $"Command{i}Enabled", false),
+                        DelaySeconds = config.ReadInt("Shell", $"Command{i}Delay", 0),
+                        Order = config.ReadInt("Shell", $"Command{i}Order", i),
+                        AutoHide = config.ReadBool("Shell", $"Command{i}AutoHide", false),
+                        DoubleLaunch = config.ReadBool("Shell", $"Command{i}DoubleLaunch", false),
+                        DoubleLaunchDelay = config.ReadInt("Shell", $"Command{i}DoubleLaunchDelay", 0)
+                    });
                 }
 
                 // Charger les applications
                 for (int i = 0; i < appCount; i++)
                 {
-                    string path = config.ReadValue("Shell", $"App{i}Path", "");
-                    bool enabled = config.ReadBool("Shell", $"App{i}Enabled", false);
-                    int delay = config.ReadInt("Shell", $"App{i}Delay", 0);
-                    int order = config.ReadInt("Shell", $"App{i}Order", i);
-                    bool autoHide = config.ReadBool("Shell", $"App{i}AutoHide", false);
-                    bool doubleLaunch = config.ReadBool("Shell", $"App{i}DoubleLaunch", false);
-                    int doubleLaunchDelay = config.ReadInt("Shell", $"App{i}DoubleLaunchDelay", 0);
-                    bool onlyOneInstance = config.ReadBool("Shell", $"App{i}OnlyOneInstance", false);
-
-                    shellItems.Add((false, path, enabled, delay, order, autoHide, doubleLaunch, doubleLaunchDelay, onlyOneInstance));
+                    shellItems.Add(new ShellCommand {
+                        Type = CommandType.Application,
+                        Path = config.ReadValue("Shell", $"App{i}Path", ""),
+                        IsEnabled = config.ReadBool("Shell", $"App{i}Enabled", false),
+                        DelaySeconds = config.ReadInt("Shell", $"App{i}Delay", 0),
+                        Order = config.ReadInt("Shell", $"App{i}Order", i),
+                        AutoHide = config.ReadBool("Shell", $"App{i}AutoHide", false),
+                        DoubleLaunch = config.ReadBool("Shell", $"App{i}DoubleLaunch", false),
+                        DoubleLaunchDelay = config.ReadInt("Shell", $"App{i}DoubleLaunchDelay", 0),
+                        OnlyOneInstance = config.ReadBool("Shell", $"App{i}OnlyOneInstance", false)
+                    });
                 }
+
+
 
                 // Trier par ordre global
                 var sortedItems = shellItems
-                    .Where(item => item.Enabled && !string.IsNullOrEmpty(item.Path))
+                    .Where(item => item.IsEnabled && !string.IsNullOrEmpty(item.Path))
                     .OrderBy(item => item.Order)
                     .ToList();
 
                 // Exécuter dans l'ordre
                 foreach (var item in sortedItems)
                 {
-                    if (item.Delay > 0)
+                    if (item.DelaySeconds > 0)
                     {
-                        logger.LogInfo($"Waiting {item.Delay} seconds before executing");
-                        await Task.Delay(item.Delay * 1000);
+                        logger.LogInfo($"Waiting {item.DelaySeconds} seconds before executing");
+                        await Task.Delay(item.DelaySeconds * 1000);
                     }
 
                     try
                     {
                         Process? process = null;
-                        if (item.IsCommand)
-                            {
-                                var startInfo = new ProcessStartInfo
+                        switch (item.Type)
+                        {
+                            case CommandType.Command:
+                                var cmdStartInfo = new ProcessStartInfo
                                 {
                                     FileName = "cmd.exe",
-                                Arguments = $"/c \"{item.Path}\"",
+                                    Arguments = $"/c \"{item.Path}\"",
                                     UseShellExecute = false,
                                     CreateNoWindow = true,
                                     RedirectStandardOutput = true,
                                     RedirectStandardError = true,
-                                StandardOutputEncoding = Encoding.UTF8,
-                                StandardErrorEncoding = Encoding.UTF8,
-                                WorkingDirectory = Path.GetDirectoryName(item.Path) ?? Environment.GetFolderPath(Environment.SpecialFolder.System)
-                            };
+                                    StandardOutputEncoding = Encoding.UTF8,
+                                    StandardErrorEncoding = Encoding.UTF8,
+                                    WorkingDirectory = Path.GetDirectoryName(item.Path) ?? Environment.GetFolderPath(Environment.SpecialFolder.System)
+                                };
 
-                            logger.LogInfo($"Executing command: {item.Path}");
-                            
-                            try 
-                            {
-                                // Lire le contenu du fichier batch en Windows-1252
-                                string batchContent = File.ReadAllText(item.Path, Encoding.GetEncoding(1252));
+                                logger.LogInfo($"Executing command: {item.Path}");
                                 
-                                // Ajouter les commandes nécessaires au début du script
-                                string modifiedBatchContent = "@echo off\r\n" +
-                                                              "chcp 1252 > nul\r\n" + // Définir la page de code Windows-1252
-                                                              "setlocal enabledelayedexpansion\r\n" + 
-                                                              batchContent;
-
-                                // Créer un fichier batch temporaire avec l'encodage Windows-1252
-                                string tempBatchFile = Path.Combine(Path.GetTempPath(), $"batrun_temp_{Guid.NewGuid()}.bat");
-                                File.WriteAllText(tempBatchFile, modifiedBatchContent, Encoding.GetEncoding(1252));
-
-                                // Mettre à jour le chemin du fichier à exécuter
-                                startInfo.Arguments = $"/c \"{tempBatchFile}\"";
-
-                                process = Process.Start(startInfo);
-                                if (process != null)
+                                try
                                 {
-                                    string output = await process.StandardOutput.ReadToEndAsync();
-                                    string error = await process.StandardError.ReadToEndAsync();
+                                    string batchContent = File.ReadAllText(item.Path, Encoding.GetEncoding(1252));
+                                    string modifiedBatchContent = "@echo off\r\n" +
+                                                                  "chcp 1252 > nul\r\n" +
+                                                                  "setlocal enabledelayedexpansion\r\n" +
+                                                                  batchContent;
 
-                                    await process.WaitForExitAsync();
-                                    int exitCode = process.ExitCode;
+                                    string tempBatchFile = Path.Combine(Path.GetTempPath(), $"batrun_temp_{Guid.NewGuid()}.bat");
+                                    File.WriteAllText(tempBatchFile, modifiedBatchContent, Encoding.GetEncoding(1252));
 
-                                    // Supprimer le fichier batch temporaire
-                                    try 
+                                    cmdStartInfo.Arguments = $"/c \"{tempBatchFile}\"";
+                                    process = Process.Start(cmdStartInfo);
+                                    if (process != null)
                                     {
-                                        File.Delete(tempBatchFile);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        logger.LogError($"Error deleting temp batch file: {ex.Message}");
-                                    }
+                                        string output = await process.StandardOutput.ReadToEndAsync();
+                                        string error = await process.StandardError.ReadToEndAsync();
+                                        await process.WaitForExitAsync();
+                                        try { File.Delete(tempBatchFile); } catch { }
 
-                                    if (!string.IsNullOrEmpty(output))
-                                        logger.LogInfo($"Command output: {output}");
-                                    if (!string.IsNullOrEmpty(error))
-                                        logger.LogError($"Command error: {error}");
-
-                                    if (exitCode != 0)
-                                    {
-                                        logger.LogError($"Command exited with non-zero exit code: {exitCode}");
+                                        if (!string.IsNullOrEmpty(output)) logger.LogInfo($"Command output: {output}");
+                                        if (!string.IsNullOrEmpty(error)) logger.LogError($"Command error: {error}");
+                                        if (process.ExitCode != 0) logger.LogError($"Command exited with non-zero exit code: {process.ExitCode}");
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                logger.LogError($"Error preparing or executing command {item.Path}: {ex.Message}", ex);
-                            }
-                        }
-                        else
-                        {
-                            // Vérifier si l'application est déjà en cours d'exécution et si OnlyOneInstance est activé
-                            if (item.OnlyOneInstance && IsApplicationAlreadyRunning(item.Path))
-                            {
-                                logger.LogInfo($"Application {item.Path} is already running and OnlyOneInstance is enabled. Skipping launch.");
-                                continue;
-                            }
-
-                            var startInfo = new ProcessStartInfo
-                            {
-                                FileName = item.Path,
-                                UseShellExecute = true,
-                                WorkingDirectory = Path.GetDirectoryName(item.Path) ?? AppContext.BaseDirectory
-                            };
-
-                            logger.LogInfo($"Launching application: {item.Path}");
-                            process = Process.Start(startInfo);
-
-                            // Gérer le masquage automatique
-                            if (item.AutoHide && process != null)
-                            {
-                                await HandleAutoHide(process, item.Path);
-                            }
-
-                            // Si DoubleLaunch est activé, lancer une deuxième instance
-                            if (item.DoubleLaunch)
-                            {
-                                logger.LogInfo($"Waiting {item.DoubleLaunchDelay} seconds before second launch of: {item.Path}");
-                                await Task.Delay(item.DoubleLaunchDelay * 1000);
-
-                                logger.LogInfo($"Launching second instance of: {item.Path}");
-                                process = Process.Start(startInfo);
-
-                                // Gérer le masquage automatique pour la deuxième instance
-                                if (item.AutoHide && process != null)
+                                catch (Exception ex)
                                 {
-                                    await HandleAutoHide(process, item.Path);
+                                    logger.LogError($"Error preparing or executing command {item.Path}: {ex.Message}", ex);
                                 }
-                            }
+                                break;
 
-                            // Vérifier les fenêtres persistantes après le lancement
-                            applicationManager.CheckForPersistentWindows();
+                            case CommandType.Application:
+                                if (item.OnlyOneInstance && IsApplicationAlreadyRunning(item.Path))
+                                {
+                                    logger.LogInfo($"Application {item.Path} is already running and OnlyOneInstance is enabled. Skipping launch.");
+                                    continue;
+                                }
+
+                                var appStartInfo = new ProcessStartInfo
+                                {
+                                    FileName = item.Path,
+                                    UseShellExecute = true,
+                                    WorkingDirectory = Path.GetDirectoryName(item.Path) ?? AppContext.BaseDirectory
+                                };
+
+                                logger.LogInfo($"Launching application: {item.Path}");
+                                process = Process.Start(appStartInfo);
+
+                                if (item.AutoHide && process != null) await HandleAutoHide(process, item.Path);
+
+                                if (item.DoubleLaunch)
+                                {
+                                    logger.LogInfo($"Waiting {item.DoubleLaunchDelay} seconds before second launch of: {item.Path}");
+                                    await Task.Delay(item.DoubleLaunchDelay * 1000);
+                                    logger.LogInfo($"Launching second instance of: {item.Path}");
+                                    process = Process.Start(appStartInfo);
+                                    if (item.AutoHide && process != null) await HandleAutoHide(process, item.Path);
+                                }
+                                applicationManager.CheckForPersistentWindows();
+                                break;
+
                         }
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"Error executing {(item.IsCommand ? "command" : "application")} {item.Path}: {ex.Message}", ex);
+                        logger.LogError($"Error executing item {item.Path}: {ex.Message}", ex);
                     }
                 }
 
@@ -231,7 +201,19 @@ namespace BatRun
                     // Lancer RetroBAT en utilisant le programme principal si disponible
                     if (program != null)
                     {
-                        await program.StartRetrobat();
+                        // Determine if focus should be suppressed
+                        bool willLaunchRandom = launchRandomGame && !shellItems.Any(item => item.IsEnabled);
+                        string postLaunchPath = config.ReadValue("PostLaunch", "GamePath", "");
+                        bool suppressFocus = willLaunchRandom || !string.IsNullOrEmpty(postLaunchPath);
+
+                        // Start the Retrobat process but don't wait for it to complete yet.
+                        Task retrobatTask = program.StartRetrobat(suppressFocus);
+
+                        // Now, while the Retrobat process is running, handle the post-launch game.
+                        await HandlePostRetroBatActionsAsync(sortedItems.Any());
+
+                        // Finally, await the retrobat task to wait for the process to exit.
+                        await retrobatTask;
                     }
                     else
                     {
@@ -261,6 +243,93 @@ namespace BatRun
             catch (Exception ex)
             {
                 logger.LogError("Error in ExecuteShellCommandsAsync", ex);
+            }
+        }
+
+        private async Task HandlePostRetroBatActionsAsync(bool preLaunchCommandsExist)
+        {
+            string gamePathToLaunch = config.ReadValue("PostLaunch", "GamePath", "");
+            string displayName = config.ReadValue("PostLaunch", "DisplayName", gamePathToLaunch);
+            bool isRandomLaunch = false;
+
+            // If no specific game is set, check for random game condition
+            if (string.IsNullOrEmpty(gamePathToLaunch))
+            {
+                bool randomOptionEnabled = config.ReadBool("Shell", "LaunchRandomGame", false);
+                if (randomOptionEnabled && !preLaunchCommandsExist)
+                {
+                    isRandomLaunch = true;
+                    displayName = "a random game";
+                }
+                else
+                {
+                    return; // No post-launch action needed
+                }
+            }
+
+            logger.LogInfo($"A post-launch action is configured: launch {displayName}. Waiting for RetroBat API...");
+            var scraper = new EmulationStationScraper();
+
+            // Wait for API to be available
+            const int maxAttempts = 12;
+            const int delaySeconds = 5;
+            bool apiReady = false;
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                logger.LogInfo($"Pinging EmulationStation API, attempt {i + 1}/{maxAttempts}...");
+                if (await scraper.PingServerAsync())
+                {
+                    apiReady = true;
+                    break;
+                }
+                if (i < maxAttempts - 1)
+                {
+                    await Task.Delay(delaySeconds * 1000);
+                }
+            }
+
+            if (!apiReady)
+            {
+                logger.LogError($"Timed out waiting for EmulationStation API. Could not launch {displayName}.");
+                return;
+            }
+
+            logger.LogInfo("API is available. Preparing to launch game.");
+
+            // If it's a random launch, we need to pick a game now
+            if (isRandomLaunch)
+            {
+                string randomSystem = config.ReadValue("Shell", "RandomLaunchSystem", "all");
+                logger.LogInfo($"Random launch mode active. Selected system: {randomSystem}");
+
+                var allGames = await scraper.GetAllGamesAsync(randomSystem == "all" ? null : randomSystem);
+                if (allGames.Count > 0)
+                {
+                    var random = new Random();
+                    var gameToLaunch = allGames[random.Next(allGames.Count)];
+                    gamePathToLaunch = gameToLaunch.Path ?? "";
+                    displayName = gameToLaunch.Name ?? "Unknown Game";
+                    logger.LogInfo($"Selected random game: {displayName}");
+                }
+                else
+                {
+                    logger.LogWarning("Random launch was configured, but no games were found via the scraper.");
+                    return;
+                }
+            }
+
+            // Launch the game (either specific or the chosen random one)
+            if (!string.IsNullOrEmpty(gamePathToLaunch))
+            {
+                bool success = await scraper.LaunchGameAsync(gamePathToLaunch);
+                if (success)
+                {
+                    logger.LogInfo($"Successfully launched {displayName}.");
+                }
+                else
+                {
+                    logger.LogError($"Failed to launch {displayName} via API.");
+                }
             }
         }
 
