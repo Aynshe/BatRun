@@ -452,7 +452,7 @@ try {
                             Path = commandText,
                             DelaySeconds = delay,
                             Order = order,
-                            IsCommand = true,
+                            Type = CommandType.Command,
                             AutoHide = autoHide,
                             DoubleLaunch = doubleLaunch,
                             DoubleLaunchDelay = doubleLaunchDelay,
@@ -942,8 +942,8 @@ try {
                         config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Enabled", command.IsEnabled.ToString());
                         config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Delay", command.DelaySeconds.ToString());
                         config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}Order", order.ToString());
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}SystemName", command.GameSystemName);
-                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}GamePath", command.GamePath);
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}SystemName", command.GameSystemName ?? "");
+                        config.WriteValue("Shell", $"ScrapedGame{scrapedGameCount}GamePath", command.GamePath ?? "");
                         scrapedGameCount++;
                         break;
                 }
@@ -1436,7 +1436,7 @@ try {
                     hitInfo.Item.SubItems[5].Text = command.AutoHide ? "✓" : "";
 
                     // Gérer la liste persistante si c'est une application
-                    if (!command.IsCommand)
+                    if (command.Type == CommandType.Application)
                     {
                         string executableName = Path.GetFileName(command.Path);
                         if (!string.IsNullOrEmpty(executableName))
