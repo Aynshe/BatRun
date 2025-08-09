@@ -44,46 +44,64 @@ namespace BatRun
         private void InitializeComponent()
         {
             this.Text = "Game Metadata";
-            this.ClientSize = new Size(800, 600);
-            this.BackColor = Color.FromArgb(32, 32, 32);
+            this.ClientSize = new Size(960, 720);
+            this.BackColor = Color.FromArgb(45, 45, 48); // Slightly lighter dark grey
             this.ForeColor = Color.White;
             this.Font = new Font("Segoe UI", 9F);
             this.StartPosition = FormStartPosition.CenterParent;
 
-            var mainSplitContainer = new SplitContainer { Dock = DockStyle.Fill, FixedPanel = FixedPanel.Panel1, SplitterDistance = 150 };
-            this.Controls.Add(mainSplitContainer);
+            // Main layout: TableLayoutPanel with 2 rows
+            var mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2,
+                Padding = new Padding(10)
+            };
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 220F)); // Info Panel height
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Media Panel fills rest
+            this.Controls.Add(mainLayout);
 
+            // Top Panel: Game Info
+            _infoPanel = new TableLayoutPanel {
+                Dock = DockStyle.Fill,
+                ColumnCount = 2,
+                AutoScroll = true,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.None
+            };
+            _infoPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
+            _infoPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            mainLayout.Controls.Add(_infoPanel, 0, 0);
+
+            // Bottom Panel: Media Tabs
             _mediaTabControl = new TabControl
             {
                 Dock = DockStyle.Fill,
-                Alignment = TabAlignment.Left,
-                SizeMode = TabSizeMode.Fixed,
-                ItemSize = new Size(35, 100),
-                DrawMode = TabDrawMode.OwnerDrawFixed,
+                Alignment = TabAlignment.Top
             };
-            _mediaTabControl.DrawItem += MediaTabControl_DrawItem;
             _mediaTabControl.SelectedIndexChanged += MediaTabControl_SelectedIndexChanged;
-            mainSplitContainer.Panel1.Controls.Add(_mediaTabControl);
+            mainLayout.Controls.Add(_mediaTabControl, 0, 1);
 
-            var contentPanel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
-            mainSplitContainer.Panel2.Controls.Add(contentPanel);
-
-            var infoTab = new TabPage("Info");
+            // Create Tab Pages
             var imageTab = new TabPage("Image");
             var videoTab = new TabPage("Video");
             var marqueeTab = new TabPage("Marquee");
-            _mediaTabControl.TabPages.AddRange(new TabPage[] { infoTab, imageTab, videoTab, marqueeTab });
+            _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab });
+            _mediaTabControl.SelectedIndex = 1; // Default to Video tab
 
-            // Info Tab Content
-            _infoPanel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, AutoScroll = true, CellBorderStyle = TableLayoutPanelCellBorderStyle.Single };
-            _infoPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120F));
-            _infoPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            infoTab.Controls.Add(_infoPanel);
+            // Media Controls
+            // Image
+            _imagePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
+            imageTab.Controls.Add(_imagePictureBox);
 
-            // Video Tab Content
+            // Marquee
+            _marqueePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
+            marqueeTab.Controls.Add(_marqueePictureBox);
+
+            // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
             _videoView = new VideoView { Dock = DockStyle.Fill, MediaPlayer = _mediaPlayer };
-            var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight };
+            var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.FromArgb(45, 45, 48) };
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var pauseButton = new Button { Text = "Pause", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var stopButton = new Button { Text = "Stop", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
@@ -94,35 +112,6 @@ namespace BatRun
             videoPanel.Controls.Add(_videoView);
             videoPanel.Controls.Add(videoControls);
             videoTab.Controls.Add(videoPanel);
-
-            // Image Tab Content
-            _imagePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
-            imageTab.Controls.Add(_imagePictureBox);
-
-            // Marquee Tab Content
-            _marqueePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
-            marqueeTab.Controls.Add(_marqueePictureBox);
-        }
-
-        private void MediaTabControl_DrawItem(object? sender, DrawItemEventArgs e)
-        {
-            var g = e.Graphics;
-            if (_mediaTabControl == null) return;
-            var tab = _mediaTabControl.TabPages[e.Index];
-            var rect = e.Bounds;
-            var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            var font = e.Font ?? this.Font;
-
-            if (e.State == DrawItemState.Selected)
-            {
-                g.FillRectangle(new SolidBrush(Color.FromArgb(0, 122, 204)), e.Bounds);
-                g.DrawString(tab.Text, font, Brushes.White, rect, sf);
-            }
-            else
-            {
-                g.FillRectangle(new SolidBrush(Color.FromArgb(45, 45, 48)), e.Bounds);
-                g.DrawString(tab.Text, font, Brushes.White, rect, sf);
-            }
         }
 
         private void MediaTabControl_SelectedIndexChanged(object? sender, EventArgs e)
@@ -206,7 +195,10 @@ namespace BatRun
                 string fullVideoPath = Path.Combine(_romsFolderPath, videoPath.TrimStart('.', '/', '\\'));
                 if (File.Exists(fullVideoPath))
                 {
-                    _mediaPlayer.Media = new Media(_libVLC, new Uri(fullVideoPath));
+                    var media = new Media(_libVLC, new Uri(fullVideoPath));
+                    _mediaPlayer.Media = media;
+                    media.Dispose(); // LibVLC clones the media object, so we can dispose our reference
+                    _mediaPlayer.Play();
                 }
             }
         }
@@ -234,8 +226,23 @@ namespace BatRun
             _infoPanel.RowCount++;
             _infoPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
 
-            var label = new Label { Text = labelText, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Padding = new Padding(5) };
-            var value = new TextBox { Text = valueText, Dock = DockStyle.Fill, ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = Color.FromArgb(55,55,58), ForeColor = Color.White, Padding = new Padding(5) };
+            var label = new Label {
+                Text = labelText,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+            };
+            var value = new TextBox {
+                Text = valueText,
+                Dock = DockStyle.Fill,
+                ReadOnly = true,
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.FromArgb(60, 63, 65), // Darker textbox background
+                ForeColor = Color.Gainsboro,
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 10F)
+            };
 
             _infoPanel.Controls.Add(label, 0, _infoPanel.RowCount - 1);
             _infoPanel.Controls.Add(value, 1, _infoPanel.RowCount - 1);
@@ -248,8 +255,23 @@ namespace BatRun
             _infoPanel.RowCount++;
             _infoPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
 
-            var label = new Label { Text = "Description", Dock = DockStyle.Fill, TextAlign = ContentAlignment.TopLeft, Padding = new Padding(5) };
-            var value = new RichTextBox { Text = descText, Dock = DockStyle.Fill, ReadOnly = true, BorderStyle = BorderStyle.None, BackColor = Color.FromArgb(55,55,58), ForeColor = Color.White, Padding = new Padding(5) };
+            var label = new Label {
+                Text = "Description",
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.TopLeft,
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+            };
+            var value = new RichTextBox {
+                Text = descText,
+                Dock = DockStyle.Fill,
+                ReadOnly = true,
+                BorderStyle = BorderStyle.None,
+                BackColor = Color.FromArgb(60, 63, 65),
+                ForeColor = Color.Gainsboro,
+                Padding = new Padding(5),
+                Font = new Font("Segoe UI", 10F)
+            };
 
             _infoPanel.Controls.Add(label, 0, _infoPanel.RowCount - 1);
             _infoPanel.Controls.Add(value, 1, _infoPanel.RowCount - 1);
