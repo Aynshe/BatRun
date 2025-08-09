@@ -78,35 +78,6 @@ namespace BatRun
                 }
 
 
-                // Random Game Launch Logic
-                if (launchRandomGame && !shellItems.Any(item => item.IsEnabled))
-                {
-                    logger.LogInfo("LaunchRandomGame is enabled and no other items are configured. Attempting to launch a random game.");
-                    var scraper = new EmulationStationScraper();
-                    if (await scraper.PingServerAsync())
-                    {
-                        var allGames = await scraper.GetAllGamesAsync();
-                        if (allGames.Count > 0)
-                        {
-                            var random = new Random();
-                            var gameToLaunch = allGames[random.Next(allGames.Count)];
-                            logger.LogInfo($"Launching random game: {gameToLaunch.Name} from system {gameToLaunch.System}");
-                            if(gameToLaunch.Path != null)
-                            {
-                                await scraper.LaunchGameAsync(gameToLaunch.Path);
-                            }
-                            return; // Exit after launching the random game
-                        }
-                        else
-                        {
-                            logger.LogInfo("No games found via scraper to launch randomly.");
-                        }
-                    }
-                    else
-                    {
-                        logger.LogWarning("Could not connect to EmulationStation server to launch a random game.");
-                    }
-                }
 
                 // Trier par ordre global
                 var sortedItems = shellItems
@@ -239,7 +210,7 @@ namespace BatRun
                         Task retrobatTask = program.StartRetrobat(suppressFocus);
 
                         // Now, while the Retrobat process is running, handle the post-launch game.
-                        await HandlePostLaunchGameAsync();
+                        await HandlePostRetroBatActionsAsync(sortedItems.Any());
 
                         // Finally, await the retrobat task to wait for the process to exit.
                         await retrobatTask;
@@ -275,46 +246,88 @@ namespace BatRun
             }
         }
 
-        private async Task HandlePostLaunchGameAsync()
+        private async Task HandlePostRetroBatActionsAsync(bool preLaunchCommandsExist)
         {
-            string gamePath = config.ReadValue("PostLaunch", "GamePath", "");
-            if (string.IsNullOrEmpty(gamePath))
+            string gamePathToLaunch = config.ReadValue("PostLaunch", "GamePath", "");
+            string displayName = config.ReadValue("PostLaunch", "DisplayName", gamePathToLaunch);
+            bool isRandomLaunch = false;
+
+            // If no specific game is set, check for random game condition
+            if (string.IsNullOrEmpty(gamePathToLaunch))
             {
-                return; // No post-launch game configured
+                bool randomOptionEnabled = config.ReadBool("Shell", "LaunchRandomGame", false);
+                if (randomOptionEnabled && !preLaunchCommandsExist)
+                {
+                    isRandomLaunch = true;
+                    displayName = "a random game";
+                }
+                else
+                {
+                    return; // No post-launch action needed
+                }
             }
 
-            string displayName = config.ReadValue("PostLaunch", "DisplayName", gamePath);
-            logger.LogInfo($"A post-launch game is configured: {displayName}. Waiting for RetroBat API...");
-
+            logger.LogInfo($"A post-launch action is configured: launch {displayName}. Waiting for RetroBat API...");
             var scraper = new EmulationStationScraper();
-            const int maxAttempts = 12; // 12 attempts * 5 seconds = 60 seconds timeout
-            const int delaySeconds = 5;
 
+            // Wait for API to be available
+            const int maxAttempts = 12;
+            const int delaySeconds = 5;
+            bool apiReady = false;
             for (int i = 0; i < maxAttempts; i++)
             {
                 logger.LogInfo($"Pinging EmulationStation API, attempt {i + 1}/{maxAttempts}...");
                 if (await scraper.PingServerAsync())
                 {
-                    logger.LogInfo("API is available. Launching game.");
-                    bool success = await scraper.LaunchGameAsync(gamePath);
-                    if (success)
-                    {
-                        logger.LogInfo($"Successfully launched {displayName}.");
-                    }
-                    else
-                    {
-                        logger.LogError($"Failed to launch {displayName} via API.");
-                    }
-                    return; // Exit after successful or failed launch attempt
+                    apiReady = true;
+                    break;
                 }
-
                 if (i < maxAttempts - 1)
                 {
                     await Task.Delay(delaySeconds * 1000);
                 }
             }
 
-            logger.LogError($"Timed out waiting for EmulationStation API. Could not launch {displayName}.");
+            if (!apiReady)
+            {
+                logger.LogError($"Timed out waiting for EmulationStation API. Could not launch {displayName}.");
+                return;
+            }
+
+            logger.LogInfo("API is available. Preparing to launch game.");
+
+            // If it's a random launch, we need to pick a game now
+            if (isRandomLaunch)
+            {
+                var allGames = await scraper.GetAllGamesAsync();
+                if (allGames.Count > 0)
+                {
+                    var random = new Random();
+                    var gameToLaunch = allGames[random.Next(allGames.Count)];
+                    gamePathToLaunch = gameToLaunch.Path ?? "";
+                    displayName = gameToLaunch.Name ?? "Unknown Game";
+                    logger.LogInfo($"Selected random game: {displayName}");
+                }
+                else
+                {
+                    logger.LogWarning("Random launch was configured, but no games were found via the scraper.");
+                    return;
+                }
+            }
+
+            // Launch the game (either specific or the chosen random one)
+            if (!string.IsNullOrEmpty(gamePathToLaunch))
+            {
+                bool success = await scraper.LaunchGameAsync(gamePathToLaunch);
+                if (success)
+                {
+                    logger.LogInfo($"Successfully launched {displayName}.");
+                }
+                else
+                {
+                    logger.LogError($"Failed to launch {displayName} via API.");
+                }
+            }
         }
 
         private async Task HandleAutoHide(Process process, string path)
