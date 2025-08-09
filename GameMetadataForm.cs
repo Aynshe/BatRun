@@ -151,7 +151,7 @@ namespace BatRun
 
                 if (_gameMetadata != null)
                 {
-                    this.Text = $"Metadata - {GetMetaValue("name", _selectedGame.Name)}";
+                    this.Text = $"Metadata - {GetMetaValue("name", _selectedGame.Name ?? "N/A")}";
                     PopulateInfoTab();
                     PopulateMediaTabs();
                 }
@@ -170,6 +170,7 @@ namespace BatRun
 
         private void PopulateInfoTab()
         {
+            if (_infoPanel == null) return;
             _infoPanel.SuspendLayout();
             _infoPanel.Controls.Clear();
             _infoPanel.RowCount = 0;
@@ -190,8 +191,14 @@ namespace BatRun
 
         private void PopulateMediaTabs()
         {
-            LoadMediaIntoPictureBox(_imagePictureBox, GetMetaValue("image"));
-            LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
+            if (_imagePictureBox != null)
+            {
+                LoadMediaIntoPictureBox(_imagePictureBox, GetMetaValue("image"));
+            }
+            if (_marqueePictureBox != null)
+            {
+                LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
+            }
 
             string videoPath = GetMetaValue("video");
             if (!string.IsNullOrEmpty(videoPath))
@@ -222,7 +229,7 @@ namespace BatRun
 
         private void AddInfoRow(string labelText, string valueText)
         {
-            if (string.IsNullOrWhiteSpace(valueText)) return;
+            if (string.IsNullOrWhiteSpace(valueText) || _infoPanel == null) return;
 
             _infoPanel.RowCount++;
             _infoPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
@@ -236,7 +243,7 @@ namespace BatRun
 
         private void AddDescriptionRow(string descText)
         {
-             if (string.IsNullOrWhiteSpace(descText)) return;
+             if (string.IsNullOrWhiteSpace(descText) || _infoPanel == null) return;
 
             _infoPanel.RowCount++;
             _infoPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
