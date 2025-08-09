@@ -6,11 +6,19 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
+using System.Runtime.InteropServices;
 
 namespace BatRun
 {
     public partial class GameMetadataForm : Form
     {
+        // P/Invoke for smooth scrolling
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
+        private const int WM_VSCROLL = 0x115;
+        private const int SB_LINEDOWN = 1;
+        private const int SB_LINEUP = 0;
+
         private readonly Game _selectedGame;
         private readonly string _gamelistPath;
         private readonly string _romsFolderPath;
@@ -28,6 +36,7 @@ namespace BatRun
         private PictureBox? _fanartPictureBox;
         private TabControl? _mediaTabControl;
         private RichTextBox? _descriptionTextBox;
+        private System.Windows.Forms.Timer? _scrollTimer;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath)
@@ -42,6 +51,8 @@ namespace BatRun
 
             InitializeComponent();
             LoadGameMetadata();
+
+            this.Shown += (s, e) => InitializeTimer();
         }
 
         private void InitializeComponent()
@@ -61,7 +72,7 @@ namespace BatRun
                 RowCount = 2,
                 Padding = new Padding(10)
             };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 260F)); // Increased Info Panel height
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Absolute, 380F)); // Final increase to Info Panel height
             mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F)); // Media Panel fills rest
             this.Controls.Add(mainLayout);
 
@@ -236,14 +247,14 @@ namespace BatRun
             if (string.IsNullOrWhiteSpace(valueText) || _infoPanel == null) return;
 
             _infoPanel.RowCount++;
-            _infoPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            _infoPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 32F));
 
             var label = new Label {
                 Text = labelText,
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Padding = new Padding(5, 8, 5, 8), // Increased vertical padding
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+                Padding = new Padding(5, 8, 5, 8),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             var value = new TextBox {
                 Text = valueText,
@@ -272,7 +283,7 @@ namespace BatRun
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.TopLeft,
                 Padding = new Padding(5),
-                Font = new Font("Segoe UI", 10F, FontStyle.Bold)
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
             };
             _descriptionTextBox = new RichTextBox {
                 Text = descText,
@@ -290,8 +301,46 @@ namespace BatRun
             _infoPanel.Controls.Add(_descriptionTextBox, 1, _infoPanel.RowCount - 1);
         }
 
+        private void InitializeTimer()
+        {
+            if (_descriptionTextBox == null) return;
+
+            // Only start the timer if the text is long enough to scroll
+            int textHeight = TextRenderer.MeasureText(_descriptionTextBox.Text, _descriptionTextBox.Font).Height;
+            if (textHeight < _descriptionTextBox.ClientSize.Height) return;
+
+            _scrollTimer = new System.Windows.Forms.Timer();
+            _scrollTimer.Interval = 100; // Slower, more readable scroll
+            _scrollTimer.Tick += ScrollTimer_Tick;
+            _scrollTimer.Start();
+        }
+
+        private void ScrollTimer_Tick(object? sender, EventArgs e)
+        {
+            if (_descriptionTextBox == null) return;
+
+            // Get the position of the first visible character
+            int firstVisibleCharIndex = _descriptionTextBox.GetCharIndexFromPosition(new Point(1, 1));
+            // Get the line number of that character
+            int currentLine = _descriptionTextBox.GetLineFromCharIndex(firstVisibleCharIndex);
+
+            // Send a scroll down message
+            SendMessage(_descriptionTextBox.Handle, WM_VSCROLL, (IntPtr)SB_LINEDOWN, IntPtr.Zero);
+
+            // Check if we have reached the bottom
+            int newFirstVisibleCharIndex = _descriptionTextBox.GetCharIndexFromPosition(new Point(1, 1));
+            if (firstVisibleCharIndex == newFirstVisibleCharIndex)
+            {
+                // We're at the bottom, scroll back to the top
+                _descriptionTextBox.Select(0, 0);
+                _descriptionTextBox.ScrollToCaret();
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            _scrollTimer?.Stop();
+            _scrollTimer?.Dispose();
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
