@@ -193,7 +193,7 @@ namespace BatRun
             string videoPath = GetMetaValue("video");
             if (!string.IsNullOrEmpty(videoPath))
             {
-                string fullVideoPath = Path.Combine(_romsFolderPath, videoPath.TrimStart('./', '\\'));
+                string fullVideoPath = Path.Combine(_romsFolderPath, videoPath.TrimStart('.', '/', '\\'));
                 if (File.Exists(fullVideoPath))
                 {
                     _mediaPlayer.Media = new Media(_libVLC, new Uri(fullVideoPath));
@@ -205,7 +205,7 @@ namespace BatRun
         {
             if (string.IsNullOrEmpty(relativePath)) return;
 
-            string fullPath = Path.Combine(_romsFolderPath, relativePath.TrimStart('./', '\\'));
+            string fullPath = Path.Combine(_romsFolderPath, relativePath.TrimStart('.', '/', '\\'));
             if (File.Exists(fullPath))
             {
                 pb.Image = Image.FromFile(fullPath);
