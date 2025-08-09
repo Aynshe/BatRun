@@ -225,7 +225,10 @@ namespace BatRun
                     if (game != null && system != null && game.Path != null && system.name != null)
                     {
                         var parser = new GamelistParser(_retrobatPath, _logger);
-                        var metadata = parser.GetGameMetadata(system.name, game.Path);
+                        // The path in gamelist.xml is relative, e.g., "./rom.zip".
+                        // The path from the scraper is absolute. We need to convert it.
+                        string relativePath = $"./{System.IO.Path.GetFileName(game.Path)}";
+                        var metadata = parser.GetGameMetadata(system.name, relativePath);
 
                         if (metadata.Count > 0)
                         {
