@@ -72,7 +72,7 @@
     <ItemGroup>
       <LibVLCFiles Include="$(NuGetPackageRoot)\videolan.libvlc.windows\3.0.20\build\x64\**\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(LibVLCFiles)" DestinationFiles="@(LibVLCDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(LibVLCFiles)" DestinationFiles="@(LibVLCDir)\%(RecursiveDir)%(Filename)%(Extension)" SkipUnchangedFiles="true" />
     <Message Text="Copied LibVLC files to: $(LibVLCDir)" Importance="high" />
   </Target>
 
