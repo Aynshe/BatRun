@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace BatRun
 {
@@ -39,6 +40,7 @@ namespace BatRun
         private TabControl? _mediaTabControl;
         private RichTextBox? _descriptionTextBox;
         private System.Windows.Forms.Timer? _scrollTimer;
+        private BezelInfo? _bezelInfo;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath, string retrobatRoot)
@@ -127,8 +129,9 @@ namespace BatRun
 
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
+            videoPanel.Resize += (s, e) => UpdateVideoPosition();
             _bezelPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.StretchImage };
-            _videoView = new VideoView { Dock = DockStyle.Fill, MediaPlayer = _mediaPlayer, Padding = new Padding(60) };
+            _videoView = new VideoView { Dock = DockStyle.None, MediaPlayer = _mediaPlayer };
             var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.FromArgb(45, 45, 48) };
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var pauseButton = new Button { Text = "Pause", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
@@ -219,13 +222,30 @@ namespace BatRun
             if (_thumbnailPictureBox != null) LoadMediaIntoPictureBox(_thumbnailPictureBox, GetMetaValue("thumbnail"));
             if (_fanartPictureBox != null) LoadMediaIntoPictureBox(_fanartPictureBox, GetMetaValue("fanart"));
 
-            // Load Bezel
+            // Load Bezel and Layout Info
             if (_bezelPictureBox != null && _selectedGame.System != null)
             {
-                string bezelPath = Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems", $"{_selectedGame.System}.png");
+                string decorationsRoot = Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems");
+                string bezelPath = Path.Combine(decorationsRoot, $"{_selectedGame.System}.png");
+                string bezelInfoPath = Path.Combine(decorationsRoot, $"{_selectedGame.System}.info");
+
                 if (File.Exists(bezelPath))
                 {
                     _bezelPictureBox.Image = Image.FromFile(bezelPath);
+                }
+
+                if (File.Exists(bezelInfoPath))
+                {
+                    try
+                    {
+                        string json = File.ReadAllText(bezelInfoPath);
+                        _bezelInfo = JsonConvert.DeserializeObject<BezelInfo>(json);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log or handle error if JSON is malformed
+                        Console.WriteLine($"Error parsing bezel info file: {ex.Message}");
+                    }
                 }
             }
 
@@ -243,6 +263,48 @@ namespace BatRun
                 }
             }
 
+            // Update the video position now that we have layout info
+            UpdateVideoPosition();
+        }
+
+        private void UpdateVideoPosition()
+        {
+            if (_videoView == null || _videoView.Parent == null) return;
+
+            if (_bezelInfo == null)
+            {
+                // If no bezel info, just fill the panel (minus controls)
+                _videoView.Dock = DockStyle.Fill;
+                return;
+            }
+
+            // If we have bezel info, undock and position manually
+            _videoView.Dock = DockStyle.None;
+
+            var container = _videoView.Parent;
+
+            // Calculate the video area based on the bezel info
+            double videoX = _bezelInfo.Left;
+            double videoY = _bezelInfo.Top;
+            double videoW = _bezelInfo.Width - _bezelInfo.Left - _bezelInfo.Right;
+            double videoH = _bezelInfo.Height - _bezelInfo.Top - _bezelInfo.Bottom;
+
+            // Prevent division by zero if bezel info is invalid
+            if (_bezelInfo.Width == 0 || _bezelInfo.Height == 0) return;
+
+            // Calculate the ratios relative to the original bezel image size
+            double ratioX = videoX / _bezelInfo.Width;
+            double ratioY = videoY / _bezelInfo.Height;
+            double ratioW = videoW / _bezelInfo.Width;
+            double ratioH = videoH / _bezelInfo.Height;
+
+            // Apply the ratios to the current size of the container panel
+            int newX = (int)(container.Width * ratioX);
+            int newY = (int)(container.Height * ratioY);
+            int newW = (int)(container.Width * ratioW);
+            int newH = (int)(container.Height * ratioH);
+
+            _videoView.Bounds = new Rectangle(newX, newY, newW, newH);
         }
 
         private void LoadMediaIntoPictureBox(PictureBox pb, string relativePath)
