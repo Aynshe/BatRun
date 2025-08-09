@@ -231,8 +231,14 @@ namespace BatRun
                     // Lancer RetroBAT en utilisant le programme principal si disponible
                     if (program != null)
                     {
-                        await program.StartRetrobat();
+                        // Start the Retrobat process but don't wait for it to complete yet.
+                        Task retrobatTask = program.StartRetrobat();
+
+                        // Now, while the Retrobat process is running, handle the post-launch game.
                         await HandlePostLaunchGameAsync();
+
+                        // Finally, await the retrobat task to wait for the process to exit.
+                        await retrobatTask;
                     }
                     else
                     {
