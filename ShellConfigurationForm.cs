@@ -332,15 +332,6 @@ namespace BatRun
             topPanel.Controls.Add(randomSystemComboBox);
 
             // Quatrième ligne : Post-Launch Game
-            postLaunchGameLabel = new Label
-            {
-                Text = "Game to launch after RetroBat: None",
-                AutoSize = true,
-                Location = new Point(10, 100),
-                ForeColor = Color.White
-            };
-            topPanel.Controls.Add(postLaunchGameLabel);
-
             var clearPostLaunchGameButton = new Button
             {
                 Text = "Clear",
@@ -349,10 +340,22 @@ namespace BatRun
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(87, 87, 87),
                 ForeColor = Color.White,
-                Location = new Point(450, 98)
+                Location = new Point(10, 98)
             };
             clearPostLaunchGameButton.Click += ClearPostLaunchGameButton_Click;
             topPanel.Controls.Add(clearPostLaunchGameButton);
+
+            postLaunchGameLabel = new Label
+            {
+                Text = "Game to launch after RetroBat: None",
+                AutoSize = false,
+                Width = 400,
+                Height = 22,
+                Location = new Point(clearPostLaunchGameButton.Right + 5, 100),
+                ForeColor = Color.White,
+                AutoEllipsis = true
+            };
+            topPanel.Controls.Add(postLaunchGameLabel);
 
             // Panneau des boutons d'action
             var actionPanel = new FlowLayoutPanel
