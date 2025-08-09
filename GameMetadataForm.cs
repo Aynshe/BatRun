@@ -159,7 +159,7 @@ namespace BatRun
             try
             {
                 var doc = XDocument.Load(_gamelistPath);
-                string gameFileName = Path.GetFileName(_selectedGame.Path);
+                string? gameFileName = Path.GetFileName(_selectedGame.Path);
                 _gameMetadata = doc.Descendants("game").FirstOrDefault(g => Path.GetFileName(g.Element("path")?.Value) == gameFileName);
 
                 if (_gameMetadata != null)
