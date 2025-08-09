@@ -6,7 +6,8 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
-using PdfiumViewer;
+using UglyToad.PdfPig;
+using UglyToad.PdfPig.Content;
 
 namespace BatRun
 {
@@ -27,9 +28,16 @@ namespace BatRun
         private PictureBox? _marqueePictureBox;
         private PictureBox? _thumbnailPictureBox;
         private PictureBox? _fanartPictureBox;
-        private PdfViewer? _pdfViewer;
+        private PictureBox? _pdfPagePictureBox;
+        private Button? _prevPageButton;
+        private Button? _nextPageButton;
+        private Label? _pageNumberLabel;
         private TabControl? _mediaTabControl;
         private RichTextBox? _descriptionTextBox;
+
+        // PDF Document state
+        private PdfDocument? _pdfDocument;
+        private int _currentPageNumber = 1;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath)
@@ -44,7 +52,6 @@ namespace BatRun
 
             InitializeComponent();
             LoadGameMetadata();
-            InitializeTimer();
         }
 
         private void InitializeComponent()
@@ -116,8 +123,20 @@ namespace BatRun
             fanartTab.Controls.Add(_fanartPictureBox);
 
             // Manual (PDF)
-            _pdfViewer = new PdfViewer { Dock = DockStyle.Fill };
-            manualTab.Controls.Add(_pdfViewer);
+            var manualPanel = new Panel { Dock = DockStyle.Fill };
+            _pdfPagePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
+            var pdfNavPanel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.FromArgb(45, 45, 48) };
+            _nextPageButton = new Button { Text = "Next >", Enabled = false, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White };
+            _pageNumberLabel = new Label { Margin = new Padding(5), AutoSize = true, TextAlign = ContentAlignment.MiddleCenter };
+            _prevPageButton = new Button { Text = "< Prev", Enabled = false, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White };
+            _nextPageButton.Click += (s, e) => ChangePdfPage(1);
+            _prevPageButton.Click += (s, e) => ChangePdfPage(-1);
+            pdfNavPanel.Controls.Add(_nextPageButton);
+            pdfNavPanel.Controls.Add(_pageNumberLabel);
+            pdfNavPanel.Controls.Add(_prevPageButton);
+            manualPanel.Controls.Add(_pdfPagePictureBox);
+            manualPanel.Controls.Add(pdfNavPanel);
+            manualTab.Controls.Add(manualPanel);
 
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
@@ -222,25 +241,42 @@ namespace BatRun
             }
 
             // Load Manual (PDF)
-            if (_pdfViewer != null)
+            string manualPath = GetMetaValue("manual");
+            if (!string.IsNullOrEmpty(manualPath))
             {
-                string manualPath = GetMetaValue("manual");
-                if (!string.IsNullOrEmpty(manualPath))
+                string fullManualPath = Path.Combine(_romsFolderPath, manualPath.TrimStart('.', '/', '\\'));
+                if (File.Exists(fullManualPath))
                 {
-                    string fullManualPath = Path.Combine(_romsFolderPath, manualPath.TrimStart('.', '/', '\\'));
-                    if (File.Exists(fullManualPath))
+                    try
                     {
-                        try
-                        {
-                            _pdfViewer.Document = PdfDocument.Load(fullManualPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Handle potential PDF loading errors
-                            MessageBox.Show($"Could not load PDF manual.\nError: {ex.Message}", "PDF Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
+                        _pdfDocument = PdfDocument.Open(fullManualPath);
+                        ChangePdfPage(0); // Load the first page
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Could not load PDF manual.\nError: {ex.Message}", "PDF Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+            }
+        }
+
+        private void ChangePdfPage(int direction)
+        {
+            if (_pdfDocument == null || _pdfPagePictureBox == null) return;
+
+            int newPage = _currentPageNumber + direction;
+
+            if (newPage >= 1 && newPage <= _pdfDocument.NumberOfPages)
+            {
+                _currentPageNumber = newPage;
+                // Use PdfPig.Drawing to render the page to a Bitmap
+                var pageImage = new PageImageRenderer(_currentPageNumber).Render(_pdfDocument);
+                _pdfPagePictureBox.Image = pageImage;
+
+                // Update UI
+                if (_pageNumberLabel != null) _pageNumberLabel.Text = $"{_currentPageNumber} / {_pdfDocument.NumberOfPages}";
+                if (_prevPageButton != null) _prevPageButton.Enabled = (_currentPageNumber > 1);
+                if (_nextPageButton != null) _nextPageButton.Enabled = (_currentPageNumber < _pdfDocument.NumberOfPages);
             }
         }
 
@@ -319,43 +355,9 @@ namespace BatRun
             _infoPanel.Controls.Add(_descriptionTextBox, 1, _infoPanel.RowCount - 1);
         }
 
-        private void InitializeTimer()
-        {
-            _scrollTimer = new System.Windows.Forms.Timer();
-            _scrollTimer.Interval = 50; // Controls scroll speed
-            _scrollTimer.Tick += ScrollTimer_Tick;
-            _scrollTimer.Start();
-        }
-
-        private void ScrollTimer_Tick(object? sender, EventArgs e)
-        {
-            if (_descriptionTextBox == null || !_scrollTimer!.Enabled) return;
-
-            // Get the current scroll position
-            Point pos = _descriptionTextBox.GetPositionFromCharIndex(0);
-            pos.Y -= 1; // Scroll up by 1 pixel
-
-            // If we have scrolled past the top, loop back to the bottom
-            if (pos.Y < -_descriptionTextBox.ClientSize.Height)
-            {
-                // To scroll to the bottom, we set the selection to the end and scroll to it
-                _descriptionTextBox.Select(_descriptionTextBox.Text.Length, 0);
-                _descriptionTextBox.ScrollToCaret();
-            }
-            else
-            {
-                // This is a workaround to scroll pixel by pixel since WinForms doesn't support it directly
-                _descriptionTextBox.Select(0, 0);
-                _descriptionTextBox.ScrollToCaret();
-                _descriptionTextBox.Select(0, -pos.Y);
-                _descriptionTextBox.ScrollToCaret();
-            }
-        }
-
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            _scrollTimer?.Stop();
-            _scrollTimer?.Dispose();
+            _pdfDocument?.Dispose();
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
