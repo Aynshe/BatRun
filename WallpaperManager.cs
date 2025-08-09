@@ -311,7 +311,12 @@ namespace BatRun
                         var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
                         if (mainForm == null)
                         {
-                            mainForm = new MainForm(program, logger, config);
+                        if (this.libVLC == null)
+                        {
+                            logger.LogError("Cannot open main form because LibVLC instance is null in WallpaperManager.");
+                            return;
+                        }
+                        mainForm = new MainForm(program, logger, config, this.libVLC);
                         }
                         
                         if (!mainForm.Visible)
