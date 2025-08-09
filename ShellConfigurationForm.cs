@@ -194,8 +194,16 @@ namespace BatRun
 
         private void ScrapButton_Click(object? sender, EventArgs e)
         {
+            var retrobatService = new RetroBatService(logger, config);
+            string retrobatPath = retrobatService.GetRetrobatPath();
+            if (string.IsNullOrEmpty(retrobatPath))
+            {
+                MessageBox.Show("Could not determine RetroBat path. Please ensure it's installed or check the registry settings.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var scraper = new EmulationStationScraper(); // Assuming default IP is fine
-            using var gameSelectionForm = new GameSelectionForm(scraper);
+            using var gameSelectionForm = new GameSelectionForm(scraper, retrobatPath);
 
             if (gameSelectionForm.ShowDialog() == DialogResult.OK)
             {

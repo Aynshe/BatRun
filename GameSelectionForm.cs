@@ -9,6 +9,7 @@ namespace BatRun
     public partial class GameSelectionForm : Form
     {
         private readonly EmulationStationScraper _scraper;
+        private readonly string _retrobatPath;
         private ComboBox? _systemComboBox;
         private ListView? _gameListView;
         private Button? _okButton;
@@ -18,9 +19,10 @@ namespace BatRun
         public Game? SelectedGame { get; private set; }
         public SystemInfo? SelectedSystem { get; private set; }
 
-        public GameSelectionForm(EmulationStationScraper scraper)
+        public GameSelectionForm(EmulationStationScraper scraper, string retrobatPath)
         {
             _scraper = scraper;
+            _retrobatPath = retrobatPath;
             InitializeComponent();
             this.Load += async (s, e) => await LoadSystemsAsync();
         }
@@ -86,6 +88,7 @@ namespace BatRun
             };
             _gameListView.Columns.Add("Game", -2); // Auto-size
             _gameListView.SelectedIndexChanged += GameListView_SelectedIndexChanged;
+            _gameListView.MouseClick += GameListView_MouseClick;
             mainLayout.Controls.Add(_gameListView, 0, 1);
 
             // Status Label
@@ -205,6 +208,34 @@ namespace BatRun
             else
             {
                 _okButton!.Enabled = false;
+            }
+        }
+
+        private void GameListView_MouseClick(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (_gameListView?.FocusedItem != null && _gameListView.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    var game = _gameListView.FocusedItem.Tag as Game;
+                    var system = _systemComboBox?.SelectedItem as SystemInfo;
+
+                    if (game != null && system != null && game.Path != null && system.name != null)
+                    {
+                        var parser = new GamelistParser(_retrobatPath);
+                        var metadata = parser.GetGameMetadata(system.name, game.Path);
+
+                        if (metadata.Count > 0)
+                        {
+                            using var viewer = new MetadataViewerForm(metadata, _retrobatPath, system.name);
+                            viewer.ShowDialog();
+                        }
+                        else
+                        {
+                            MessageBox.Show("No local metadata found for this game in gamelist.xml.", "Metadata Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                    }
+                }
             }
         }
     }
