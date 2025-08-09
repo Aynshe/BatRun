@@ -6,8 +6,6 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
-using UglyToad.PdfPig;
-using UglyToad.PdfPig.Content;
 
 namespace BatRun
 {
@@ -28,16 +26,8 @@ namespace BatRun
         private PictureBox? _marqueePictureBox;
         private PictureBox? _thumbnailPictureBox;
         private PictureBox? _fanartPictureBox;
-        private PictureBox? _pdfPagePictureBox;
-        private Button? _prevPageButton;
-        private Button? _nextPageButton;
-        private Label? _pageNumberLabel;
         private TabControl? _mediaTabControl;
         private RichTextBox? _descriptionTextBox;
-
-        // PDF Document state
-        private PdfDocument? _pdfDocument;
-        private int _currentPageNumber = 1;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath)
@@ -101,8 +91,7 @@ namespace BatRun
             var marqueeTab = new TabPage("Marquee");
             var thumbnailTab = new TabPage("Thumbnail");
             var fanartTab = new TabPage("Fanart");
-            var manualTab = new TabPage("Manual");
-            _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab, thumbnailTab, fanartTab, manualTab });
+            _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab, thumbnailTab, fanartTab });
             _mediaTabControl.SelectedIndex = 1; // Default to Video tab
 
             // Media Controls
@@ -121,22 +110,6 @@ namespace BatRun
             // Fanart
             _fanartPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
             fanartTab.Controls.Add(_fanartPictureBox);
-
-            // Manual (PDF)
-            var manualPanel = new Panel { Dock = DockStyle.Fill };
-            _pdfPagePictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.Zoom };
-            var pdfNavPanel = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.RightToLeft, BackColor = Color.FromArgb(45, 45, 48) };
-            _nextPageButton = new Button { Text = "Next >", Enabled = false, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White };
-            _pageNumberLabel = new Label { Margin = new Padding(5), AutoSize = true, TextAlign = ContentAlignment.MiddleCenter };
-            _prevPageButton = new Button { Text = "< Prev", Enabled = false, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White };
-            _nextPageButton.Click += (s, e) => ChangePdfPage(1);
-            _prevPageButton.Click += (s, e) => ChangePdfPage(-1);
-            pdfNavPanel.Controls.Add(_nextPageButton);
-            pdfNavPanel.Controls.Add(_pageNumberLabel);
-            pdfNavPanel.Controls.Add(_prevPageButton);
-            manualPanel.Controls.Add(_pdfPagePictureBox);
-            manualPanel.Controls.Add(pdfNavPanel);
-            manualTab.Controls.Add(manualPanel);
 
             // Video
             var videoPanel = new Panel { Dock = DockStyle.Fill };
@@ -240,44 +213,6 @@ namespace BatRun
                 }
             }
 
-            // Load Manual (PDF)
-            string manualPath = GetMetaValue("manual");
-            if (!string.IsNullOrEmpty(manualPath))
-            {
-                string fullManualPath = Path.Combine(_romsFolderPath, manualPath.TrimStart('.', '/', '\\'));
-                if (File.Exists(fullManualPath))
-                {
-                    try
-                    {
-                        _pdfDocument = PdfDocument.Open(fullManualPath);
-                        ChangePdfPage(0); // Load the first page
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Could not load PDF manual.\nError: {ex.Message}", "PDF Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-        }
-
-        private void ChangePdfPage(int direction)
-        {
-            if (_pdfDocument == null || _pdfPagePictureBox == null) return;
-
-            int newPage = _currentPageNumber + direction;
-
-            if (newPage >= 1 && newPage <= _pdfDocument.NumberOfPages)
-            {
-                _currentPageNumber = newPage;
-                // Use PdfPig.Drawing to render the page to a Bitmap
-                var pageImage = new PageImageRenderer(_currentPageNumber).Render(_pdfDocument);
-                _pdfPagePictureBox.Image = pageImage;
-
-                // Update UI
-                if (_pageNumberLabel != null) _pageNumberLabel.Text = $"{_currentPageNumber} / {_pdfDocument.NumberOfPages}";
-                if (_prevPageButton != null) _prevPageButton.Enabled = (_currentPageNumber > 1);
-                if (_nextPageButton != null) _nextPageButton.Enabled = (_currentPageNumber < _pdfDocument.NumberOfPages);
-            }
         }
 
         private void LoadMediaIntoPictureBox(PictureBox pb, string relativePath)
@@ -357,7 +292,6 @@ namespace BatRun
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            _pdfDocument?.Dispose();
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
