@@ -268,7 +268,7 @@ namespace BatRun
             }
 
             logger.LogInfo($"A post-launch action is configured: launch {displayName}. Waiting for RetroBat API...");
-            var scraper = new EmulationStationScraper();
+            var scraper = new EmulationStationScraper(logger);
 
             // Wait for API to be available
             const int maxAttempts = 12;

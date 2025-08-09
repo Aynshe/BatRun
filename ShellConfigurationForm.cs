@@ -172,7 +172,7 @@ namespace BatRun
 
             randomSystemComboBox.Items.Clear();
 
-            var scraper = new EmulationStationScraper();
+            var scraper = new EmulationStationScraper(logger);
             var systems = await scraper.GetSystemsAsync();
 
             var allSystemsItem = new SystemInfo { name = "all", fullname = "All Systems" };
@@ -202,8 +202,8 @@ namespace BatRun
                 return;
             }
 
-            var scraper = new EmulationStationScraper(); // Assuming default IP is fine
-            using var gameSelectionForm = new GameSelectionForm(scraper, retrobatPath);
+            var scraper = new EmulationStationScraper(logger); // Assuming default IP is fine
+            using var gameSelectionForm = new GameSelectionForm(scraper, retrobatPath, logger);
 
             if (gameSelectionForm.ShowDialog() == DialogResult.OK)
             {

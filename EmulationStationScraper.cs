@@ -28,13 +28,15 @@ namespace BatRun
     public class EmulationStationScraper
     {
         private readonly HttpClient httpClient;
+        private readonly Logger? _logger;
         private string baseUrl;
 
-        public EmulationStationScraper(string ipAddress = "127.0.0.1")
+        public EmulationStationScraper(Logger? logger = null, string ipAddress = "127.0.0.1")
         {
             baseUrl = $"http://{ipAddress}:1234";
             httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30);
+            _logger = logger;
         }
 
         public async Task<List<SystemInfo>> GetSystemsAsync()
@@ -123,14 +125,23 @@ namespace BatRun
         {
             try
             {
+                _logger?.LogInfo($"Sending POST to {baseUrl}/launch with body: {gamePath}");
                 var launchResponse = await httpClient.PostAsync($"{baseUrl}/launch",
                     new StringContent(gamePath, Encoding.UTF8, "text/plain"));
 
+                if (launchResponse.IsSuccessStatusCode)
+                {
+                    _logger?.LogInfo("Launch command sent successfully.");
+                }
+                else
+                {
+                    _logger?.LogError($"Launch command failed with status code: {launchResponse.StatusCode}");
+                }
                 return launchResponse.IsSuccessStatusCode;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Erreur lors du lancement du jeu : {ex.Message}");
+                _logger?.LogError($"Error sending launch command: {ex.Message}", ex);
                 return false;
             }
         }

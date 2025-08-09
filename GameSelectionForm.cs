@@ -10,6 +10,7 @@ namespace BatRun
     {
         private readonly EmulationStationScraper _scraper;
         private readonly string _retrobatPath;
+        private readonly Logger _logger;
         private ComboBox? _systemComboBox;
         private ListView? _gameListView;
         private Button? _okButton;
@@ -19,10 +20,11 @@ namespace BatRun
         public Game? SelectedGame { get; private set; }
         public SystemInfo? SelectedSystem { get; private set; }
 
-        public GameSelectionForm(EmulationStationScraper scraper, string retrobatPath)
+        public GameSelectionForm(EmulationStationScraper scraper, string retrobatPath, Logger logger)
         {
             _scraper = scraper;
             _retrobatPath = retrobatPath;
+            _logger = logger;
             InitializeComponent();
             this.Load += async (s, e) => await LoadSystemsAsync();
         }
@@ -222,7 +224,7 @@ namespace BatRun
 
                     if (game != null && system != null && game.Path != null && system.name != null)
                     {
-                        var parser = new GamelistParser(_retrobatPath);
+                        var parser = new GamelistParser(_retrobatPath, _logger);
                         var metadata = parser.GetGameMetadata(system.name, game.Path);
 
                         if (metadata.Count > 0)
