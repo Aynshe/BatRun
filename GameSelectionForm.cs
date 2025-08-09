@@ -86,6 +86,7 @@ namespace BatRun
             };
             _gameListView.Columns.Add("Game", -2); // Auto-size
             _gameListView.SelectedIndexChanged += GameListView_SelectedIndexChanged;
+            _gameListView.MouseDoubleClick += GameListView_MouseDoubleClick;
             mainLayout.Controls.Add(_gameListView, 0, 1);
 
             // Status Label
@@ -205,6 +206,55 @@ namespace BatRun
             else
             {
                 _okButton!.Enabled = false;
+            }
+        }
+
+        private void GameListView_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (_gameListView?.SelectedItems.Count > 0 && _systemComboBox?.SelectedItem is SystemInfo selectedSystem)
+            {
+                var selectedGame = _gameListView.SelectedItems[0].Tag as Game;
+                if (selectedGame == null) return;
+
+                try
+                {
+                    // These would ideally be injected via DI, but for now, we instantiate them.
+                    var logger = new Logger(new LoggingConfig());
+                    var config = new IniFile("config.ini");
+                    var retrobatService = new RetroBatService(logger, config);
+
+                    string retrobatExePath = retrobatService.GetRetrobatPath();
+                    string retrobatRoot = System.IO.Path.GetDirectoryName(retrobatExePath) ?? "";
+
+                    if (string.IsNullOrEmpty(retrobatRoot) || !System.IO.Directory.Exists(retrobatRoot))
+                    {
+                        MessageBox.Show("Could not determine RetroBat installation directory.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    string gamelistPath = System.IO.Path.Combine(retrobatRoot, "roms", selectedSystem.name, "gamelist.xml");
+                    logger.Log($"Attempting to access gamelist for '{selectedSystem.fullname}' at: {gamelistPath}");
+
+                    if (!System.IO.File.Exists(gamelistPath))
+                    {
+                        logger.LogWarning($"gamelist.xml not found for system '{selectedSystem.fullname}'.");
+                        MessageBox.Show($"gamelist.xml not found for system '{selectedSystem.fullname}'.\nExpected at: {gamelistPath}", "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    logger.Log($"Found gamelist.xml. Opening metadata view for '{selectedGame.Name}'.");
+                    if (!string.IsNullOrEmpty(selectedGame.PlayUrl))
+                    {
+                        logger.Log($"Game launch URL: {selectedGame.PlayUrl}");
+                    }
+
+                    var metadataForm = new GameMetadataForm(selectedGame, gamelistPath);
+                    metadataForm.ShowDialog();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An error occurred while trying to show game metadata:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
     }
