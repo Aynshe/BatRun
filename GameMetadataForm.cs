@@ -213,9 +213,9 @@ namespace BatRun
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var pauseButton = new Button { Text = "Pause", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
             var stopButton = new Button { Text = "Stop", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
-            playButton.Click += (s, e) => _mediaPlayer.Play();
-            pauseButton.Click += (s, e) => _mediaPlayer.SetPause(true);
-            stopButton.Click += (s, e) => _mediaPlayer.Stop();
+            playButton.Click += (s, e) => _mediaPlayer?.Play();
+            pauseButton.Click += (s, e) => _mediaPlayer?.SetPause(true);
+            stopButton.Click += (s, e) => _mediaPlayer?.Stop();
             videoControls.Controls.AddRange(new Control[] { playButton, pauseButton, stopButton });
 
             videoPanel.Controls.Add(_videoView);
@@ -345,7 +345,10 @@ namespace BatRun
                 {
                     _libVLC = new LibVLC();
                     _mediaPlayer = new MediaPlayer(_libVLC);
-                    _videoView.MediaPlayer = _mediaPlayer;
+                    if (_videoView != null)
+                    {
+                        _videoView.MediaPlayer = _mediaPlayer;
+                    }
 
                     var media = new Media(_libVLC, new Uri(fullVideoPath));
                     _mediaPlayer.Media = media;
@@ -362,7 +365,7 @@ namespace BatRun
             // Stop video when switching away from the video tab
             if (_mediaTabControl?.SelectedTab?.Text != "Video")
             {
-                _mediaPlayer.Stop();
+                _mediaPlayer?.Stop();
             }
         }
 
