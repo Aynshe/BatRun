@@ -32,11 +32,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -50,7 +45,7 @@
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.19, )",
+              "version": "[8.0.18, )",
               "autoReferenced": true
             },
             "Newtonsoft.Json": {
@@ -96,30 +91,42 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-              "version": "[8.0.19, 8.0.19]"
+              "version": "[8.0.18, 8.0.18]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.18, 8.0.18]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[8.0.18, 8.0.18]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[8.0.18, 8.0.18]"
             },
             {
               "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-              "version": "[8.0.19, 8.0.19]"
+              "version": "[8.0.18, 8.0.18]"
             },
             {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.19, 8.0.19]"
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.18, 8.0.18]"
             }
           ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
-            },
-            "Microsoft.WindowsDesktop.App.WindowsForms": {
-              "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/jules/.dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.118/PortableRuntimeIdentifierGraph.json"
         }
       },
       "runtimes": {
         "linux-x64": {
+          "#import": []
+        },
+        "win-x64": {
           "#import": []
         }
       }

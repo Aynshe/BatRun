@@ -30,6 +30,10 @@ namespace BatRun
         private long videoLength = 0;
         private ButtonMapping? buttonMapping;
         private Dictionary<int, IntPtr> openJoysticks = new();
+        private System.Threading.Timer? watchdogTimer;
+        private long lastTimeChanged;
+        private const int WATCHDOG_INTERVAL_MS = 1000;
+        private const int FREEZE_TIMEOUT_MS = 5000;
 
         public ESLoadingPlayer(IniFile config, Logger logger, WallpaperManager wallpaperManager)
         {
@@ -205,11 +209,6 @@ namespace BatRun
             openJoysticks.Clear();
         }
 
-        private Form? GetMainForm()
-        {
-            return Application.OpenForms.Count > 0 ? Application.OpenForms[0] : null;
-        }
-
         public async Task PlayLoadingVideo(string videoPath)
         {
             try
@@ -225,126 +224,103 @@ namespace BatRun
                 }
 
                 var tcs = new TaskCompletionSource<bool>();
-
-                await Task.Run(() =>
+                var videoThread = new Thread(() =>
                 {
                     try
                     {
-                        var mainForm = GetMainForm();
-                        if (mainForm == null)
+                        libVLC = new LibVLC(
+                            "--quiet", "--no-video-title-show", "--no-snapshot-preview", "--no-stats",
+                            "--no-sub-autodetect-file", "--no-osd", "--no-video-deco",
+                            "--aout=directsound", "--directx-audio-device=default"
+                        );
+
+                        mediaPlayer = new MediaPlayer(libVLC) { EnableHardwareDecoding = true };
+                        bool muteAll = config.ReadValue("Windows", "ESLoadingVideoMuteAll", "false") == "true";
+                        mediaPlayer.Mute = muteAll;
+                        mediaPlayer.Volume = 100;
+
+                        videoForm = new Form
                         {
-                            logger.LogError("No main form found");
-                            tcs.TrySetException(new InvalidOperationException("No main form found"));
-                            return;
+                            FormBorderStyle = FormBorderStyle.None,
+                            WindowState = FormWindowState.Maximized,
+                            TopMost = true,
+                            ShowInTaskbar = false,
+                            BackColor = Color.Black
+                        };
+
+                        videoView = new VideoView
+                        {
+                            Dock = DockStyle.Fill,
+                            BackColor = Color.Black,
+                            MediaPlayer = mediaPlayer
+                        };
+
+                        videoView.MouseDown += (s, e) => {
+                            if (e.Button == MouseButtons.Right) { /* Absorb */ }
+                        };
+
+                        videoForm.Controls.Add(videoView);
+
+                        bool shouldLoop = config.ReadValue("Windows", "ESLoadingVideoLoop", "false") == "true";
+                        using (var media = new Media(libVLC, videoPath, FromType.FromPath))
+                        {
+                            if (shouldLoop) media.AddOption(":input-repeat=65535");
+                            mediaPlayer.Media = media;
                         }
 
-                        mainForm.Invoke(new Action(() =>
+                        bool muteAfterFirst = config.ReadValue("Windows", "ESLoadingVideoMuteAfterFirst", "false") == "true";
+                        if (muteAfterFirst)
                         {
-                            try
+                            firstPlayCompleted = false;
+                            videoLength = 0;
+
+                            mediaPlayer.LengthChanged += (s, e) =>
                             {
-                                // Initialiser LibVLC avec des options audio séparées
-                                libVLC = new LibVLC(
-                                    "--quiet",
-                                    "--no-video-title-show",
-                                    "--no-snapshot-preview",
-                                    "--no-stats",
-                                    "--no-sub-autodetect-file",
-                                    "--no-osd",
-                                    "--no-video-deco",
-                                    "--aout=directsound",  // Utiliser DirectSound pour l'audio
-                                    "--directx-audio-device=default"  // Utiliser le périphérique audio par défaut
-                                );
-
-                                // Créer le lecteur média
-                                mediaPlayer = new MediaPlayer(libVLC);
-                                mediaPlayer.EnableHardwareDecoding = true;
-
-                                // Gérer l'état initial de l'audio uniquement selon les paramètres ESLoading
-                                bool muteAll = config.ReadValue("Windows", "ESLoadingVideoMuteAll", "false") == "true";
-                                mediaPlayer.Mute = muteAll;
-                                mediaPlayer.Volume = 100;  // S'assurer que le volume est au maximum
-
-                                // Créer la fenêtre vidéo
-                                videoForm = new Form
+                                if (videoLength == 0)
                                 {
-                                    FormBorderStyle = FormBorderStyle.None,
-                                    WindowState = FormWindowState.Maximized,
-                                    TopMost = true,
-                                    ShowInTaskbar = false,
-                                    BackColor = Color.Black
-                                };
-
-                                videoView = new VideoView
-                                {
-                                    Dock = DockStyle.Fill,
-                                    BackColor = Color.Black,
-                                    MediaPlayer = mediaPlayer
-                                };
-
-                                videoForm.Controls.Add(videoView);
-
-                                // Configurer la lecture en boucle
-                                bool shouldLoop = config.ReadValue("Windows", "ESLoadingVideoLoop", "false") == "true";
-                                bool muteAfterFirst = config.ReadValue("Windows", "ESLoadingVideoMuteAfterFirst", "false") == "true";
-
-                                // Charger la vidéo avec les options appropriées
-                                using (var media = new Media(libVLC, videoPath, FromType.FromPath))
-                                {
-                                    if (shouldLoop)
-                                    {
-                                        media.AddOption(":input-repeat=65535");  // Nombre élevé de répétitions
-                                    }
-                                    mediaPlayer.Media = media;
+                                    videoLength = e.Length;
+                                    logger.LogInfo($"Video length detected: {videoLength}ms");
                                 }
+                            };
 
-                                if (muteAfterFirst)
-                                {
-                                    firstPlayCompleted = false;
-                                    videoLength = 0;
-
-                                    mediaPlayer.LengthChanged += (s, e) =>
-                                    {
-                                        if (videoLength == 0)
-                                        {
-                                            videoLength = e.Length;
-                                            logger.LogInfo($"Video length detected: {videoLength}ms");
-                                        }
-                                    };
-
-                                    mediaPlayer.TimeChanged += (s, e) =>
-                                    {
-                                        if (!firstPlayCompleted && videoLength > 0 && e.Time >= videoLength - 500)
-                                        {
-                                            firstPlayCompleted = true;
-                                            mediaPlayer.Mute = true;
-                                            logger.LogInfo($"Muting audio at time {e.Time}ms of {videoLength}ms");
-                                        }
-                                    };
-                                }
-
-                                videoForm.Show();
-                                mediaPlayer.Play();
-                                isVideoPlaying = true;
-
-                                // Démarrer la surveillance du contrôleur
-                                controllerTask = MonitorControllerInput();
-
-                                logger.LogInfo($"Started playing ES loading video: {videoPath}");
-                                tcs.TrySetResult(true);
-                            }
-                            catch (Exception ex)
+                            mediaPlayer.TimeChanged += (s, e) =>
                             {
-                                logger.LogError($"Error in UI thread: {ex.Message}");
-                                tcs.TrySetException(ex);
-                            }
-                        }));
+                                lastTimeChanged = Environment.TickCount;
+                                if (!firstPlayCompleted && videoLength > 0 && e.Time >= videoLength - 500)
+                                {
+                                    firstPlayCompleted = true;
+                                    mediaPlayer.Mute = true;
+                                    logger.LogInfo($"Muting audio at time {e.Time}ms of {videoLength}ms");
+                                }
+                            };
+                        }
+
+                        videoForm.Load += (s, e) => {
+                            mediaPlayer.Play();
+                            isVideoPlaying = true;
+                            lastTimeChanged = Environment.TickCount;
+                            watchdogTimer = new System.Threading.Timer(WatchdogCallback, null, WATCHDOG_INTERVAL_MS, WATCHDOG_INTERVAL_MS);
+                            controllerTask = MonitorControllerInput();
+                            logger.LogInfo($"Started playing ES loading video: {videoPath}");
+                            tcs.TrySetResult(true);
+                        };
+
+                        Application.Run(videoForm);
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"Error invoking UI thread: {ex.Message}");
+                        logger.LogError($"Error in video thread: {ex.Message}", ex);
                         tcs.TrySetException(ex);
                     }
+                    finally
+                    {
+                        CleanupVideoForm();
+                    }
                 });
+
+                videoThread.SetApartmentState(ApartmentState.STA);
+                videoThread.IsBackground = true;
+                videoThread.Start();
 
                 await tcs.Task;
             }
@@ -395,13 +371,16 @@ namespace BatRun
                 {
                     if (videoForm.InvokeRequired)
                     {
-                        videoForm.Invoke(new Action(() => CleanupVideoForm()));
+                        videoForm.Invoke(new Action(() => videoForm.Close()));
                     }
                     else
                     {
-                        CleanupVideoForm();
+                        videoForm.Close();
                     }
                 }
+
+                watchdogTimer?.Dispose();
+                watchdogTimer = null;
 
                 CloseAllJoysticks();
                 logger.LogInfo("ES loading video closed");
@@ -433,11 +412,31 @@ namespace BatRun
                 libVLC = null;
             }
 
-            if (videoForm != null && !videoForm.IsDisposed)
+            // The form is disposed by Application.Run exiting.
+            videoForm = null;
+        }
+
+        private void WatchdogCallback(object? state)
+        {
+            if (!isVideoPlaying || mediaPlayer == null) return;
+
+            // Only check for freeze if the player state is 'Playing'
+            if (mediaPlayer.IsPlaying)
             {
-                videoForm.Close();
-                videoForm.Dispose();
-                videoForm = null;
+                if (Environment.TickCount - lastTimeChanged > FREEZE_TIMEOUT_MS)
+                {
+                    logger.LogWarning("Video player appears to be frozen while in playing state. Closing video.");
+                    // Ensure CloseVideo is called on the UI thread if necessary
+                    if (videoForm != null && videoForm.InvokeRequired)
+                    {
+                        videoForm.Invoke(new Action(() => CloseVideo()));
+                    }
+                    else
+                    {
+                        CloseVideo();
+                    }
+                    watchdogTimer?.Change(Timeout.Infinite, Timeout.Infinite); // Stop the timer
+                }
             }
         }
 

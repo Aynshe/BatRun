@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "Wdj/gdROzn4=",
+  "dgSpecHash": "CbYzMlidNnoQU1506nFOK3+hbo5cd2wHKKVffGVbYpD/Eco1DlNz/pqZOZWF8CBAi25gFUKwDxiTcrd3n4gwQg==",
   "success": true,
   "projectFilePath": "/app/BatRun.csproj",
   "expectedPackageFiles": [
     "/home/jules/.nuget/packages/libvlcsharp/3.8.2/libvlcsharp.3.8.2.nupkg.sha512",
     "/home/jules/.nuget/packages/libvlcsharp.winforms/3.8.2/libvlcsharp.winforms.3.8.2.nupkg.sha512",
-    "/home/jules/.nuget/packages/microsoft.net.illink.tasks/8.0.19/microsoft.net.illink.tasks.8.0.19.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.net.illink.tasks/8.0.18/microsoft.net.illink.tasks.8.0.18.nupkg.sha512",
     "/home/jules/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "/home/jules/.nuget/packages/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg.sha512",
     "/home/jules/.nuget/packages/microsoft.win32.primitives/4.3.0/microsoft.win32.primitives.4.3.0.nupkg.sha512",
@@ -53,6 +53,13 @@
     "/home/jules/.nuget/packages/runtime.unix.system.net.sockets/4.3.0/runtime.unix.system.net.sockets.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/runtime.unix.system.private.uri/4.3.0/runtime.unix.system.private.uri.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/runtime.unix.system.runtime.extensions/4.3.0/runtime.unix.system.runtime.extensions.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.microsoft.win32.primitives/4.3.0/runtime.win.microsoft.win32.primitives.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.console/4.3.0/runtime.win.system.console.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.diagnostics.debug/4.3.0/runtime.win.system.diagnostics.debug.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.io.filesystem/4.3.0/runtime.win.system.io.filesystem.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.net.primitives/4.3.0/runtime.win.system.net.primitives.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.net.sockets/4.3.0/runtime.win.system.net.sockets.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/runtime.win.system.runtime.extensions/4.3.0/runtime.win.system.runtime.extensions.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/sdl2-cs.netcore/2.0.8/sdl2-cs.netcore.2.0.8.nupkg.sha512",
     "/home/jules/.nuget/packages/sharpdx/4.2.0/sharpdx.4.2.0.nupkg.sha512",
     "/home/jules/.nuget/packages/sharpdx.directinput/4.2.0/sharpdx.directinput.4.2.0.nupkg.sha512",
@@ -110,6 +117,7 @@
     "/home/jules/.nuget/packages/system.text.encoding.extensions/4.3.0/system.text.encoding.extensions.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.text.regularexpressions/4.3.0/system.text.regularexpressions.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.threading/4.3.0/system.threading.4.3.0.nupkg.sha512",
+    "/home/jules/.nuget/packages/system.threading.overlapped/4.3.0/system.threading.overlapped.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.threading.tasks.extensions/4.3.0/system.threading.tasks.extensions.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.threading.threadpool/4.3.0/system.threading.threadpool.4.3.0.nupkg.sha512",
@@ -117,9 +125,12 @@
     "/home/jules/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
     "/home/jules/.nuget/packages/videolan.libvlc.windows/3.0.20/videolan.libvlc.windows.3.0.20.nupkg.sha512",
-    "/home/jules/.nuget/packages/microsoft.netcore.app.runtime.linux-x64/8.0.19/microsoft.netcore.app.runtime.linux-x64.8.0.19.nupkg.sha512",
-    "/home/jules/.nuget/packages/microsoft.windowsdesktop.app.ref/8.0.19/microsoft.windowsdesktop.app.ref.8.0.19.nupkg.sha512",
-    "/home/jules/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-x64/8.0.19/microsoft.aspnetcore.app.runtime.linux-x64.8.0.19.nupkg.sha512"
+    "/home/jules/.nuget/packages/microsoft.netcore.app.runtime.linux-x64/8.0.18/microsoft.netcore.app.runtime.linux-x64.8.0.18.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.netcore.app.runtime.win-x64/8.0.18/microsoft.netcore.app.runtime.win-x64.8.0.18.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.aspnetcore.app.runtime.linux-x64/8.0.18/microsoft.aspnetcore.app.runtime.linux-x64.8.0.18.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.aspnetcore.app.runtime.win-x64/8.0.18/microsoft.aspnetcore.app.runtime.win-x64.8.0.18.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.netcore.app.host.linux-x64/8.0.18/microsoft.netcore.app.host.linux-x64.8.0.18.nupkg.sha512",
+    "/home/jules/.nuget/packages/microsoft.netcore.app.host.win-x64/8.0.18/microsoft.netcore.app.host.win-x64.8.0.18.nupkg.sha512"
   ],
   "logs": []
 }
