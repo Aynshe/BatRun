@@ -64,6 +64,7 @@ namespace BatRun
                     Application.SetHighDpiMode(HighDpiMode.SystemAware);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
+                    LibVLCSharp.Shared.Core.Initialize();
 
                     var config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
                     bool showSplashScreen = config.ReadBool("Windows", "ShowSplashScreen", true);

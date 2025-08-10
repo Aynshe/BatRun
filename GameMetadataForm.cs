@@ -36,8 +36,8 @@ namespace BatRun
         private readonly string _retrobatRootPath;
         private XElement? _gameMetadata;
 
-        private LibVLC _libVLC;
-        private MediaPlayer _mediaPlayer;
+        private LibVLC? _libVLC;
+        private MediaPlayer? _mediaPlayer;
 
         // UI Controls as fields
         private VideoView? _videoView;
@@ -60,10 +60,6 @@ namespace BatRun
             _gamelistPath = gamelistPath;
             _romsFolderPath = Path.GetDirectoryName(gamelistPath) ?? "";
             _retrobatRootPath = retrobatRoot;
-
-            Core.Initialize();
-            _libVLC = new LibVLC();
-            _mediaPlayer = new MediaPlayer(_libVLC);
 
             InitializeComponent();
             this.Load += async (s, e) => await LoadGameMetadataAsync();
@@ -347,6 +343,10 @@ namespace BatRun
                 string fullVideoPath = Path.Combine(_romsFolderPath, mediaPaths.Video.TrimStart('.', '/', '\\'));
                 if (File.Exists(fullVideoPath))
                 {
+                    _libVLC = new LibVLC();
+                    _mediaPlayer = new MediaPlayer(_libVLC);
+                    _videoView.MediaPlayer = _mediaPlayer;
+
                     var media = new Media(_libVLC, new Uri(fullVideoPath));
                     _mediaPlayer.Media = media;
                     media.Dispose();
@@ -554,9 +554,9 @@ namespace BatRun
         {
             _scrollTimer?.Stop();
             _scrollTimer?.Dispose();
-            _mediaPlayer.Stop();
-            _mediaPlayer.Dispose();
-            _libVLC.Dispose();
+            _mediaPlayer?.Stop();
+            _mediaPlayer?.Dispose();
+            _libVLC?.Dispose();
             base.OnFormClosing(e);
         }
     }
