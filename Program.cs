@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace BatRun
 {
@@ -13,6 +14,7 @@ namespace BatRun
         [STAThread]
         static void Main()
         {
+            CheckNetVersion();
             string[] args = Environment.GetCommandLineArgs();
 
             // --- Handle -waitforpid argument ---
@@ -114,6 +116,60 @@ namespace BatRun
                 splash.Dispose();
             };
             splashTimer.Start();
+        }
+
+        private static void CheckNetVersion()
+        {
+            try
+            {
+                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost"))
+                {
+                    if (key != null)
+                    {
+                        var names = key.GetValueNames();
+                        bool found = false;
+                        foreach (var name in names)
+                        {
+                            if (name.StartsWith("8."))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
+                        {
+                            ShowNetVersionWarning();
+                        }
+                    }
+                    else
+                    {
+                        ShowNetVersionWarning();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogFatalError("Error checking .NET version", ex);
+            }
+        }
+
+        private static void ShowNetVersionWarning()
+        {
+            string message = "BatRun nécessite .NET 8.0 pour fonctionner. Veuillez l'installer depuis le site officiel de Microsoft.\n\nVoulez-vous ouvrir la page de téléchargement ?";
+            string title = "Dépendance manquante : .NET 8.0";
+            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo("https://dotnet.microsoft.com/download/dotnet/8.0") { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Impossible d'ouvrir le lien. Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            Environment.Exit(0);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
