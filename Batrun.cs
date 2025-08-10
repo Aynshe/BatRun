@@ -166,7 +166,7 @@ namespace BatRun
                             wallpaperManager.PauseMedia();
                         }
 
-                        esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager!, _syncContext);
+                        esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager!);
                         string videoPath = Path.Combine(AppContext.BaseDirectory, "ESloading", config.ReadValue("Windows", "ESLoadingVideo", "None"));
                         await esLoadingPlayer.PlayLoadingVideo(videoPath);
 
@@ -1241,7 +1241,7 @@ namespace BatRun
                         logger.LogError("WallpaperManager is null, cannot create ESLoadingPlayer");
                         return;
                     }
-                    esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager, _syncContext);
+                    esLoadingPlayer = new ESLoadingPlayer(config, logger, wallpaperManager);
                     string videoPath = GetEmulationStationVideoPath();
                     if (!string.IsNullOrEmpty(videoPath))
                     {
