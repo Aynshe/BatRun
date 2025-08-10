@@ -30,6 +30,10 @@ namespace BatRun
         private long videoLength = 0;
         private ButtonMapping? buttonMapping;
         private Dictionary<int, IntPtr> openJoysticks = new();
+        private System.Threading.Timer? watchdogTimer;
+        private long lastTimeChanged;
+        private const int WATCHDOG_INTERVAL_MS = 1000;
+        private const int FREEZE_TIMEOUT_MS = 5000;
 
         public ESLoadingPlayer(IniFile config, Logger logger, WallpaperManager wallpaperManager)
         {
@@ -313,6 +317,7 @@ namespace BatRun
 
                                     mediaPlayer.TimeChanged += (s, e) =>
                                     {
+                                        lastTimeChanged = Environment.TickCount;
                                         if (!firstPlayCompleted && videoLength > 0 && e.Time >= videoLength - 500)
                                         {
                                             firstPlayCompleted = true;
@@ -325,6 +330,10 @@ namespace BatRun
                                 videoForm.Show();
                                 mediaPlayer.Play();
                                 isVideoPlaying = true;
+
+                                // Start the watchdog timer
+                                lastTimeChanged = Environment.TickCount;
+                                watchdogTimer = new System.Threading.Timer(WatchdogCallback, null, WATCHDOG_INTERVAL_MS, WATCHDOG_INTERVAL_MS);
 
                                 // Démarrer la surveillance du contrôleur
                                 controllerTask = MonitorControllerInput();
@@ -403,6 +412,9 @@ namespace BatRun
                     }
                 }
 
+                watchdogTimer?.Dispose();
+                watchdogTimer = null;
+
                 CloseAllJoysticks();
                 logger.LogInfo("ES loading video closed");
             }
@@ -438,6 +450,26 @@ namespace BatRun
                 videoForm.Close();
                 videoForm.Dispose();
                 videoForm = null;
+            }
+        }
+
+        private void WatchdogCallback(object? state)
+        {
+            if (!isVideoPlaying) return;
+
+            if (Environment.TickCount - lastTimeChanged > FREEZE_TIMEOUT_MS)
+            {
+                logger.LogWarning("Video player appears to be frozen. Closing video.");
+                // Ensure CloseVideo is called on the UI thread if necessary
+                if (videoForm != null && videoForm.InvokeRequired)
+                {
+                    videoForm.Invoke(new Action(() => CloseVideo()));
+                }
+                else
+                {
+                    CloseVideo();
+                }
+                watchdogTimer?.Change(Timeout.Infinite, Timeout.Infinite); // Stop the timer
             }
         }
 
