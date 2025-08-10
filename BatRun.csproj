@@ -10,7 +10,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
@@ -24,6 +23,7 @@
     <HeapCount>1</HeapCount>
     <GCAllowVeryLargeObjects>false</GCAllowVeryLargeObjects>
     <GCServer>false</GCServer>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <ItemGroup>
