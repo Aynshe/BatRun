@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using System.Linq;
+using System.Globalization;
 
 namespace BatRun
 {
@@ -121,39 +123,31 @@ namespace BatRun
 
         private static void CheckNetVersion(Logger? logger)
         {
-            logger?.LogInfo("Checking for .NET 8.0 Runtime...");
+            logger?.LogInfo("Checking for .NET 8.0 Desktop Runtime...");
             try
             {
-                using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost"))
-                {
-                    if (key != null)
-                    {
-                        var names = key.GetValueNames();
-                        bool found = false;
-                        foreach (var name in names)
-                        {
-                            if (name.StartsWith("8."))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
+                string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                string runtimeDir = Path.Combine(programFiles, "dotnet", "shared", "Microsoft.WindowsDesktop.App");
 
-                        if (found)
-                        {
-                            logger?.LogInfo(".NET 8.0 Runtime found.");
-                        }
-                        else
-                        {
-                            logger?.LogInfo(".NET 8.0 Runtime not found.");
-                            ShowNetVersionWarning(logger);
-                        }
+                if (Directory.Exists(runtimeDir))
+                {
+                    var versions = Directory.GetDirectories(runtimeDir).Select(Path.GetFileName);
+                    bool found = versions.Any(v => v != null && v.StartsWith("8."));
+
+                    if (found)
+                    {
+                        logger?.LogInfo(".NET 8.0 Desktop Runtime found.");
                     }
                     else
                     {
-                        logger?.LogInfo(".NET 8.0 Runtime not found.");
+                        logger?.LogInfo(".NET 8.0 Desktop Runtime not found in " + runtimeDir);
                         ShowNetVersionWarning(logger);
                     }
+                }
+                else
+                {
+                    logger?.LogInfo(".NET 8.0 Desktop Runtime directory not found at " + runtimeDir);
+                    ShowNetVersionWarning(logger);
                 }
             }
             catch (Exception ex)
@@ -166,19 +160,38 @@ namespace BatRun
         private static void ShowNetVersionWarning(Logger? logger)
         {
             logger?.LogInfo("Showing .NET version warning to the user.");
-            string message = "BatRun nécessite .NET 8.0 pour fonctionner. Veuillez l'installer depuis le site officiel de Microsoft.\n\nVoulez-vous ouvrir la page de téléchargement ?";
-            string title = "Dépendance manquante : .NET 8.0";
+
+            string lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            string message, title, url, error_message, error_title;
+
+            if (lang == "fr")
+            {
+                title = "Dépendance manquante : .NET 8.0";
+                message = "BatRun nécessite le .NET 8.0 Desktop Runtime pour fonctionner. Veuillez l'installer depuis le site officiel de Microsoft.\n\nVoulez-vous ouvrir la page de téléchargement ?";
+                url = "https://dotnet.microsoft.com/fr-fr/download/dotnet/8.0";
+                error_title = "Erreur";
+                error_message = "Impossible d'ouvrir le lien. Erreur : ";
+            }
+            else
+            {
+                title = "Missing Dependency: .NET 8.0";
+                message = "BatRun requires the .NET 8.0 Desktop Runtime to run. Please install it from the official Microsoft website.\n\nDo you want to open the download page?";
+                url = "https://dotnet.microsoft.com/en-us/download/dotnet/8.0";
+                error_title = "Error";
+                error_message = "Could not open the link. Error: ";
+            }
+
             if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
                     logger?.LogInfo("User chose to open the download page.");
-                    Process.Start(new ProcessStartInfo("https://dotnet.microsoft.com/download/dotnet/8.0") { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                 }
                 catch (Exception ex)
                 {
                     logger?.LogInfo($"Failed to open download page: {ex.Message}");
-                    MessageBox.Show($"Impossible d'ouvrir le lien. Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(error_message + ex.Message, error_title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
