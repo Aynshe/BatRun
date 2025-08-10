@@ -148,6 +148,29 @@ namespace BatRun
             videoControls.BringToFront();
 
             videoTab.Controls.Add(videoPanel);
+
+            // Add right-click to close event
+            this.MouseClick += OnRightClickClose;
+            mainLayout.MouseClick += OnRightClickClose;
+            _infoPanel.MouseClick += OnRightClickClose;
+        }
+
+        private void OnRightClickClose(object? sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                this.Close();
+            }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == Keys.Escape)
+            {
+                this.Close();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void MediaTabControl_SelectedIndexChanged(object? sender, EventArgs e)
@@ -398,6 +421,8 @@ namespace BatRun
                 Font = new Font("Segoe UI", 10F),
                 ScrollBars = RichTextBoxScrollBars.None
             };
+            _descriptionTextBox.MouseEnter += DescriptionTextBox_MouseEnter;
+            _descriptionTextBox.MouseLeave += DescriptionTextBox_MouseLeave;
 
             _infoPanel.Controls.Add(label, 0, _infoPanel.RowCount - 1);
             _infoPanel.Controls.Add(_descriptionTextBox, 1, _infoPanel.RowCount - 1);
@@ -412,9 +437,19 @@ namespace BatRun
             if (textHeight < _descriptionTextBox.ClientSize.Height) return;
 
             _scrollTimer = new System.Windows.Forms.Timer();
-            _scrollTimer.Interval = 100; // Slower, more readable scroll
+            _scrollTimer.Interval = 200; // Slower, more readable scroll
             _scrollTimer.Tick += ScrollTimer_Tick;
             _scrollTimer.Start();
+        }
+
+        private void DescriptionTextBox_MouseEnter(object? sender, EventArgs e)
+        {
+            _scrollTimer?.Stop();
+        }
+
+        private void DescriptionTextBox_MouseLeave(object? sender, EventArgs e)
+        {
+            _scrollTimer?.Start();
         }
 
         private void ScrollTimer_Tick(object? sender, EventArgs e)
