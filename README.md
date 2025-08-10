@@ -1,25 +1,13 @@
 # BatRun
-Launcher for RetroBat with Hotkey gamepad select/back+start xinput or dinput  /  -publish self contained-
-Mapping automatic also in Dinput - "source : gamecontrollerdb in RetroBat" "But the BatRun plugin startup is slower..." (start with a wait splash)
 
-Having no other Dinput Joystick than my old "SideWinder Game Pad Pro USB version 1.0", I am not able to test.
-I do not know if it is my old Dinput controller, I sometimes need to insist a little on the hotkey.
-*the code is certainly not very clean... .!
-
+Launcher for RetroBat supporting XInput/DInput gamepads, with the hotkey "Select + Start".
+Can also be started directly with Windows startup in "custom shell" mode, replacing the Windows Explorer (Explorer.exe).
 _____________________________________________________________________________________________________________________________________________________
 https://github.com/user-attachments/assets/1a56cbad-afbd-4ec9-89dc-7dab3e4f5f61
-
 ___________________________________________________________________________________________
-Feature V2.0
-
 https://github.com/user-attachments/assets/2e692905-ea64-4026-b146-be997264fc46
-
 _____________________________________________________________________________________________________________________________________________________
-![image](https://github.com/user-attachments/assets/a73df8e9-e287-48d4-9e35-c71f443e10ab)
-![image](https://github.com/user-attachments/assets/da2d631e-b963-481f-b8c5-ee226e182f8d)
-![image](https://github.com/user-attachments/assets/dc5513f2-38e4-41dc-820c-8a0fd09acbb9)
-![image](https://github.com/user-attachments/assets/a9c62c89-3316-4986-acb8-13950c2a0c75)![image](https://github.com/user-attachments/assets/02e44ecd-05ac-433d-8545-f43336643845)![image](https://github.com/user-attachments/assets/965b5ea4-b107-44b2-8ac2-9da324dcd644) 
-
+<img width="786" height="543" alt="image" src="https://github.com/user-attachments/assets/903374b4-4f0e-4219-8213-4f077c937084" />
 _____________________________________________________________________________________________________________________________________________________
 
 ## ✨ New — Automatic Launch by System (BatRun 2.2.0)
@@ -33,7 +21,7 @@ ________________________________________________________________________________
 
 > **Requirement**: [.NET Desktop Runtime 8.0.x](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed on your system.
 _____________________________________________________________________________________________________________________________________________________
-## New in version 2.1.0
+## 2.1.0
 ### New "Hide ES during loading" option
 - 🎬 Hide EmulationStation during loading with customizable video (RetroBat intro alternative / waits for ES loading completion / early video stop possible with Start)
 
@@ -43,7 +31,7 @@ ________________________________________________________________________________
 - Active windows minimization
 - RetroBat intro video
 _____________________________________________________________________________________________________________________________________________________
-# BatRun v2.0
+# 2.0
 A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat.
 
 ### Custom Shell
@@ -63,7 +51,7 @@ A launcher for RetroBat that allows you to use a controller button combination (
 - Quick access menu for shortcuts from floating menu
 - Ability to add/edit/delete shortcuts
 _____________________________________________________________________________________________________________________________________________________
-## New Features in Version 1.3
+## 1.3
 
 - 🚀 **Added controller vibration when pressing Hotkey + Start** (works with XInput, DirectInput not tested, potential incompatibility with some Bluetooth controllers).
 - 🖥 **Automatic startup via scheduled task** (works if `explorer.exe` is not the default Shell on Windows startup).
