@@ -14,7 +14,6 @@ namespace BatRun
         [STAThread]
         static void Main()
         {
-            CheckNetVersion();
             string[] args = Environment.GetCommandLineArgs();
 
             // --- Handle -waitforpid argument ---
@@ -52,6 +51,8 @@ namespace BatRun
                 logger = new Logger("BatRun.log", appendToExisting: false);
                 logger.ClearLogFile();
                 logger.LogInfo("=== BatRun Starting - Version " + Batrun.APP_VERSION + " ===");
+
+                CheckNetVersion(logger);
 
                 bool createdNew;
                 using (Mutex mutex = new Mutex(true, "BatRun", out createdNew))
@@ -118,8 +119,9 @@ namespace BatRun
             splashTimer.Start();
         }
 
-        private static void CheckNetVersion()
+        private static void CheckNetVersion(Logger? logger)
         {
+            logger?.LogInfo("Checking for .NET 8.0 Runtime...");
             try
             {
                 using (var key = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedhost"))
@@ -137,37 +139,51 @@ namespace BatRun
                             }
                         }
 
-                        if (!found)
+                        if (found)
                         {
-                            ShowNetVersionWarning();
+                            logger?.LogInfo(".NET 8.0 Runtime found.");
+                        }
+                        else
+                        {
+                            logger?.LogInfo(".NET 8.0 Runtime not found.");
+                            ShowNetVersionWarning(logger);
                         }
                     }
                     else
                     {
-                        ShowNetVersionWarning();
+                        logger?.LogInfo(".NET 8.0 Runtime not found.");
+                        ShowNetVersionWarning(logger);
                     }
                 }
             }
             catch (Exception ex)
             {
+                logger?.LogInfo($"Error checking .NET version: {ex.Message}");
                 LogFatalError("Error checking .NET version", ex);
             }
         }
 
-        private static void ShowNetVersionWarning()
+        private static void ShowNetVersionWarning(Logger? logger)
         {
+            logger?.LogInfo("Showing .NET version warning to the user.");
             string message = "BatRun nécessite .NET 8.0 pour fonctionner. Veuillez l'installer depuis le site officiel de Microsoft.\n\nVoulez-vous ouvrir la page de téléchargement ?";
             string title = "Dépendance manquante : .NET 8.0";
             if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 try
                 {
+                    logger?.LogInfo("User chose to open the download page.");
                     Process.Start(new ProcessStartInfo("https://dotnet.microsoft.com/download/dotnet/8.0") { UseShellExecute = true });
                 }
                 catch (Exception ex)
                 {
+                    logger?.LogInfo($"Failed to open download page: {ex.Message}");
                     MessageBox.Show($"Impossible d'ouvrir le lien. Erreur : {ex.Message}", "Erreur", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+            else
+            {
+                logger?.LogInfo("User chose not to open the download page. Exiting application.");
             }
             Environment.Exit(0);
         }
