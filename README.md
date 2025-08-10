@@ -22,8 +22,18 @@ ________________________________________________________________________________
 
 _____________________________________________________________________________________________________________________________________________________
 
-## New in version 2.1.0
+## ✨ New — Automatic Launch by System (BatRun 2.2.0)
 
+- **System selection**: Choose a system (console, arcade, etc.) and BatRun will directly launch a game from that system.
+- **Random mode** *(optional)*: Enable the option to have a game randomly selected from the chosen system.
+
+<img width="1736" height="1096" alt="image" src="https://github.com/user-attachments/assets/73a27753-5c1a-405a-a342-9536e5db3e35" />
+
+- fix / Refactoring code
+
+> **Requirement**: [.NET Desktop Runtime 8.0.x](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed on your system.
+_____________________________________________________________________________________________________________________________________________________
+## New in version 2.1.0
 ### New "Hide ES during loading" option
 - 🎬 Hide EmulationStation during loading with customizable video (RetroBat intro alternative / waits for ES loading completion / early video stop possible with Start)
 
@@ -33,12 +43,8 @@ ________________________________________________________________________________
 - Active windows minimization
 - RetroBat intro video
 _____________________________________________________________________________________________________________________________________________________
-
 # BatRun v2.0
-
 A launcher for RetroBat that allows you to use a controller button combination (Hotkey + Start) to launch RetroBat.
-
-# New Features in Version 2.0.0
 
 ### Custom Shell
 - Configuration as custom Windows shell
@@ -121,104 +127,3 @@ ________________________________________________________________________________
 ## Credits
 
 Developed by AI for Aynshe
-
-_____________________________________________________________________________________________________________________________________________________
-
-## Nouveautés de la version 2.1.0
-
-### Nouvelle option "Hide ES during loading"
-- 🎬 Masque EmulationStation pendant son chargement avec une vidéo personnalisable (alternative à l'intro RetroBat / attend la fin du chargement de ES / arrêt prématuré possible avec Start)
-
-### L'activation de cette option désactive automatiquement :
-- L'affichage du splash screen BatRun au démarrage (disponible sans "Hide ES during loading")
-- L'affichage du splash screen BatRun lors du lancement de RetroBat (disponible sans "Hide ES during loading")
-- La minimisation des fenêtres actives
-- La vidéo d'intro de RetroBat
-_____________________________________________________________________________________________________________________________________________________
-
-# BatRun v2.0
-
-Un lanceur pour RetroBat qui permet d'utiliser une combinaison de touches manette (Hotkey + Start) pour lancer RetroBat.
-## Nouveautés de la version 2.0.0
-
-### Shell personnalisé
-- Configuration comme shell Windows personnalisé
-- Exécution commandes et applications
-- Auto-Hide Applications
-
-### Fond d'écran dynamique
-- Support des fonds d'écran vidéo (MP4)
-- Support des GIFs animés
-- Menu flottant déplaçable
-- Pause automatique du fond d'écran lors du lancement d'EmulationStation
-- Contrôle du volume audio pour les fonds vidéo
-
-### Système de raccourcis
-- Interface de gestion des raccourcis personnalisés
-- Menu rapide d'accès aux raccourcis depuis le menu flottant
-- Possibilité d'ajouter/éditer/supprimer des raccourcis
-_____________________________________________________________________________________________________________________________________________________
-## Nouveautés de la version 1.3
-
-- 🚀 **Ajout de la vibration manette lors de la combinaison Hotkey + Start** (fonctionne avec XInput, DirectInput non testé, incompatibilité possible avec certaines manettes Bluetooth).
-- 🖥 **Démarrage automatique via tâche planifiée** (compatible si `explorer.exe` n'est pas le Shell par défaut au démarrage de Windows).
-_____________________________________________________________________________________________________________________________________________________
-### Remarque sur la charge CPU :
-- Sur un processeur type i5-9600 (Win11) : charge CPU inférieure à 1%.
-- Testé avec un i7-3770K (Win10) : charge variant entre 2% et 5%.
-- Aucune solution immédiate pour optimiser cela ; des tests supplémentaires pourraient être nécessaires.
-
-## Fonctionnalités
-
-- 🎮 Support des manettes **XInput** et **DirectInput**
-- 🔄 Configuration personnalisable des boutons
-- 🪟 Minimisation automatique des fenêtres (optionnel)
-- 🚀 Démarrage automatique avec Windows (via **Registre**, **raccourci**, ou **tâche planifiée**)
-- 📝 Système de logs pour le dépannage
-
-## Installation
-
-1. Téléchargez la dernière version depuis la page [Releases](https://github.com/Aynshe/BatRun/releases).
-2. Extrayez l'archive.
-3. Lancez `BatRun.exe`.
-
-## Configuration
-
-### Configuration Générale
-
-- **Focus Duration** : Durée pendant laquelle le processus focus est actif (débute après la durée de la vidéo configurée depuis BatGui, si activée).
-- **Focus Interval** : Intervalle entre les tentatives de focus de EmulationStation.
-- **Start with Windows** : Démarrage automatique (via **Registre**, **raccourci**, ou **tâche planifiée**).
-- **Minimize Windows** : Active/désactive la minimisation des fenêtres.
-- **Enable controller vibration** : Active/désactive la vibration (si supportée par votre manette).
-- **Enable Logging** : Active/désactive les logs.
-
-### Configuration des Manettes
-
-1. Ouvrez **BatRun**.
-2. Allez dans **Configuration > Controller Mappings**.
-3. Sélectionnez votre manette.
-4. Configurez les boutons Hotkey et Start.
-5. Sauvegardez.
-
-### Configuration du démarrage automatique
-
-1. Lancez `BatRun.exe`.
-2. Allez dans **Configuration > Startup Settings**.
-3. Sélectionnez **votre choix**.
-4. Sauvegardez.
-
-## Utilisation
-
-1. Lancez BatRun (une icône apparaît dans la barre des tâches).
-2. Appuyez simultanément sur les boutons **Hotkey + Start** de votre manette.
-3. RetroBat se lance automatiquement, accompagné d’une vibration de confirmation (si supportée par votre manette).
-
-## Support
-
-- [Discord RetroBat](https://discord.gg/GVcPNxwzuT)  “Aynshe”
-- [Code Source](https://github.com/Aynshe/BatRun)
-
-## Crédits
-
-Développé par AI pour Aynshe
