@@ -102,11 +102,11 @@ namespace BatRun
             mainLayout.Controls.Add(_mediaTabControl, 0, 1);
 
             // Create Tab Pages
-            var imageTab = new TabPage("Image");
-            var videoTab = new TabPage("Video");
-            var marqueeTab = new TabPage("Marquee");
-            var thumbnailTab = new TabPage("Thumbnail");
-            var fanartTab = new TabPage("Fanart");
+            var imageTab = new TabPage("Image") { BackColor = Color.Black };
+            var videoTab = new TabPage("Video") { BackColor = Color.Black };
+            var marqueeTab = new TabPage("Marquee") { BackColor = Color.Black };
+            var thumbnailTab = new TabPage("Thumbnail") { BackColor = Color.Black };
+            var fanartTab = new TabPage("Fanart") { BackColor = Color.Black };
             _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab, thumbnailTab, fanartTab });
             _mediaTabControl.SelectedIndex = 1; // Default to Video tab
 
@@ -128,9 +128,9 @@ namespace BatRun
             fanartTab.Controls.Add(_fanartPictureBox);
 
             // Video
-            var videoPanel = new Panel { Dock = DockStyle.Fill };
-            videoPanel.Resize += (s, e) => UpdateVideoPosition();
-            _bezelPictureBox = new PictureBox { Dock = DockStyle.Fill, SizeMode = PictureBoxSizeMode.StretchImage };
+            var videoPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Black };
+            videoPanel.Resize += (s, e) => UpdateBezelAndVideoPosition();
+            _bezelPictureBox = new PictureBox { Dock = DockStyle.None, SizeMode = PictureBoxSizeMode.Zoom };
             _videoView = new VideoView { Dock = DockStyle.None, MediaPlayer = _mediaPlayer };
             var videoControls = new FlowLayoutPanel { Dock = DockStyle.Bottom, Height = 30, FlowDirection = FlowDirection.LeftToRight, BackColor = Color.FromArgb(45, 45, 48) };
             var playButton = new Button { Text = "Play", FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White, Width = 75 };
@@ -264,24 +264,45 @@ namespace BatRun
             }
 
             // Update the video position now that we have layout info
-            UpdateVideoPosition();
+            UpdateBezelAndVideoPosition();
         }
 
-        private void UpdateVideoPosition()
+        private void UpdateBezelAndVideoPosition()
         {
-            if (_videoView == null || _videoView.Parent == null) return;
+            if (_videoView == null || _bezelPictureBox == null || _bezelPictureBox.Parent == null) return;
 
-            if (_bezelInfo == null)
+            var container = _bezelPictureBox.Parent;
+
+            if (_bezelInfo == null || _bezelPictureBox.Image == null)
             {
-                // If no bezel info, just fill the panel (minus controls)
+                // If no bezel, video fills the container (minus controls)
                 _videoView.Dock = DockStyle.Fill;
+                _bezelPictureBox.Visible = false;
                 return;
             }
 
-            // If we have bezel info, undock and position manually
             _videoView.Dock = DockStyle.None;
+            _bezelPictureBox.Visible = true;
 
-            var container = _videoView.Parent;
+            // Calculate bezel's new size and position to maintain aspect ratio
+            float bezelAspectRatio = (float)_bezelPictureBox.Image.Width / _bezelPictureBox.Image.Height;
+            int newWidth, newHeight;
+
+            if ((float)container.Width / container.Height > bezelAspectRatio)
+            {
+                // Container is wider than the bezel's aspect ratio, so height is the limiting factor
+                newHeight = container.Height;
+                newWidth = (int)(newHeight * bezelAspectRatio);
+            }
+            else
+            {
+                // Container is taller or same aspect ratio, so width is the limiting factor
+                newWidth = container.Width;
+                newHeight = (int)(newWidth / bezelAspectRatio);
+            }
+
+            _bezelPictureBox.Size = new Size(newWidth, newHeight);
+            _bezelPictureBox.Location = new Point((container.Width - newWidth) / 2, (container.Height - newHeight) / 2);
 
             // Calculate the video area based on the bezel info
             double videoX = _bezelInfo.Left;
@@ -298,13 +319,13 @@ namespace BatRun
             double ratioW = videoW / _bezelInfo.Width;
             double ratioH = videoH / _bezelInfo.Height;
 
-            // Apply the ratios to the current size of the container panel
-            int newX = (int)(container.Width * ratioX);
-            int newY = (int)(container.Height * ratioY);
-            int newW = (int)(container.Width * ratioW);
-            int newH = (int)(container.Height * ratioH);
+            // Apply the ratios to the new, correctly-scaled size of the bezel PictureBox
+            int newVidX = _bezelPictureBox.Left + (int)(_bezelPictureBox.Width * ratioX);
+            int newVidY = _bezelPictureBox.Top + (int)(_bezelPictureBox.Height * ratioY);
+            int newVidW = (int)(_bezelPictureBox.Width * ratioW);
+            int newVidH = (int)(_bezelPictureBox.Height * ratioH);
 
-            _videoView.Bounds = new Rectangle(newX, newY, newW, newH);
+            _videoView.Bounds = new Rectangle(newVidX, newVidY, newVidW, newVidH);
         }
 
         private void LoadMediaIntoPictureBox(PictureBox pb, string relativePath)
