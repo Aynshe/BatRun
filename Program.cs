@@ -5,6 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
+using System.Linq;
+using System.Globalization;
 
 namespace BatRun
 {
@@ -50,6 +53,8 @@ namespace BatRun
                 logger = new Logger("BatRun.log", appendToExisting: false);
                 logger.ClearLogFile();
                 logger.LogInfo("=== BatRun Starting - Version " + Batrun.APP_VERSION + " ===");
+
+                CheckNetVersion(logger);
 
                 bool createdNew;
                 using (Mutex mutex = new Mutex(true, "BatRun", out createdNew))
@@ -114,6 +119,86 @@ namespace BatRun
                 splash.Dispose();
             };
             splashTimer.Start();
+        }
+
+        private static void CheckNetVersion(Logger? logger)
+        {
+            logger?.LogInfo("Checking for .NET 8.0 Desktop Runtime...");
+            try
+            {
+                string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                string runtimeDir = Path.Combine(programFiles, "dotnet", "shared", "Microsoft.WindowsDesktop.App");
+
+                if (Directory.Exists(runtimeDir))
+                {
+                    var versions = Directory.GetDirectories(runtimeDir).Select(Path.GetFileName);
+                    bool found = versions.Any(v => v != null && v.StartsWith("8."));
+
+                    if (found)
+                    {
+                        logger?.LogInfo(".NET 8.0 Desktop Runtime found.");
+                    }
+                    else
+                    {
+                        logger?.LogInfo(".NET 8.0 Desktop Runtime not found in " + runtimeDir);
+                        ShowNetVersionWarning(logger);
+                    }
+                }
+                else
+                {
+                    logger?.LogInfo(".NET 8.0 Desktop Runtime directory not found at " + runtimeDir);
+                    ShowNetVersionWarning(logger);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogInfo($"Error checking .NET version: {ex.Message}");
+                LogFatalError("Error checking .NET version", ex);
+            }
+        }
+
+        private static void ShowNetVersionWarning(Logger? logger)
+        {
+            logger?.LogInfo("Showing .NET version warning to the user.");
+
+            string lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            string message, title, url, error_message, error_title;
+
+            if (lang == "fr")
+            {
+                title = "Dépendance manquante : .NET 8.0";
+                message = "BatRun nécessite le .NET 8.0 Desktop Runtime pour fonctionner. Veuillez l'installer depuis le site officiel de Microsoft.\n\nVoulez-vous ouvrir la page de téléchargement ?";
+                url = "https://dotnet.microsoft.com/fr-fr/download/dotnet/8.0";
+                error_title = "Erreur";
+                error_message = "Impossible d'ouvrir le lien. Erreur : ";
+            }
+            else
+            {
+                title = "Missing Dependency: .NET 8.0";
+                message = "BatRun requires the .NET 8.0 Desktop Runtime to run. Please install it from the official Microsoft website.\n\nDo you want to open the download page?";
+                url = "https://dotnet.microsoft.com/en-us/download/dotnet/8.0";
+                error_title = "Error";
+                error_message = "Could not open the link. Error: ";
+            }
+
+            if (MessageBox.Show(message, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                try
+                {
+                    logger?.LogInfo("User chose to open the download page.");
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    logger?.LogInfo($"Failed to open download page: {ex.Message}");
+                    MessageBox.Show(error_message + ex.Message, error_title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                logger?.LogInfo("User chose not to open the download page. Exiting application.");
+            }
+            Environment.Exit(0);
         }
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e)
