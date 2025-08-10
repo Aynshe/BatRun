@@ -285,6 +285,15 @@ namespace BatRun
                                     MediaPlayer = mediaPlayer
                                 };
 
+                                // Disable right-click context menu
+                                videoView.MouseDown += (s, e) =>
+                                {
+                                    if (e.Button == MouseButtons.Right)
+                                    {
+                                        // Absorb the event to prevent the context menu
+                                    }
+                                };
+
                                 videoForm.Controls.Add(videoView);
 
                                 // Configurer la lecture en boucle
