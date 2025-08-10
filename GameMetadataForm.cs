@@ -11,6 +11,16 @@ using Newtonsoft.Json;
 
 namespace BatRun
 {
+    public class GameData
+    {
+        public XElement? Metadata { get; }
+
+        public GameData(XElement? metadata)
+        {
+            Metadata = metadata;
+        }
+    }
+
     public partial class GameMetadataForm : Form
     {
         // P/Invoke for smooth scrolling
@@ -41,6 +51,7 @@ namespace BatRun
         private RichTextBox? _descriptionTextBox;
         private System.Windows.Forms.Timer? _scrollTimer;
         private BezelInfo? _bezelInfo;
+        private Panel? _loadingPanel;
 
 
         public GameMetadataForm(Game selectedGame, string gamelistPath, string retrobatRoot)
@@ -55,9 +66,79 @@ namespace BatRun
             _mediaPlayer = new MediaPlayer(_libVLC);
 
             InitializeComponent();
-            LoadGameMetadata();
+            this.Load += async (s, e) => await LoadGameMetadataAsync();
+        }
 
-            this.Shown += (s, e) => InitializeTimer();
+        private async Task LoadGameMetadataAsync()
+        {
+            try
+            {
+                var gameData = await Task.Run(() =>
+                {
+                    if (!File.Exists(_gamelistPath))
+                    {
+                        throw new FileNotFoundException($"gamelist.xml not found at:\n{_gamelistPath}");
+                    }
+
+                    var doc = XDocument.Load(_gamelistPath);
+                    string? gameFileName = Path.GetFileName(_selectedGame.Path);
+                    var gameMetadata = doc.Descendants("game").FirstOrDefault(g => Path.GetFileName(g.Element("path")?.Value) == gameFileName);
+
+                    if (gameMetadata == null)
+                    {
+                        throw new Exception($"Game '{_selectedGame.Name}' not found in gamelist.xml.");
+                    }
+
+                    return new GameData(gameMetadata);
+                });
+
+                _gameMetadata = gameData.Metadata;
+                if (_gameMetadata == null)
+                {
+                    throw new Exception("Game metadata could not be loaded.");
+                }
+
+
+                // --- Populate UI on UI thread ---
+                this.Text = $"Metadata - {GetMetaValue("name", _selectedGame.Name ?? "N/A")}";
+
+                // Populate Info Tab
+                if (_infoPanel != null)
+                {
+                    _infoPanel.SuspendLayout();
+                    _infoPanel.Controls.Clear();
+                    _infoPanel.RowCount = 0;
+                    AddInfoRow("Name", GetMetaValue("name"));
+                    AddInfoRow("Developer", GetMetaValue("developer"));
+                    AddInfoRow("Publisher", GetMetaValue("publisher"));
+                    AddInfoRow("Release Date", GetMetaValue("releasedate"));
+                    AddInfoRow("Genre", GetMetaValue("genre"));
+                    AddInfoRow("Players", GetMetaValue("players"));
+                    AddInfoRow("Rating", GetMetaValue("rating"));
+                    AddInfoRow("Play Count", GetMetaValue("playcount"));
+                    AddInfoRow("Last Played", GetMetaValue("lastplayed"));
+                    AddDescriptionRow(GetMetaValue("desc"));
+                    _infoPanel.ResumeLayout();
+                }
+
+                // Populate Media Tabs
+                await PopulateMediaTabsAsync();
+
+
+                InitializeTimer();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
+            finally
+            {
+                if (_loadingPanel != null)
+                {
+                    _loadingPanel.Visible = false;
+                }
+            }
         }
 
         private void InitializeComponent()
@@ -153,6 +234,26 @@ namespace BatRun
             this.MouseClick += OnRightClickClose;
             mainLayout.MouseClick += OnRightClickClose;
             _infoPanel.MouseClick += OnRightClickClose;
+
+            // Add loading panel
+            _loadingPanel = new Panel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Visible = true
+            };
+            var loadingLabel = new Label
+            {
+                Text = "Loading...",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 16F),
+                AutoSize = false,
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            _loadingPanel.Controls.Add(loadingLabel);
+            this.Controls.Add(_loadingPanel);
+            _loadingPanel.BringToFront();
         }
 
         private void OnRightClickClose(object? sender, MouseEventArgs e)
@@ -173,6 +274,161 @@ namespace BatRun
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
+        private async Task LoadGameMetadataAsync()
+        {
+            try
+            {
+                var gameData = await Task.Run(() =>
+                {
+                    if (!File.Exists(_gamelistPath))
+                    {
+                        throw new FileNotFoundException($"gamelist.xml not found at:\n{_gamelistPath}");
+                    }
+
+                    var doc = XDocument.Load(_gamelistPath);
+                    string? gameFileName = Path.GetFileName(_selectedGame.Path);
+                    var gameMetadata = doc.Descendants("game").FirstOrDefault(g => Path.GetFileName(g.Element("path")?.Value) == gameFileName);
+
+                    if (gameMetadata == null)
+                    {
+                        throw new Exception($"Game '{_selectedGame.Name}' not found in gamelist.xml.");
+                    }
+
+                    return new GameData(gameMetadata);
+                });
+
+                _gameMetadata = gameData.Metadata;
+                if (_gameMetadata == null)
+                {
+                    throw new Exception("Game metadata could not be loaded.");
+                }
+
+
+                // --- Populate UI on UI thread ---
+                this.Text = $"Metadata - {GetMetaValue("name", _selectedGame.Name ?? "N/A")}";
+
+                // Populate Info Tab
+                if (_infoPanel != null)
+                {
+                    _infoPanel.SuspendLayout();
+                    _infoPanel.Controls.Clear();
+                    _infoPanel.RowCount = 0;
+                    AddInfoRow("Name", GetMetaValue("name"));
+                    AddInfoRow("Developer", GetMetaValue("developer"));
+                    AddInfoRow("Publisher", GetMetaValue("publisher"));
+                    AddInfoRow("Release Date", GetMetaValue("releasedate"));
+                    AddInfoRow("Genre", GetMetaValue("genre"));
+                    AddInfoRow("Players", GetMetaValue("players"));
+                    AddInfoRow("Rating", GetMetaValue("rating"));
+                    AddInfoRow("Play Count", GetMetaValue("playcount"));
+                    AddInfoRow("Last Played", GetMetaValue("lastplayed"));
+                    AddDescriptionRow(GetMetaValue("desc"));
+                    _infoPanel.ResumeLayout();
+                }
+
+                // Populate Media Tabs
+                await PopulateMediaTabsAsync();
+
+
+                InitializeTimer();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+            }
+            finally
+            {
+                if (_loadingPanel != null)
+                {
+                    _loadingPanel.Visible = false;
+                }
+            }
+        }
+
+        private async Task PopulateMediaTabsAsync()
+        {
+            var mediaPaths = new
+            {
+                Image = GetMetaValue("image"),
+                Marquee = GetMetaValue("marquee"),
+                Thumbnail = GetMetaValue("thumbnail"),
+                Fanart = GetMetaValue("fanart"),
+                Video = GetMetaValue("video"),
+                Bezel = _selectedGame.System != null ? Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems", $"{_selectedGame.System}.png") : null,
+                BezelInfo = _selectedGame.System != null ? Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems", $"{_selectedGame.System}.info") : null
+            };
+
+            var mediaData = await Task.Run(() =>
+            {
+                byte[]? LoadFile(string? relativePath)
+                {
+                    if (string.IsNullOrEmpty(relativePath)) return null;
+                    string fullPath = Path.Combine(_romsFolderPath, relativePath.TrimStart('.', '/', '\\'));
+                    return File.Exists(fullPath) ? File.ReadAllBytes(fullPath) : null;
+                }
+
+                byte[]? LoadFullPath(string? fullPath)
+                {
+                    if (string.IsNullOrEmpty(fullPath)) return null;
+                    return File.Exists(fullPath) ? File.ReadAllBytes(fullPath) : null;
+                }
+
+                string? LoadTextFile(string? fullPath)
+                {
+                    if (string.IsNullOrEmpty(fullPath)) return null;
+                    return File.Exists(fullPath) ? File.ReadAllText(fullPath) : null;
+                }
+
+                return new
+                {
+                    Image = LoadFile(mediaPaths.Image),
+                    Marquee = LoadFile(mediaPaths.Marquee),
+                    Thumbnail = LoadFile(mediaPaths.Thumbnail),
+                    Fanart = LoadFile(mediaPaths.Fanart),
+                    Bezel = LoadFullPath(mediaPaths.Bezel),
+                    BezelInfoJson = LoadTextFile(mediaPaths.BezelInfo)
+                };
+            });
+
+            // --- Populate UI on UI thread ---
+            if (_imagePictureBox != null && mediaData.Image != null) _imagePictureBox.Image = Image.FromStream(new MemoryStream(mediaData.Image));
+            if (_marqueePictureBox != null && mediaData.Marquee != null) _marqueePictureBox.Image = Image.FromStream(new MemoryStream(mediaData.Marquee));
+            if (_thumbnailPictureBox != null && mediaData.Thumbnail != null) _thumbnailPictureBox.Image = Image.FromStream(new MemoryStream(mediaData.Thumbnail));
+            if (_fanartPictureBox != null && mediaData.Fanart != null) _fanartPictureBox.Image = Image.FromStream(new MemoryStream(mediaData.Fanart));
+
+            if (_bezelPictureBox != null && mediaData.Bezel != null)
+            {
+                _bezelPictureBox.Image = Image.FromStream(new MemoryStream(mediaData.Bezel));
+            }
+
+            if (mediaData.BezelInfoJson != null)
+            {
+                try
+                {
+                    _bezelInfo = JsonConvert.DeserializeObject<BezelInfo>(mediaData.BezelInfoJson);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error parsing bezel info file: {ex.Message}");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(mediaPaths.Video))
+            {
+                string fullVideoPath = Path.Combine(_romsFolderPath, mediaPaths.Video.TrimStart('.', '/', '\\'));
+                if (File.Exists(fullVideoPath))
+                {
+                    var media = new Media(_libVLC, new Uri(fullVideoPath));
+                    _mediaPlayer.Media = media;
+                    media.Dispose();
+                    _mediaPlayer.Play();
+                }
+            }
+
+            UpdateBezelAndVideoPosition();
+        }
+
         private void MediaTabControl_SelectedIndexChanged(object? sender, EventArgs e)
         {
             // Stop video when switching away from the video tab
@@ -180,114 +436,6 @@ namespace BatRun
             {
                 _mediaPlayer.Stop();
             }
-        }
-
-        private void LoadGameMetadata()
-        {
-            if (!File.Exists(_gamelistPath))
-            {
-                MessageBox.Show($"gamelist.xml not found at:\n{_gamelistPath}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-                return;
-            }
-
-            try
-            {
-                var doc = XDocument.Load(_gamelistPath);
-                string? gameFileName = Path.GetFileName(_selectedGame.Path);
-                _gameMetadata = doc.Descendants("game").FirstOrDefault(g => Path.GetFileName(g.Element("path")?.Value) == gameFileName);
-
-                if (_gameMetadata != null)
-                {
-                    this.Text = $"Metadata - {GetMetaValue("name", _selectedGame.Name ?? "N/A")}";
-                    PopulateInfoTab();
-                    PopulateMediaTabs();
-                }
-                else
-                {
-                     MessageBox.Show($"Game '{_selectedGame.Name}' not found in gamelist.xml.", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                     Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error parsing gamelist.xml:\n{ex.Message}", "XML Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Close();
-            }
-        }
-
-        private void PopulateInfoTab()
-        {
-            if (_infoPanel == null) return;
-            _infoPanel.SuspendLayout();
-            _infoPanel.Controls.Clear();
-            _infoPanel.RowCount = 0;
-
-            AddInfoRow("Name", GetMetaValue("name"));
-            AddInfoRow("Developer", GetMetaValue("developer"));
-            AddInfoRow("Publisher", GetMetaValue("publisher"));
-            AddInfoRow("Release Date", GetMetaValue("releasedate"));
-            AddInfoRow("Genre", GetMetaValue("genre"));
-            AddInfoRow("Players", GetMetaValue("players"));
-            AddInfoRow("Rating", GetMetaValue("rating"));
-            AddInfoRow("Play Count", GetMetaValue("playcount"));
-            AddInfoRow("Last Played", GetMetaValue("lastplayed"));
-            // Description is now last
-            AddDescriptionRow(GetMetaValue("desc"));
-
-            _infoPanel.ResumeLayout();
-        }
-
-        private void PopulateMediaTabs()
-        {
-            if (_imagePictureBox != null) LoadMediaIntoPictureBox(_imagePictureBox, GetMetaValue("image"));
-            if (_marqueePictureBox != null) LoadMediaIntoPictureBox(_marqueePictureBox, GetMetaValue("marquee"));
-            if (_thumbnailPictureBox != null) LoadMediaIntoPictureBox(_thumbnailPictureBox, GetMetaValue("thumbnail"));
-            if (_fanartPictureBox != null) LoadMediaIntoPictureBox(_fanartPictureBox, GetMetaValue("fanart"));
-
-            // Load Bezel and Layout Info
-            if (_bezelPictureBox != null && _selectedGame.System != null)
-            {
-                string decorationsRoot = Path.Combine(_retrobatRootPath, "system", "decorations", "default_curve_night", "systems");
-                string bezelPath = Path.Combine(decorationsRoot, $"{_selectedGame.System}.png");
-                string bezelInfoPath = Path.Combine(decorationsRoot, $"{_selectedGame.System}.info");
-
-                if (File.Exists(bezelPath))
-                {
-                    _bezelPictureBox.Image = Image.FromFile(bezelPath);
-                }
-
-                if (File.Exists(bezelInfoPath))
-                {
-                    try
-                    {
-                        string json = File.ReadAllText(bezelInfoPath);
-                        _bezelInfo = JsonConvert.DeserializeObject<BezelInfo>(json);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Log or handle error if JSON is malformed
-                        Console.WriteLine($"Error parsing bezel info file: {ex.Message}");
-                    }
-                }
-            }
-
-            // Load Video
-            string videoPath = GetMetaValue("video");
-            if (!string.IsNullOrEmpty(videoPath))
-            {
-                string fullVideoPath = Path.Combine(_romsFolderPath, videoPath.TrimStart('.', '/', '\\'));
-                if (File.Exists(fullVideoPath))
-                {
-                    var media = new Media(_libVLC, new Uri(fullVideoPath));
-                    _mediaPlayer.Media = media;
-                    media.Dispose(); // LibVLC clones the media object, so we can dispose our reference
-                    _mediaPlayer.Play();
-                }
-            }
-
-            // Update the video position now that we have layout info
-            UpdateBezelAndVideoPosition();
         }
 
         private void UpdateBezelAndVideoPosition()
