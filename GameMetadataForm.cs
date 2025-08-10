@@ -102,11 +102,11 @@ namespace BatRun
             mainLayout.Controls.Add(_mediaTabControl, 0, 1);
 
             // Create Tab Pages
-            var imageTab = new TabPage("Image");
-            var videoTab = new TabPage("Video");
-            var marqueeTab = new TabPage("Marquee");
-            var thumbnailTab = new TabPage("Thumbnail");
-            var fanartTab = new TabPage("Fanart");
+            var imageTab = new TabPage("Image") { BackColor = Color.Black };
+            var videoTab = new TabPage("Video") { BackColor = Color.Black };
+            var marqueeTab = new TabPage("Marquee") { BackColor = Color.Black };
+            var thumbnailTab = new TabPage("Thumbnail") { BackColor = Color.Black };
+            var fanartTab = new TabPage("Fanart") { BackColor = Color.Black };
             _mediaTabControl.TabPages.AddRange(new TabPage[] { imageTab, videoTab, marqueeTab, thumbnailTab, fanartTab });
             _mediaTabControl.SelectedIndex = 1; // Default to Video tab
 
@@ -128,7 +128,7 @@ namespace BatRun
             fanartTab.Controls.Add(_fanartPictureBox);
 
             // Video
-            var videoPanel = new Panel { Dock = DockStyle.Fill };
+            var videoPanel = new Panel { Dock = DockStyle.Fill, BackColor = Color.Black };
             videoPanel.Resize += (s, e) => UpdateBezelAndVideoPosition();
             _bezelPictureBox = new PictureBox { Dock = DockStyle.None, SizeMode = PictureBoxSizeMode.Zoom };
             _videoView = new VideoView { Dock = DockStyle.None, MediaPlayer = _mediaPlayer };
