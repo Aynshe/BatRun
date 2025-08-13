@@ -1360,7 +1360,7 @@ namespace BatRun
             logger.Log("Exiting application");
             trayIcon?.Dispose();
             _controllerService?.Dispose();
-            wallpaperManager?.CloseWallpaper();
+            wallpaperManager?.Dispose();
             esLoadingPlayer?.Dispose();
             checkTimer?.Stop();
             checkTimer?.Dispose();

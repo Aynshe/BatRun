@@ -7,7 +7,7 @@ using LibVLCSharp.WinForms;
 
 namespace BatRun
 {
-    public class WallpaperManager
+    public class WallpaperManager : IDisposable
     {
         private readonly IniFile config;
         private readonly Logger logger;
@@ -356,14 +356,16 @@ namespace BatRun
                     var shortcutInterfaceMenuItem = new ToolStripMenuItem(LocalizedStrings.GetString("Shortcuts Interface"));
                     shortcutInterfaceMenuItem.Click += (s, e) =>
                     {
-                        var shortcutsForm = new ShortcutsForm(config, logger);
-                        if (shortcutsForm.ShowDialog() == DialogResult.OK)
+                        using (var shortcutsForm = new ShortcutsForm(config, logger))
                         {
-                            // Recharger les raccourcis dans le menu
-                            shortcutsMenuItem.DropDownItems.Clear();
-                            shortcutsMenuItem.DropDownItems.Add(shortcutInterfaceMenuItem);
-                            shortcutsMenuItem.DropDownItems.Add(new ToolStripSeparator());
-                            LoadShortcuts(shortcutsMenuItem);
+                            if (shortcutsForm.ShowDialog() == DialogResult.OK)
+                            {
+                                // Recharger les raccourcis dans le menu
+                                shortcutsMenuItem.DropDownItems.Clear();
+                                shortcutsMenuItem.DropDownItems.Add(shortcutInterfaceMenuItem);
+                                shortcutsMenuItem.DropDownItems.Add(new ToolStripSeparator());
+                                LoadShortcuts(shortcutsMenuItem);
+                            }
                         }
                     };
                     shortcutsMenuItem.DropDownItems.Add(shortcutInterfaceMenuItem);
@@ -422,97 +424,100 @@ namespace BatRun
                     var manageAppsMenuItem = new ToolStripMenuItem(LocalizedStrings.GetString("Manage Applications Hide"));
                     manageAppsMenuItem.Click += (s, e) =>
                     {
-                        var windowsForm = new Form
+                        using (var windowsForm = new Form
                         {
                             Text = LocalizedStrings.GetString("Manage Applications Hide"),
                             Size = new Size(500, 500),
                             StartPosition = FormStartPosition.CenterScreen,
                             BackColor = Color.FromArgb(32, 32, 32),
                             ForeColor = Color.White
-                        };
-
-                        var listView = new ListView
+                        })
                         {
-                            Dock = DockStyle.Fill,
-                            View = View.Details,
-                            FullRowSelect = true,
-                            MultiSelect = false,
-                            BackColor = Color.FromArgb(45, 45, 48),
-                            ForeColor = Color.White
-                        };
-
-                        listView.Columns.Add(LocalizedStrings.GetString("Application"), -2);
-                        listView.Columns.Add(LocalizedStrings.GetString("Status"), 100);
-                        listView.Columns.Add(LocalizedStrings.GetString("Persistent"), 80);
-
-                        void RefreshWindowsList()
-                        {
-                            listView.Items.Clear();
-                            
-                            // Ajouter les fenêtres visibles
-                            var visibleWindows = applicationManager?.GetVisibleWindows() ?? new List<(IntPtr, string)>();
-                            foreach (var window in visibleWindows)
+                            var listView = new ListView
                             {
-                                var item = new ListViewItem(window.Title);
-                                item.SubItems.Add(LocalizedStrings.GetString("Visible"));
-                                item.SubItems.Add(applicationManager?.IsPersistentlyHidden(window.Title) == true ? "✓" : "");
-                                item.Tag = window.Handle;
-                                listView.Items.Add(item);
-                            }
+                                Dock = DockStyle.Fill,
+                                View = View.Details,
+                                FullRowSelect = true,
+                                MultiSelect = false,
+                                BackColor = Color.FromArgb(45, 45, 48),
+                                ForeColor = Color.White
+                            };
 
-                            // Ajouter les fenêtres masquées
-                            var hiddenWindows = applicationManager?.GetHiddenWindows() ?? new Dictionary<IntPtr, string>();
-                            foreach (var window in hiddenWindows)
-                            {
-                                var item = new ListViewItem(window.Value);
-                                item.SubItems.Add(LocalizedStrings.GetString("Hidden"));
-                                item.SubItems.Add(applicationManager?.IsPersistentlyHidden(window.Value) == true ? "✓" : "");
-                                item.Tag = window.Key;
-                                listView.Items.Add(item);
-                            }
-                        }
+                            listView.Columns.Add(LocalizedStrings.GetString("Application"), -2);
+                            listView.Columns.Add(LocalizedStrings.GetString("Status"), 100);
+                            listView.Columns.Add(LocalizedStrings.GetString("Persistent"), 80);
 
-                        listView.MouseClick += (s, e) =>
-                        {
-                            var hitInfo = listView.HitTest(e.X, e.Y);
-                            if (hitInfo.Item != null && hitInfo.SubItem != null)
+                            void RefreshWindowsList()
                             {
-                                int columnIndex = hitInfo.Item.SubItems.IndexOf(hitInfo.SubItem);
-                                if (columnIndex == 2) // Colonne Persistent
+                                if (listView.IsDisposed) return;
+                                listView.Items.Clear();
+
+                                // Ajouter les fenêtres visibles
+                                var visibleWindows = applicationManager?.GetVisibleWindows() ?? new List<(IntPtr, string)>();
+                                foreach (var window in visibleWindows)
                                 {
-                                    string windowTitle = hitInfo.Item.Text;
-                                    if (applicationManager?.IsPersistentlyHidden(windowTitle) == true)
-                                    {
-                                        applicationManager?.RemoveFromPersistentHidden(windowTitle);
-                                    }
-                                    else
-                                    {
-                                        applicationManager?.AddToPersistentHidden(windowTitle);
-                                    }
-                                    RefreshWindowsList();
+                                    var item = new ListViewItem(window.Title);
+                                    item.SubItems.Add(LocalizedStrings.GetString("Visible"));
+                                    item.SubItems.Add(applicationManager?.IsPersistentlyHidden(window.Title) == true ? "✓" : "");
+                                    item.Tag = window.Handle;
+                                    listView.Items.Add(item);
+                                }
+
+                                // Ajouter les fenêtres masquées
+                                var hiddenWindows = applicationManager?.GetHiddenWindows() ?? new Dictionary<IntPtr, string>();
+                                foreach (var window in hiddenWindows)
+                                {
+                                    var item = new ListViewItem(window.Value);
+                                    item.SubItems.Add(LocalizedStrings.GetString("Hidden"));
+                                    item.SubItems.Add(applicationManager?.IsPersistentlyHidden(window.Value) == true ? "✓" : "");
+                                    item.Tag = window.Key;
+                                    listView.Items.Add(item);
                                 }
                             }
-                        };
 
-                        listView.MouseDoubleClick += (s, e) =>
-                        {
-                            var item = listView.GetItemAt(e.X, e.Y);
-                            if (item != null && item.Tag is IntPtr hWnd)
+                            listView.MouseClick += (s, e) =>
                             {
-                                applicationManager?.ToggleWindowVisibility(hWnd);
+                                var hitInfo = listView.HitTest(e.X, e.Y);
+                                if (hitInfo.Item != null && hitInfo.SubItem != null)
+                                {
+                                    int columnIndex = hitInfo.Item.SubItems.IndexOf(hitInfo.SubItem);
+                                    if (columnIndex == 2) // Colonne Persistent
+                                    {
+                                        string windowTitle = hitInfo.Item.Text;
+                                        if (applicationManager?.IsPersistentlyHidden(windowTitle) == true)
+                                        {
+                                            applicationManager?.RemoveFromPersistentHidden(windowTitle);
+                                        }
+                                        else
+                                        {
+                                            applicationManager?.AddToPersistentHidden(windowTitle);
+                                        }
+                                        RefreshWindowsList();
+                                    }
+                                }
+                            };
+
+                            listView.MouseDoubleClick += (s, e) =>
+                            {
+                                var item = listView.GetItemAt(e.X, e.Y);
+                                if (item != null && item.Tag is IntPtr hWnd)
+                                {
+                                    applicationManager?.ToggleWindowVisibility(hWnd);
+                                    RefreshWindowsList();
+                                }
+                            };
+
+                            using (var refreshTimer = new System.Windows.Forms.Timer { Interval = 1000 })
+                            {
+                                refreshTimer.Tick += (s, e) => RefreshWindowsList();
+                                refreshTimer.Start();
+
+                                windowsForm.Controls.Add(listView);
                                 RefreshWindowsList();
+                                windowsForm.ShowDialog();
+                                refreshTimer.Stop();
                             }
-                        };
-
-                        var refreshTimer = new System.Windows.Forms.Timer { Interval = 1000 };
-                        refreshTimer.Tick += (s, e) => RefreshWindowsList();
-                        refreshTimer.Start();
-
-                        windowsForm.Controls.Add(listView);
-                        RefreshWindowsList();
-                        windowsForm.ShowDialog();
-                        refreshTimer.Stop();
-                        refreshTimer.Dispose();
+                        }
                     };
                     contextMenu.Items.Add(manageAppsMenuItem);
 
@@ -822,109 +827,114 @@ namespace BatRun
 
         public void CloseWallpaper()
         {
-            try
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (isDisposed) return;
+
+            if (disposing)
             {
-                isClosing = true;
-
-                // Stop the EmulationStation monitor timer
-                emulationStationMonitorTimer?.Stop();
-                emulationStationMonitorTimer = null;
-
-                // Cleanup GIF resources
-                CleanupGifResources();
-
-                // Afficher toutes les fenêtres masquées et nettoyer la configuration
-                applicationManager?.CleanupOnExit();
-
-                // Arrêter le MediaPlayer actif
-                StopActiveMediaPlayer();
-
-                // Nettoyage des composants dans un ordre spécifique
-                if (media != null)
+                try
                 {
-                    media.Dispose();
+                    isClosing = true;
+
+                    // Stop the EmulationStation monitor timer
+                    emulationStationMonitorTimer?.Stop();
+                    emulationStationMonitorTimer?.Dispose();
+                    emulationStationMonitorTimer = null;
+
+                    // Cleanup GIF resources
+                    CleanupGifResources();
+
+                    // Afficher toutes les fenêtres masquées et nettoyer la configuration
+                    applicationManager?.CleanupOnExit();
+
+                    // Arrêter le MediaPlayer actif
+                    StopActiveMediaPlayer();
+
+                    // Nettoyage des composants dans un ordre spécifique
+                    media?.Dispose();
                     media = null;
-                }
 
-                if (videoView != null)
-                {
-                    if (videoView.MediaPlayer != null)
+                    if (videoView != null)
                     {
-                        videoView.MediaPlayer = null;
-                    }
-                    videoView.Dispose();
-                    videoView = null;
-                }
-
-                if (mediaPlayer != null)
-                {
-                    mediaPlayer.Dispose();
-                    mediaPlayer = null;
-                }
-
-                if (libVLC != null)
-                {
-                    Core.Initialize(null);
-                    libVLC.Dispose();
-                    libVLC = null;
-                }
-
-                // Nettoyer le PictureBox et l'image du GIF
-                if (pictureBox != null)
-                {
-                    if (pictureBox.Image != null)
-                    {
-                        DetachGifAnimation();
-                        pictureBox.Image.Dispose();
-                        pictureBox.Image = null;
-                    }
-                    pictureBox.Dispose();
-                    pictureBox = null;
-                }
-
-                // Nettoyage de l'interface utilisateur
-                if (overlayButton != null)
-                {
-                    overlayButton.Dispose();
-                    overlayButton = null;
-                }
-
-                if (wallpaperForm != null)
-                {
-                    if (!wallpaperForm.IsDisposed)
-                    {
-                        if (wallpaperForm.InvokeRequired)
+                        if (videoView.MediaPlayer != null)
                         {
-                            wallpaperForm.BeginInvoke(new Action(() =>
+                            videoView.MediaPlayer = null;
+                        }
+                        videoView.Dispose();
+                        videoView = null;
+                    }
+
+                    mediaPlayer?.Dispose();
+                    mediaPlayer = null;
+
+                    libVLC?.Dispose();
+                    libVLC = null;
+
+                    // Nettoyer le PictureBox et l'image du GIF
+                    if (pictureBox != null)
+                    {
+                        if (pictureBox.Image != null)
+                        {
+                            DetachGifAnimation();
+                            pictureBox.Image.Dispose();
+                            pictureBox.Image = null;
+                        }
+                        pictureBox.Dispose();
+                        pictureBox = null;
+                    }
+
+                    // Nettoyage de l'interface utilisateur
+                    overlayButton?.Dispose();
+                    overlayButton = null;
+
+                    if (wallpaperForm != null)
+                    {
+                        if (!wallpaperForm.IsDisposed)
+                        {
+                            if (wallpaperForm.InvokeRequired)
+                            {
+                                wallpaperForm.BeginInvoke(new Action(() =>
+                                {
+                                    wallpaperForm.Hide();
+                                    wallpaperForm.Close();
+                                }));
+                            }
+                            else
                             {
                                 wallpaperForm.Hide();
                                 wallpaperForm.Close();
-                            }));
+                            }
                         }
-                        else
-                        {
-                            wallpaperForm.Hide();
-                            wallpaperForm.Close();
-                        }
+                        wallpaperForm.Dispose();
+                        wallpaperForm = null;
                     }
-                    wallpaperForm.Dispose();
-                    wallpaperForm = null;
+
+                    blackBackground?.Dispose();
+                    blackBackground = null;
+
+                    logger.LogInfo("Wallpaper closed and resources cleaned up successfully");
                 }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error closing wallpaper: {ex.Message}", ex);
+                }
+                finally
+                {
+                    isClosing = false;
+                }
+            }
 
-                // Forcer un nettoyage mémoire
-                GC.Collect(2, GCCollectionMode.Forced, true);
-                GC.WaitForPendingFinalizers();
-
-                logger.LogInfo("Wallpaper closed and resources cleaned up successfully");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error closing wallpaper: {ex.Message}", ex);
-            }
-            finally
-            {
-                isClosing = false;
-            }
+            isDisposed = true;
         }
 
         public static void StopActiveMediaPlayer()
