@@ -56,6 +56,7 @@ namespace BatRun
         private const int START_BUTTON_COOLDOWN_MS = 1000; // 1 seconde de cooldown
         private readonly SynchronizationContext _syncContext;
         private System.Windows.Forms.Timer? checkTimer;
+        private System.Windows.Forms.Timer? startupTimer;
 
         public Batrun()
         {
@@ -97,8 +98,11 @@ namespace BatRun
             // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
             wallpaperManager = new WallpaperManager(config, logger, this);
 
-            // Vérifier si explorer.exe est en cours d'exécution
-            CheckExplorerAndInitialize();
+            // Defer wallpaper and tray icon initialization to avoid race conditions when run as shell
+            startupTimer = new System.Windows.Forms.Timer();
+            startupTimer.Interval = 500; // 500ms delay
+            startupTimer.Tick += StartupTimer_Tick;
+            startupTimer.Start();
 
             // Initialisation de DInputHandler
             dInputHandler = new DInputHandler(logger);
@@ -130,6 +134,19 @@ namespace BatRun
                 wasRunning = shouldPause;
             };
             checkTimer.Start();
+        }
+
+        private void StartupTimer_Tick(object? sender, EventArgs e)
+        {
+            // Stop the timer so it only runs once
+            startupTimer?.Stop();
+
+            // Now that the application is stable, initialize the UI-heavy components
+            CheckExplorerAndInitialize();
+
+            // Dispose the timer as it's no longer needed
+            startupTimer?.Dispose();
+            startupTimer = null;
         }
 
         private async void OnHotkeyCombinationPressed(object? sender, EventArgs e)
@@ -1364,6 +1381,8 @@ namespace BatRun
             esLoadingPlayer?.Dispose();
             checkTimer?.Stop();
             checkTimer?.Dispose();
+            startupTimer?.Stop();
+            startupTimer?.Dispose();
         }
     }
 
