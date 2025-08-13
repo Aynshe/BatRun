@@ -57,6 +57,7 @@ namespace BatRun
         private readonly SynchronizationContext _syncContext;
         private System.Windows.Forms.Timer? checkTimer;
         private System.Windows.Forms.Timer? startupTimer;
+        private Task? shellCommandsTask;
 
         public Batrun()
         {
@@ -81,8 +82,11 @@ namespace BatRun
                 StartESSystemSelectListener();
             }
 
+            // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
+            wallpaperManager = new WallpaperManager(config, logger, this);
+
             // Exécuter les commandes shell configurées
-            Task.Run(async () =>
+            shellCommandsTask = Task.Run(async () =>
             {
                 try
                 {
@@ -94,9 +98,6 @@ namespace BatRun
                     logger.LogError("Error executing shell commands", ex);
                 }
             });
-
-            // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
-            wallpaperManager = new WallpaperManager(config, logger, this);
 
             // Defer wallpaper and tray icon initialization to avoid race conditions when run as shell
             startupTimer = new System.Windows.Forms.Timer();
@@ -136,10 +137,16 @@ namespace BatRun
             checkTimer.Start();
         }
 
-        private void StartupTimer_Tick(object? sender, EventArgs e)
+        private async void StartupTimer_Tick(object? sender, EventArgs e)
         {
             // Stop the timer so it only runs once
             startupTimer?.Stop();
+
+            // Wait for shell commands to complete before initializing UI
+            if (shellCommandsTask != null)
+            {
+                await shellCommandsTask;
+            }
 
             // Now that the application is stable, initialize the UI-heavy components
             wallpaperManager?.Initialize();
