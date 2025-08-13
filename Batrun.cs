@@ -85,20 +85,6 @@ namespace BatRun
             // Initialiser le WallpaperManager après l'initialisation du chemin RetroBat
             wallpaperManager = new WallpaperManager(config, logger, this);
 
-            // Exécuter les commandes shell configurées
-            shellCommandsTask = Task.Run(async () =>
-            {
-                try
-                {
-                    var shellExecutor = new ShellCommandExecutor(config, logger, this, wallpaperManager);
-                    await shellExecutor.ExecuteShellCommandsAsync();
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError("Error executing shell commands", ex);
-                }
-            });
-
             // Defer wallpaper and tray icon initialization to avoid race conditions when run as shell
             startupTimer = new System.Windows.Forms.Timer();
             startupTimer.Interval = 500; // 500ms delay
@@ -137,20 +123,28 @@ namespace BatRun
             checkTimer.Start();
         }
 
-        private async void StartupTimer_Tick(object? sender, EventArgs e)
+        private void StartupTimer_Tick(object? sender, EventArgs e)
         {
             // Stop the timer so it only runs once
             startupTimer?.Stop();
 
-            // Wait for shell commands to complete before initializing UI
-            if (shellCommandsTask != null)
-            {
-                await shellCommandsTask;
-            }
-
-            // Now that the application is stable, initialize the UI-heavy components
+            // First, initialize and show the wallpaper
             wallpaperManager?.Initialize();
             CheckExplorerAndInitialize();
+
+            // Then, run the shell commands in the background
+            shellCommandsTask = Task.Run(async () =>
+            {
+                try
+                {
+                    var shellExecutor = new ShellCommandExecutor(config, logger, this, wallpaperManager);
+                    await shellExecutor.ExecuteShellCommandsAsync();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error executing shell commands", ex);
+                }
+            });
 
             // Dispose the timer as it's no longer needed
             startupTimer?.Dispose();
