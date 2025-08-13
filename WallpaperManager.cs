@@ -21,6 +21,7 @@ namespace BatRun
         private MediaPlayer? mediaPlayer;
         private PictureBox? pictureBox;
         private bool isClosing = false;
+        private bool isDisposed = false;
         private bool isDragging = false;
         private Point dragStartPoint;
         private int snapDistance = 20; // Distance d'aimantation en pixels
