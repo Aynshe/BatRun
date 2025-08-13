@@ -186,7 +186,7 @@ namespace BatRun
 
                 if (shouldShow)
                 {
-                    CloseWallpaper();
+                    CleanupCurrentWallpaper();
 
                     string wallpaperPath;
                     string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
@@ -848,6 +848,66 @@ namespace BatRun
             }
         }
 
+        private void CleanupCurrentWallpaper()
+        {
+            // This method cleans up resources for the CURRENT wallpaper,
+            // but leaves shared resources like libVLC and timers intact.
+            isClosing = true;
+
+            // Stop the active media player if it's ours
+            StopActiveMediaPlayer();
+
+            // Cleanup wallpaper-specific components
+            media?.Dispose();
+            media = null;
+
+            videoView?.Dispose();
+            videoView = null;
+
+            mediaPlayer?.Dispose();
+            mediaPlayer = null;
+
+            if (pictureBox != null)
+            {
+                if (pictureBox.Image != null)
+                {
+                    DetachGifAnimation();
+                    pictureBox.Image.Dispose();
+                    pictureBox.Image = null;
+                }
+                pictureBox.Dispose();
+                pictureBox = null;
+            }
+
+            overlayButton?.Dispose();
+            overlayButton = null;
+
+            if (wallpaperForm != null)
+            {
+                if (!wallpaperForm.IsDisposed)
+                {
+                    if (wallpaperForm.InvokeRequired)
+                    {
+                        wallpaperForm.BeginInvoke(new Action(() =>
+                        {
+                            wallpaperForm.Hide();
+                            wallpaperForm.Close();
+                        }));
+                    }
+                    else
+                    {
+                        wallpaperForm.Hide();
+                        wallpaperForm.Close();
+                    }
+                }
+                wallpaperForm.Dispose();
+                wallpaperForm = null;
+            }
+
+            isClosing = false;
+            logger.LogInfo("Current wallpaper cleaned up successfully.");
+        }
+
         public void CloseWallpaper()
         {
             Dispose();
@@ -865,96 +925,25 @@ namespace BatRun
 
             if (disposing)
             {
-                try
-                {
-                    isClosing = true;
+                // First, clean up any active wallpaper UI
+                CleanupCurrentWallpaper();
 
-                    // Stop the EmulationStation monitor timer
-                    emulationStationMonitorTimer?.Stop();
-                    emulationStationMonitorTimer?.Dispose();
-                    emulationStationMonitorTimer = null;
+                // Now, clean up long-lived and shared resources
+                emulationStationMonitorTimer?.Stop();
+                emulationStationMonitorTimer?.Dispose();
+                emulationStationMonitorTimer = null;
 
-                    // Cleanup GIF resources
-                    CleanupGifResources();
+                CleanupGifResources(); // Disposes originalGifImage
 
-                    // Afficher toutes les fenêtres masquées et nettoyer la configuration
-                    applicationManager?.CleanupOnExit();
+                applicationManager?.CleanupOnExit();
 
-                    // Arrêter le MediaPlayer actif
-                    StopActiveMediaPlayer();
+                libVLC?.Dispose();
+                libVLC = null;
 
-                    // Nettoyage des composants dans un ordre spécifique
-                    media?.Dispose();
-                    media = null;
+                blackBackground?.Dispose();
+                blackBackground = null;
 
-                    if (videoView != null)
-                    {
-                        if (videoView.MediaPlayer != null)
-                        {
-                            videoView.MediaPlayer = null;
-                        }
-                        videoView.Dispose();
-                        videoView = null;
-                    }
-
-                    mediaPlayer?.Dispose();
-                    mediaPlayer = null;
-
-                    libVLC?.Dispose();
-                    libVLC = null;
-
-                    // Nettoyer le PictureBox et l'image du GIF
-                    if (pictureBox != null)
-                    {
-                        if (pictureBox.Image != null)
-                        {
-                            DetachGifAnimation();
-                            pictureBox.Image.Dispose();
-                            pictureBox.Image = null;
-                        }
-                        pictureBox.Dispose();
-                        pictureBox = null;
-                    }
-
-                    // Nettoyage de l'interface utilisateur
-                    overlayButton?.Dispose();
-                    overlayButton = null;
-
-                    if (wallpaperForm != null)
-                    {
-                        if (!wallpaperForm.IsDisposed)
-                        {
-                            if (wallpaperForm.InvokeRequired)
-                            {
-                                wallpaperForm.BeginInvoke(new Action(() =>
-                                {
-                                    wallpaperForm.Hide();
-                                    wallpaperForm.Close();
-                                }));
-                            }
-                            else
-                            {
-                                wallpaperForm.Hide();
-                                wallpaperForm.Close();
-                            }
-                        }
-                        wallpaperForm.Dispose();
-                        wallpaperForm = null;
-                    }
-
-                    blackBackground?.Dispose();
-                    blackBackground = null;
-
-                    logger.LogInfo("Wallpaper closed and resources cleaned up successfully");
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError($"Error closing wallpaper: {ex.Message}", ex);
-                }
-                finally
-                {
-                    isClosing = false;
-                }
+                logger.LogInfo("WallpaperManager disposed successfully.");
             }
 
             isDisposed = true;
