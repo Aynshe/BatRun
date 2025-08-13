@@ -55,6 +55,7 @@ namespace BatRun
         private DateTime lastStartButtonTime = DateTime.MinValue;
         private const int START_BUTTON_COOLDOWN_MS = 1000; // 1 seconde de cooldown
         private readonly SynchronizationContext _syncContext;
+        private System.Windows.Forms.Timer? checkTimer;
 
         public Batrun()
         {
@@ -103,7 +104,7 @@ namespace BatRun
             dInputHandler = new DInputHandler(logger);
 
             // Create a timer to check EmulationStation status
-            var checkTimer = new System.Windows.Forms.Timer();
+            checkTimer = new System.Windows.Forms.Timer();
             checkTimer.Interval = 5000; // Check every 5 seconds
             bool wasRunning = false;
             checkTimer.Tick += (sender, e) =>
@@ -1361,6 +1362,8 @@ namespace BatRun
             _controllerService?.Dispose();
             wallpaperManager?.CloseWallpaper();
             esLoadingPlayer?.Dispose();
+            checkTimer?.Stop();
+            checkTimer?.Dispose();
         }
     }
 
