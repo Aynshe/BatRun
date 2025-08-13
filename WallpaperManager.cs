@@ -91,7 +91,10 @@ namespace BatRun
             {
                 activeInstances.Add(this);
             }
+        }
 
+        public void Initialize()
+        {
             try
             {
                 // Initialiser LibVLC avec le chemin vers les DLLs
@@ -131,21 +134,21 @@ namespace BatRun
                 emulationStationMonitorTimer.Interval = 2000; // Check every 2 seconds
                 emulationStationMonitorTimer.Tick += (s, e) => CheckEmulationStationStatus();
                 emulationStationMonitorTimer.Start();
+
+                // Créer le fond noir
+                blackBackground = new Form
+                {
+                    BackColor = Color.Black,
+                    FormBorderStyle = FormBorderStyle.None,
+                    ShowInTaskbar = false,
+                    TopMost = true,
+                    WindowState = FormWindowState.Maximized
+                };
             }
             catch (Exception ex)
             {
-                logger.LogError($"Failed to initialize LibVLC: {ex.Message}", ex);
+                logger.LogError($"Failed to initialize WallpaperManager: {ex.Message}", ex);
             }
-
-            // Créer le fond noir
-            blackBackground = new Form
-            {
-                BackColor = Color.Black,
-                FormBorderStyle = FormBorderStyle.None,
-                ShowInTaskbar = false,
-                TopMost = true,
-                WindowState = FormWindowState.Maximized
-            };
         }
 
         private Screen GetTargetScreen()

@@ -142,6 +142,7 @@ namespace BatRun
             startupTimer?.Stop();
 
             // Now that the application is stable, initialize the UI-heavy components
+            wallpaperManager?.Initialize();
             CheckExplorerAndInitialize();
 
             // Dispose the timer as it's no longer needed
