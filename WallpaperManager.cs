@@ -115,7 +115,16 @@ namespace BatRun
                 }
 
                 Core.Initialize(libVLCPath);
-                logger.LogInfo($"LibVLC initialized successfully from: {libVLCPath}");
+                libVLC = new LibVLC(
+                    "--quiet",
+                    "--no-video-title-show",
+                    "--no-snapshot-preview",
+                    "--no-stats",
+                    "--no-sub-autodetect-file",
+                    "--no-osd",
+                    "--no-video-deco"
+                );
+                logger.LogInfo($"LibVLC instance created successfully from: {libVLCPath}");
 
                 // Initialize the EmulationStation monitor timer
                 emulationStationMonitorTimer = new System.Windows.Forms.Timer();
@@ -178,6 +187,13 @@ namespace BatRun
 
                     string wallpaperPath;
                     string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+
+                    if (selectedWallpaper == "None" || selectedWallpaper == "Aucun")
+                    {
+                        logger.LogInfo("No wallpaper selected ('None'). Skipping.");
+                        return;
+                    }
+
                     bool useRandom = selectedWallpaper == "Random Wallpaper" || 
                                    selectedWallpaper == LocalizedStrings.GetString("Random Wallpaper") ||
                                    selectedWallpaper == "Fond d'écran aléatoire";
@@ -641,15 +657,11 @@ namespace BatRun
                     }
                 }
 
-                libVLC = new LibVLC(
-                    "--quiet",
-                    "--no-video-title-show",
-                    "--no-snapshot-preview",
-                    "--no-stats",
-                    "--no-sub-autodetect-file",
-                    "--no-osd",
-                    "--no-video-deco"
-                );
+                if (libVLC == null)
+                {
+                    logger.LogError("LibVLC instance is not available. Cannot initialize video player.");
+                    return;
+                }
 
                 videoView = new VideoView
                 {
@@ -686,6 +698,13 @@ namespace BatRun
             catch (Exception ex)
             {
                 logger.LogError($"Error initializing video player: {ex.Message}", ex);
+                // Cleanup partially created objects to prevent leaks
+                mediaPlayer?.Dispose();
+                mediaPlayer = null;
+                videoView?.Dispose();
+                videoView = null;
+                media?.Dispose();
+                media = null;
             }
         }
 
