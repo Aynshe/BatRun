@@ -995,33 +995,37 @@ namespace BatRun
 
         private void CheckExplorerAndInitialize()
         {
-            bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
-            bool enableWithExplorer = config?.ReadBool("Wallpaper", "EnableWithExplorer", false) ?? false;
-            string selectedWallpaper = config?.ReadValue("Wallpaper", "Selected", "None") ?? "None";
-            bool isWallpaperActive = selectedWallpaper != "None";
-
-            // Si un wallpaper est configuré, le marquer comme actif dans la config
-            if (selectedWallpaper != "None")
-            {
-                config?.WriteValue("Wallpaper", "IsActive", "true");
-                isWallpaperActive = true;
-            }
-            else
-            {
-                config?.WriteValue("Wallpaper", "IsActive", "false");
-            }
-
-            // Afficher le wallpaper si nécessaire
-            if (wallpaperManager != null && isWallpaperActive)
-            {
-                if (!isExplorerRunning || (isExplorerRunning && enableWithExplorer))
-                {
-                    wallpaperManager.ShowWallpaper();
-                }
-            }
-
-            // Dans tous les cas, minimiser dans le systray
+            // Initialize the tray icon immediately
             InitializeTrayIcon();
+
+            // Use a timer to delay the wallpaper display
+            var wallpaperTimer = new System.Windows.Forms.Timer();
+            wallpaperTimer.Interval = 100; // 100ms delay
+            wallpaperTimer.Tick += (s, e) =>
+            {
+                wallpaperTimer.Stop(); // Ensure it only runs once
+
+                bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
+                bool enableWithExplorer = config?.ReadBool("Wallpaper", "EnableWithExplorer", false) ?? false;
+                string selectedWallpaper = config?.ReadValue("Wallpaper", "Selected", "None") ?? "None";
+
+                if (selectedWallpaper != "None")
+                {
+                    config?.WriteValue("Wallpaper", "IsActive", "true");
+                    if (wallpaperManager != null)
+                    {
+                        if (!isExplorerRunning || enableWithExplorer)
+                        {
+                            wallpaperManager.ShowWallpaper();
+                        }
+                    }
+                }
+                else
+                {
+                    config?.WriteValue("Wallpaper", "IsActive", "false");
+                }
+            };
+            wallpaperTimer.Start();
         }
 
         private async Task InitializeAsync()

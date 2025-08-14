@@ -5,7 +5,7 @@
   },
   "projects": {
     "/app/BatRun.csproj": {
-      "version": "2.1.2",
+      "version": "2.2.0",
       "restore": {
         "projectUniqueName": "/app/BatRun.csproj",
         "projectName": "BatRun",
