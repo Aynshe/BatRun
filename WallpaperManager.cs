@@ -117,7 +117,6 @@ namespace BatRun
                     }
                 }
 
-                Core.Initialize(libVLCPath);
                 libVLC = new LibVLC(
                     "--quiet",
                     "--no-video-title-show",
