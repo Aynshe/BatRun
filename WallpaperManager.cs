@@ -649,17 +649,6 @@ namespace BatRun
         {
             try
             {
-                // S'assurer qu'il n'y a pas d'instance active
-                lock (mediaPlayerLock)
-                {
-                    if (activeMediaPlayer != null)
-                    {
-                        activeMediaPlayer.Stop();
-                        activeMediaPlayer.Dispose();
-                        activeMediaPlayer = null;
-                    }
-                }
-
                 if (libVLC == null)
                 {
                     logger.LogError("LibVLC instance is not available. Cannot initialize video player.");
