@@ -91,41 +91,11 @@ namespace BatRun
                 activeInstances.Add(this);
             }
 
-            try
-            {
-                // Initialiser LibVLC avec le chemin vers les DLLs
-                string libVLCPath = Path.Combine(AppContext.BaseDirectory, "libvlc");
-                if (!Directory.Exists(libVLCPath))
-                {
-                    logger.LogError($"LibVLC directory not found at: {libVLCPath}");
-                    return;
-                }
-
-                // Vérifier la présence des DLLs essentielles
-                string[] requiredDlls = { "libvlc.dll", "libvlccore.dll" };
-                foreach (var dll in requiredDlls)
-                {
-                    string dllPath = Path.Combine(libVLCPath, dll);
-                    if (!File.Exists(dllPath))
-                    {
-                        logger.LogError($"Required LibVLC DLL not found: {dllPath}");
-                        return;
-                    }
-                }
-
-                Core.Initialize(libVLCPath);
-                logger.LogInfo($"LibVLC initialized successfully from: {libVLCPath}");
-
-                // Initialize the EmulationStation monitor timer
-                emulationStationMonitorTimer = new System.Windows.Forms.Timer();
-                emulationStationMonitorTimer.Interval = 2000; // Check every 2 seconds
-                emulationStationMonitorTimer.Tick += (s, e) => CheckEmulationStationStatus();
-                emulationStationMonitorTimer.Start();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Failed to initialize LibVLC: {ex.Message}", ex);
-            }
+            // Initialize the EmulationStation monitor timer
+            emulationStationMonitorTimer = new System.Windows.Forms.Timer();
+            emulationStationMonitorTimer.Interval = 2000; // Check every 2 seconds
+            emulationStationMonitorTimer.Tick += (s, e) => CheckEmulationStationStatus();
+            emulationStationMonitorTimer.Start();
 
             // Créer le fond noir
             blackBackground = new Form
@@ -635,15 +605,7 @@ namespace BatRun
                     }
                 }
 
-                libVLC = new LibVLC(
-                    "--quiet",
-                    "--no-video-title-show",
-                    "--no-snapshot-preview",
-                    "--no-stats",
-                    "--no-sub-autodetect-file",
-                    "--no-osd",
-                    "--no-video-deco"
-                );
+                libVLC = VlcManager.Instance;
 
                 videoView = new VideoView
                 {
@@ -864,8 +826,9 @@ namespace BatRun
 
                 if (libVLC != null)
                 {
-                    Core.Initialize(null);
-                    libVLC.Dispose();
+                    // The lifecycle of libVLC is now managed by VlcManager
+                    // Core.Initialize(null); // This is not needed anymore
+                    // libVLC.Dispose();
                     libVLC = null;
                 }
 

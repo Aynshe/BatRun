@@ -70,15 +70,7 @@ namespace BatRun
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
 
-                    string libvlcPath = Path.Combine(AppContext.BaseDirectory, "libvlc");
-                    if (Directory.Exists(libvlcPath))
-                    {
-                        LibVLCSharp.Shared.Core.Initialize(libvlcPath);
-                    }
-                    else
-                    {
-                        LibVLCSharp.Shared.Core.Initialize();
-                    }
+                    VlcManager.Initialize(logger);
 
                     var config = new IniFile(Path.Combine(AppContext.BaseDirectory, "config.ini"));
                     bool showSplashScreen = config.ReadBool("Windows", "ShowSplashScreen", true);
@@ -100,6 +92,7 @@ namespace BatRun
             }
             finally
             {
+                VlcManager.Dispose();
                 logger?.LogInfo("Application closing");
             }
         }
