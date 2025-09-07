@@ -27,17 +27,22 @@ namespace BatRun
         private void InitializeRetrobatPath()
         {
             _logger.Log("Searching for RetroBat path");
+            string? registryPath = null;
             try
             {
                 using var key = Registry.CurrentUser.OpenSubKey(@"Software\RetroBat");
                 if (key != null)
                 {
-                    var path = key.GetValue("LatestKnownInstallPath") as string;
-                    if (!string.IsNullOrEmpty(path))
+                    registryPath = key.GetValue("LatestKnownInstallPath") as string;
+                    if (!string.IsNullOrEmpty(registryPath) && Directory.Exists(registryPath))
                     {
-                        _retrobatPath = Path.Combine(path, "retrobat.exe");
-                        _logger.Log($"RetroBat path found in registry: {_retrobatPath}");
-                        return;
+                        var exePath = Directory.EnumerateFiles(registryPath, "retrobat.exe", new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive }).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(exePath))
+                        {
+                            _retrobatPath = exePath;
+                            _logger.Log($"RetroBat path found in registry: {_retrobatPath}");
+                            return;
+                        }
                     }
                 }
             }
@@ -46,14 +51,29 @@ namespace BatRun
                 _logger.LogError("Error reading registry", ex);
             }
 
-            _retrobatPath = @"C:\Retrobat\retrobat.exe"; // Default path
-            _logger.Log($"Using default path: {_retrobatPath}");
-
-            if (!File.Exists(_retrobatPath))
+            var defaultDir = @"C:\Retrobat";
+            if (Directory.Exists(defaultDir))
             {
-                var error = $"Unable to find RetroBat at {_retrobatPath}";
-                _logger.LogError(error);
+                var defaultExePath = Directory.EnumerateFiles(defaultDir, "retrobat.exe", new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive }).FirstOrDefault();
+                if (!string.IsNullOrEmpty(defaultExePath))
+                {
+                    _retrobatPath = defaultExePath;
+                    _logger.Log($"Using default path: {_retrobatPath}");
+                    return;
+                }
             }
+
+            _retrobatPath = Path.Combine(defaultDir, "retrobat.exe");
+            var errorMessage = "Unable to find retrobat.exe.";
+            if (!string.IsNullOrEmpty(registryPath))
+            {
+                errorMessage += $" Searched in registry path '{registryPath}' and default path '{defaultDir}'.";
+            }
+            else
+            {
+                errorMessage += $" Searched in default path '{defaultDir}'.";
+            }
+            _logger.LogError(errorMessage);
         }
 
         public bool IsEmulationStationRunning()
