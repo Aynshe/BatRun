@@ -228,17 +228,21 @@ namespace BatRun
                 {
                     try
                     {
+                        logger.LogInfo("Video thread started. Initializing LibVLC...");
                         libVLC = new LibVLC(
                             "--quiet", "--no-video-title-show", "--no-snapshot-preview", "--no-stats",
                             "--no-sub-autodetect-file", "--no-osd", "--no-video-deco",
                             "--aout=directsound", "--directx-audio-device=default"
                         );
+                        logger.LogInfo("LibVLC initialized. Creating MediaPlayer...");
 
                         mediaPlayer = new MediaPlayer(libVLC) { EnableHardwareDecoding = true };
+                        logger.LogInfo("MediaPlayer created. Configuring player...");
                         bool muteAll = config.ReadValue("Windows", "ESLoadingVideoMuteAll", "false") == "true";
                         mediaPlayer.Mute = muteAll;
                         mediaPlayer.Volume = 100;
 
+                        logger.LogInfo("Creating video form...");
                         videoForm = new Form
                         {
                             FormBorderStyle = FormBorderStyle.None,
@@ -247,6 +251,7 @@ namespace BatRun
                             ShowInTaskbar = false,
                             BackColor = Color.Black
                         };
+                        logger.LogInfo("Video form created. Creating VideoView...");
 
                         videoView = new VideoView
                         {
@@ -254,12 +259,14 @@ namespace BatRun
                             BackColor = Color.Black,
                             MediaPlayer = mediaPlayer
                         };
+                        logger.LogInfo("VideoView created. Adding to form...");
 
                         videoView.MouseDown += (s, e) => {
                             if (e.Button == MouseButtons.Right) { /* Absorb */ }
                         };
 
                         videoForm.Controls.Add(videoView);
+                        logger.LogInfo("VideoView added to form. Creating media object...");
 
                         bool shouldLoop = config.ReadValue("Windows", "ESLoadingVideoLoop", "false") == "true";
                         using (var media = new Media(libVLC, videoPath, FromType.FromPath))
@@ -267,6 +274,7 @@ namespace BatRun
                             if (shouldLoop) media.AddOption(":input-repeat=65535");
                             mediaPlayer.Media = media;
                         }
+                        logger.LogInfo("Media object created and assigned. Setting up event handlers...");
 
                         bool muteAfterFirst = config.ReadValue("Windows", "ESLoadingVideoMuteAfterFirst", "false") == "true";
                         if (muteAfterFirst)
@@ -296,16 +304,20 @@ namespace BatRun
                         }
 
                         videoForm.Load += (s, e) => {
+                            logger.LogInfo("Video form Load event fired. Playing media...");
                             mediaPlayer.Play();
                             isVideoPlaying = true;
                             lastTimeChanged = Environment.TickCount;
+                            logger.LogInfo("Starting watchdog and controller monitoring...");
                             watchdogTimer = new System.Threading.Timer(WatchdogCallback, null, WATCHDOG_INTERVAL_MS, WATCHDOG_INTERVAL_MS);
                             controllerTask = MonitorControllerInput();
                             logger.LogInfo($"Started playing ES loading video: {videoPath}");
                             tcs.TrySetResult(true);
                         };
 
+                        logger.LogInfo("Starting video form message loop with Application.Run()...");
                         Application.Run(videoForm);
+                        logger.LogInfo("Application.Run() has exited.");
                     }
                     catch (Exception ex)
                     {
@@ -322,6 +334,16 @@ namespace BatRun
                 videoThread.IsBackground = true;
                 videoThread.Start();
 
+                var timeout = Task.Delay(TimeSpan.FromSeconds(15));
+                if (await Task.WhenAny(tcs.Task, timeout) == timeout)
+                {
+                    // Timeout
+                    logger.LogError("Video player startup timed out after 15 seconds. The video thread may be hanging.");
+                    // Attempt to clean up by closing the video, which might help if the thread is stuck
+                    CloseVideo();
+                    throw new TimeoutException("Video player failed to start within the 15-second time limit.");
+                }
+                // If we get here, tcs.Task completed successfully. We can check for exceptions.
                 await tcs.Task;
             }
             catch (Exception ex)
