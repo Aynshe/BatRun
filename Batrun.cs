@@ -40,7 +40,7 @@ namespace BatRun
         private Icon? _appIcon;
         private WallpaperManager? wallpaperManager;
 
-        public const string APP_VERSION = "2.2.2";
+        public const string APP_VERSION = "2.2.3";
 
         private bool hideESLoading;
         private static int esSystemSelectCount = 0;
