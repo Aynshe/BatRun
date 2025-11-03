@@ -1,4 +1,4 @@
-# BatRun 
+# BatRun try
 
 Launcher for RetroBat supporting XInput/DInput gamepads, with the hotkey "Select + Start".
 Can also be started directly with Windows startup in "custom shell" mode, replacing the Windows Explorer (Explorer.exe).
