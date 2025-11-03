@@ -330,6 +330,20 @@ namespace BatRun
             Close();
         }
 
+        private bool IsInStartupRegistry()
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RUN_REGISTRY_KEY);
+                return key?.GetValue(APP_NAME) != null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error checking registry startup", ex);
+                return false;
+            }
+        }
+
         private void SetStartupRegistry(bool enable)
         {
             try

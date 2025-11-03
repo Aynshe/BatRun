@@ -96,6 +96,11 @@ namespace BatRun
             }
         }
 
+        private void UpdateLocalizedTexts()
+        {
+            this.Text = LocalizedStrings.GetString("Shell Configuration");
+        }
+
         private void InitializeComponent()
         {
             this.Text = "Shell Configuration";
