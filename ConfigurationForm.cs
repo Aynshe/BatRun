@@ -35,53 +35,104 @@ namespace BatRun
             this.program = program;
             
             InitializeComponent();
+
+            // Appliquer le style sombre à la fenêtre et aux contrôles
             ApplyDarkStyle();
+
+            // Recharger les traductions avant de mettre à jour les textes
             LocalizedStrings.LoadTranslations();
             UpdateLocalizedTexts();
 
+            // Ajouter le gestionnaire d'événements pour HideESLoading
             this.checkBoxHideESLoading.CheckedChanged += this.CheckBoxHideESLoading_CheckedChanged;
-            startupPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "BatRun.lnk");
+
+            // Initialiser le chemin de démarrage automatique
+            startupPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Startup),
+                "BatRun.lnk");
+
+            // Initialiser les contrôles de fond d'écran
             InitializeWallpaperControls();
+
+            // Initialiser les contrôles de vidéo ES
             InitializeESLoadingVideo();
+
+            // Initialiser la combobox des méthodes de démarrage
             InitializeStartupMethodComboBox();
+
             LoadSettings();
         }
 
         private void ApplyDarkStyle()
         {
-            this.BackColor = Color.FromArgb(28, 28, 28);
+            var darkBackColor = Color.FromArgb(28, 28, 28);
+            var groupBoxBackColor = Color.FromArgb(45, 45, 48);
+            this.BackColor = darkBackColor;
             this.ForeColor = Color.White;
 
-            foreach (Control control in this.Controls)
+            // Définir la largeur standard pour tous les groupBox et les marges
+            int padding = 12;  // Espacement depuis les bords
+            int formWidth = 500;  // Largeur totale de la fenêtre
+            int standardWidth = formWidth - (padding * 2);  // La largeur des groupBox sera la largeur de la fenêtre moins les marges
+
+            // Ajuster la largeur de la fenêtre
+            this.Width = formWidth;
+
+            // Appliquer le style et la largeur aux groupBox
+            groupBoxFocus.BackColor = groupBoxBackColor;
+            groupBoxFocus.ForeColor = Color.White;
+            groupBoxFocus.Width = standardWidth;
+            groupBoxFocus.Left = padding;
+
+            groupBoxWindows.BackColor = groupBoxBackColor;
+            groupBoxWindows.ForeColor = Color.White;
+            groupBoxWindows.Width = standardWidth;
+            groupBoxWindows.Left = padding;
+
+            if (groupBoxWallpaper != null)
             {
-                ApplyControlTheme(control);
+                groupBoxWallpaper.BackColor = groupBoxBackColor;
+                groupBoxWallpaper.ForeColor = Color.White;
+                groupBoxWallpaper.Width = standardWidth;
+                groupBoxWallpaper.Left = padding;
             }
+
+            // Ajuster la position des boutons Save et Cancel
+            if (buttonSave != null && buttonCancel != null)
+            {
+                buttonCancel.Left = this.ClientSize.Width - buttonCancel.Width - padding;
+                buttonSave.Left = buttonCancel.Left - buttonSave.Width - 10;
+
+                // Ajuster la position verticale des boutons
+                buttonSave.Top = (groupBoxWallpaper?.Bottom ?? groupBoxWindows.Bottom) + 10;
+                buttonCancel.Top = buttonSave.Top;
+            }
+
+            // Appliquer le style aux contrôles dans les groupBox
+            ApplyStyleToGroupBoxControls(groupBoxFocus, groupBoxBackColor);
+            ApplyStyleToGroupBoxControls(groupBoxWindows, groupBoxBackColor);
+            if (groupBoxWallpaper != null)
+            {
+                ApplyStyleToGroupBoxControls(groupBoxWallpaper, groupBoxBackColor);
+            }
+
+            // Ajuster la hauteur de la fenêtre
+            this.Height = (buttonSave?.Bottom ?? (groupBoxWallpaper?.Bottom ?? groupBoxWindows.Bottom)) + padding + 50;
         }
 
-        private void ApplyControlTheme(Control control)
+        private void ApplyStyleToGroupBoxControls(GroupBox groupBox, Color backColor)
         {
-            control.ForeColor = Color.White;
-
-            if (control is Button || control is ComboBox || control is NumericUpDown)
+            foreach (Control control in groupBox.Controls)
             {
-                control.BackColor = Color.FromArgb(45, 45, 48);
-                if (control is ComboBox combo) combo.FlatStyle = FlatStyle.Flat;
-                if (control is Button btn) btn.FlatStyle = FlatStyle.Flat;
-            }
-            else if (control is GroupBox || control is Panel || control is TabControl)
-            {
-                control.BackColor = Color.FromArgb(45, 45, 48);
-            }
-             else
-            {
-                control.BackColor = Color.FromArgb(28, 28, 28);
-            }
-
-            if (control.HasChildren)
-            {
-                foreach (Control child in control.Controls)
+                control.BackColor = backColor;
+                control.ForeColor = Color.White;
+                if (control is ComboBox combo)
                 {
-                    ApplyControlTheme(child);
+                    combo.FlatStyle = FlatStyle.Flat;
+                }
+                else if (control is Button btn)
+                {
+                    btn.FlatStyle = FlatStyle.Flat;
                 }
             }
         }
@@ -103,6 +154,7 @@ namespace BatRun
             buttonSave.Text = LocalizedStrings.GetString("Save");
             buttonCancel.Text = LocalizedStrings.GetString("Cancel");
 
+            // Ajouter les nouveaux textes pour le fond d'écran
             if (groupBoxWallpaper != null)
             {
                 groupBoxWallpaper.Text = LocalizedStrings.GetString("Wallpaper Settings");
@@ -115,60 +167,84 @@ namespace BatRun
             {
                 isInitializing = true;
                 
-                numericFocusDuration.Value = config.ReadInt("Focus", "FocusDuration", 9000);
-                numericFocusInterval.Value = config.ReadInt("Focus", "FocusInterval", 3000);
-                checkBoxMinimizeWindows.Checked = config.ReadBool("Windows", "MinimizeWindows", true);
-                checkBoxHideESLoading.Checked = config.ReadBool("Windows", "HideESLoading", false);
-                checkBoxShowSplashScreen.Checked = config.ReadBool("Windows", "ShowSplashScreen", true);
-                checkBoxShowHotkeySplash.Checked = config.ReadBool("Windows", "ShowHotkeySplash", true);
+            // Charger les paramètres de focus
+            numericFocusDuration.Value = config.ReadInt("Focus", "FocusDuration", 9000);
+            numericFocusInterval.Value = config.ReadInt("Focus", "FocusInterval", 3000);
+
+                // Charger les paramètres de fenêtre
+            checkBoxMinimizeWindows.Checked = config.ReadBool("Windows", "MinimizeWindows", true);
+            checkBoxHideESLoading.Checked = config.ReadBool("Windows", "HideESLoading", false);
+            checkBoxShowSplashScreen.Checked = config.ReadBool("Windows", "ShowSplashScreen", true);
+            checkBoxShowHotkeySplash.Checked = config.ReadBool("Windows", "ShowHotkeySplash", true);
+
+                // Charger les paramètres de vibration
                 checkBoxEnableVibration.Checked = config.ReadBool("Controller", "EnableVibration", true);
+
+                // Charger les paramètres de journalisation
                 checkBoxEnableLogging.Checked = config.ReadBool("Logging", "EnableLogging", false);
 
-                if (comboBoxWallpaper != null && comboBoxWallpaperFolder != null)
-                {
-                    string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
-                    LoadWallpaperFolders();
+            // Charger les paramètres de fond d'écran
+            if (comboBoxWallpaper != null && comboBoxWallpaperFolder != null)
+            {
+                string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+
+                // Charger d'abord les dossiers
+                LoadWallpaperFolders();
+
+                    // Restaurer le dossier sélectionné
                     string selectedFolder = config.ReadValue("Wallpaper", "SelectedFolder", "/");
                     int folderIndex = comboBoxWallpaperFolder.Items.IndexOf(selectedFolder);
-                    if (folderIndex >= 0)
-                    {
-                        comboBoxWallpaperFolder.SelectedIndex = folderIndex;
+                        if (folderIndex >= 0)
+                        {
+                            comboBoxWallpaperFolder.SelectedIndex = folderIndex;
                     }
                     else
                     {
-                        comboBoxWallpaperFolder.SelectedIndex = 0;
-                    }
+                        comboBoxWallpaperFolder.SelectedIndex = 0; // Dossier racine par défaut
+                }
 
-                    LoadWallpaperList();
-                    if (comboBoxWallpaper.Items.Contains(selectedWallpaper))
-                    {
-                        comboBoxWallpaper.SelectedItem = selectedWallpaper;
-                    }
+                    // Charger la liste des wallpapers pour le dossier sélectionné
+                LoadWallpaperList();
+
+                    // Restaurer le wallpaper sélectionné
+                if (comboBoxWallpaper.Items.Contains(selectedWallpaper))
+                {
+                    comboBoxWallpaper.SelectedItem = selectedWallpaper;
+                }
                     else
                     {
                         comboBoxWallpaper.SelectedItem = "None";
                     }
                 }
 
+                // Charger l'état de EnableWithExplorer
                 if (checkBoxEnableWithExplorer != null)
                 {
                     checkBoxEnableWithExplorer.Checked = config.ReadBool("Wallpaper", "EnableWithExplorer", false);
                 }
 
+                // Charger la méthode de démarrage
                 string startupMethod = "Disabled";
                 if (File.Exists(startupPath))
                 {
                     startupMethod = "Shortcut";
                 }
-                else if (IsInStartupRegistry())
+                else
                 {
-                    startupMethod = "Registry";
+                    using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
+                    if (key?.GetValue("BatRun") != null)
+                    {
+                        startupMethod = "Registry";
+                    }
                 }
                 
+                // Sélectionner la méthode de démarrage dans la combobox
                 if (comboBoxStartupMethod.Items.Contains(startupMethod))
                 {
                     comboBoxStartupMethod.SelectedItem = startupMethod;
                 }
+
+                isInitializing = false;
             }
             catch (Exception ex)
             {
@@ -183,11 +259,13 @@ namespace BatRun
 
         private void InitializeStartupMethodComboBox()
         {
+            // Modifier l'initialisation du ComboBox de méthode de démarrage
             comboBoxStartupMethod.Items.Clear();
-            comboBoxStartupMethod.Items.Add("Disabled");
+            comboBoxStartupMethod.Items.Add("Disabled");  // Valeur simple au lieu d'un objet complexe
             comboBoxStartupMethod.Items.Add("Shortcut");
             comboBoxStartupMethod.Items.Add("Registry");
             
+            // Définir les textes d'affichage via un Dictionary
             var displayTexts = new Dictionary<string, string>
             {
                 { "Disabled", LocalizedStrings.GetString("Disabled") },
@@ -195,6 +273,7 @@ namespace BatRun
                 { "Registry", LocalizedStrings.GetString("Registry") }
             };
 
+            // Configurer l'affichage personnalisé avec vérification de null
             comboBoxStartupMethod.Format += (s, e) =>
             {
                 if (e.ListItem != null)
@@ -212,13 +291,16 @@ namespace BatRun
         {
             try
             {
+                // Lire l'état actuel avant la sauvegarde
                 bool previousHideESValue = config.ReadValue("Windows", "HideESLoading", "false") == "true";
                 bool newHideESValue = checkBoxHideESLoading.Checked;
 
                 logger.LogInfo($"HideESLoading - Previous value: {previousHideESValue}, New value: {newHideESValue}");
 
+                // Sauvegarder toutes les configurations
                 SaveConfigurations();
 
+                // Vérifier si l'état a changé (dans un sens ou dans l'autre)
                 if (previousHideESValue != newHideESValue)
                 {
                     logger.LogInfo($"HideESLoading state changed from {previousHideESValue} to {newHideESValue}");
@@ -233,9 +315,11 @@ namespace BatRun
                         MessageBoxIcon.Information
                     );
 
-                    DialogResult = DialogResult.OK;
-                    Close();
+                    // Fermer le formulaire de configuration
+                DialogResult = DialogResult.OK;
+                Close();
 
+                    // Redémarrer l'application
                     int currentPid = Process.GetCurrentProcess().Id;
                     Process.Start(Application.ExecutablePath, $"-waitforpid {currentPid}");
                     Application.Exit();
@@ -266,11 +350,13 @@ namespace BatRun
                 string targetPath = Application.ExecutablePath;
                 string workingDirectory = Application.StartupPath;
 
+                // Créer le script PowerShell pour créer le raccourci
                 string script = $@"
                     $targetPath = '{targetPath.Replace("'", "''")}'
                     $workingDirectory = '{workingDirectory.Replace("'", "''")}'
                     $shortcutPath = '{startupPath.Replace("'", "''")}'
 
+                    # Créer le raccourci directement sans élévation
                     $shell = New-Object -ComObject WScript.Shell
                     $shortcut = $shell.CreateShortcut($shortcutPath)
                     $shortcut.TargetPath = $targetPath
@@ -278,6 +364,7 @@ namespace BatRun
                     $shortcut.Description = 'BatRun Launcher'
                     $shortcut.Save()
 
+                    # Nettoyer
                     [System.Runtime.Interopservices.Marshal]::ReleaseComObject($shortcut) | Out-Null
                     [System.Runtime.Interopservices.Marshal]::ReleaseComObject($shell) | Out-Null
                     [System.GC]::Collect()
@@ -305,10 +392,12 @@ namespace BatRun
                     {
                         throw new Exception($"PowerShell error: {error}");
                     }
-                }
-                if (!File.Exists(startupPath))
-                {
-                    throw new Exception("Le raccourci n'a pas été créé correctement.");
+                    }
+
+                    // Vérifier que le raccourci a bien été créé
+                    if (!File.Exists(startupPath))
+                    {
+                        throw new Exception("Le raccourci n'a pas été créé correctement.");
                 }
             }
             catch (Exception ex)
@@ -322,20 +411,6 @@ namespace BatRun
         {
             DialogResult = DialogResult.Cancel;
             Close();
-        }
-
-        private bool IsInStartupRegistry()
-        {
-            try
-            {
-                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RUN_REGISTRY_KEY);
-                return key?.GetValue(APP_NAME) != null;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error checking registry startup", ex);
-                return false;
-            }
         }
 
         private void SetStartupRegistry(bool enable)
@@ -365,137 +440,460 @@ namespace BatRun
             }
         }
 
+        private bool IsInStartupRegistry()
+        {
+            try
+            {
+                using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(RUN_REGISTRY_KEY);
+                return key?.GetValue(APP_NAME) != null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error checking registry startup", ex);
+                return false;
+            }
+        }
+
+        private bool IsStartupTaskExists()
+        {
+            try
+            {
+                using var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "schtasks",
+                        Arguments = "/query /tn \"BatRun_Startup\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+                return output.Contains("BatRun_Startup");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error checking startup task", ex);
+                return false;
+            }
+        }
+
+        private void CreateStartupTask()
+        {
+            try
+            {
+                string exePath = Application.ExecutablePath;
+                string workingDir = Path.GetDirectoryName(exePath) ?? "";
+                string domainUser = Environment.UserDomainName + "\\" + Environment.UserName;
+
+                // Échapper les guillemets dans les chemins
+                exePath = exePath.Replace("\"", "\\\"");
+                workingDir = workingDir.Replace("\"", "\\\"");
+
+                string script = $@"
+                    # Importer le module ScheduledTasks
+                    Import-Module ScheduledTasks
+
+                    try {{
+                        # Créer l'action
+                        $action = New-ScheduledTaskAction -Execute '{exePath}' -WorkingDirectory '{workingDir}'
+
+                        # Créer le déclencheur (au démarrage de session)
+                        $trigger = New-ScheduledTaskTrigger -AtLogon -User '{domainUser}'
+
+                        # Créer les paramètres principaux
+                        $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit 0
+
+                        # Créer le principal (contexte de sécurité)
+                        $principal = New-ScheduledTaskPrincipal -GroupId 'BUILTIN\Users' -RunLevel Limited
+
+                        # Supprimer la tâche si elle existe déjà
+                        Unregister-ScheduledTask -TaskName 'BatRun_Startup' -Confirm:$false -ErrorAction SilentlyContinue
+
+                        # Créer la nouvelle tâche
+                        Register-ScheduledTask -TaskName 'BatRun_Startup' `
+                                             -Action $action `
+                                             -Trigger $trigger `
+                                             -Settings $settings `
+                                             -Principal $principal `
+                                             -Description 'BatRun Startup Task' `
+                                             -Force
+                    }}
+                    catch {{
+                        Write-Error $_.Exception.Message
+                        exit 1
+                    }}
+                ";
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using var process = Process.Start(startInfo);
+                if (process != null)
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    string error = process.StandardError.ReadToEnd();
+                    process.WaitForExit();
+
+                    if (process.ExitCode != 0)
+                    {
+                        throw new Exception($"PowerShell error: {error}");
+                    }
+
+                    logger.LogInfo("Created startup task successfully using PowerShell");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error creating startup task: {ex.Message}", ex);
+                throw;
+            }
+        }
+
+        private void RemoveStartupTask()
+        {
+            try
+            {
+                string script = @"
+                    # Supprimer la tâche si elle existe
+                    $taskName = 'BatRun_Startup'
+                    $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+                    if ($task) {
+                        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
+                    }
+                ";
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                        CreateNoWindow = true
+                };
+
+                using var process = Process.Start(startInfo);
+                if (process != null)
+                {
+                process.WaitForExit();
+                }
+                logger.LogInfo("Removed startup task successfully");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Error removing startup task", ex);
+                // Ne pas relancer l'exception car la tâche peut ne pas exister
+            }
+        }
+
         private void InitializeWallpaperControls()
         {
-            var mainLayoutPanel = this.Controls.OfType<TableLayoutPanel>().First();
+            int padding = 12;
+            int formWidth = 500;
+            int standardWidth = formWidth - (padding * 2);
+            int innerPadding = 15;  // Marge interne des contrôles
+            int controlWidth = standardWidth - (innerPadding * 2);  // Largeur des contrôles internes
 
+            // Groupe pour les paramètres de fond d'écran
             groupBoxWallpaper = new GroupBox
             {
                 Text = LocalizedStrings.GetString("Wallpaper Settings"),
-                Dock = DockStyle.Fill,
-                AutoSize = true
+                Location = new Point(padding, groupBoxWindows.Bottom + 10),
+                Size = new Size(standardWidth, 240),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White
             };
-            mainLayoutPanel.Controls.Add(groupBoxWallpaper, 0, 2);
 
-            var wallpaperLayoutPanel = new TableLayoutPanel
+            // ComboBox pour la sélection du fond d'écran
+            comboBoxWallpaperFolder = new ComboBox
             {
-                Dock = DockStyle.Fill,
-                ColumnCount = 2,
-                RowCount = 6,
-                AutoSize = true
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(innerPadding, 30),
+                Width = controlWidth,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
-            wallpaperLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            wallpaperLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-            groupBoxWallpaper.Controls.Add(wallpaperLayoutPanel);
-
-            comboBoxWallpaperFolder = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
-            wallpaperLayoutPanel.Controls.Add(comboBoxWallpaperFolder, 0, 0);
-            wallpaperLayoutPanel.SetColumnSpan(comboBoxWallpaperFolder, 2);
             comboBoxWallpaperFolder.SelectedIndexChanged += (s, e) => LoadWallpaperList();
 
-            comboBoxWallpaper = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
-            wallpaperLayoutPanel.Controls.Add(comboBoxWallpaper, 0, 1);
-            wallpaperLayoutPanel.SetColumnSpan(comboBoxWallpaper, 2);
+            comboBoxWallpaper = new ComboBox
+            {
+                Location = new Point(innerPadding, 30),
+                Size = new Size(controlWidth, 23),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
 
-            checkBoxEnableWithExplorer = new CheckBox { Text = LocalizedStrings.GetString("Enable wallpaper even with Explorer running"), AutoSize = true };
-            wallpaperLayoutPanel.Controls.Add(checkBoxEnableWithExplorer, 0, 2);
-            wallpaperLayoutPanel.SetColumnSpan(checkBoxEnableWithExplorer, 2);
+            // Checkbox pour activer le wallpaper même avec explorer.exe
+            checkBoxEnableWithExplorer = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable wallpaper even with Explorer running"),
+                Location = new Point(innerPadding, 60),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "EnableWithExplorer", false)
+            };
 
-            var checkBoxLoopVideo = new CheckBox { Text = LocalizedStrings.GetString("Loop video wallpapers"), AutoSize = true, Checked = config.ReadBool("Wallpaper", "LoopVideo", true) };
-            wallpaperLayoutPanel.Controls.Add(checkBoxLoopVideo, 0, 3);
-            wallpaperLayoutPanel.SetColumnSpan(checkBoxLoopVideo, 2);
-            checkBoxLoopVideo.CheckedChanged += (s, e) => config.WriteValue("Wallpaper", "LoopVideo", checkBoxLoopVideo.Checked.ToString());
+            // Ajouter une checkbox pour la lecture en boucle des vidéos
+            var checkBoxLoopVideo = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Loop video wallpapers"),
+                Location = new Point(innerPadding, 85),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "LoopVideo", true)
+            };
 
-            var checkBoxEnableAudio = new CheckBox { Text = LocalizedStrings.GetString("Enable video audio"), AutoSize = true, Checked = config.ReadBool("Wallpaper", "EnableAudio", false) };
-            wallpaperLayoutPanel.Controls.Add(checkBoxEnableAudio, 0, 4);
-            wallpaperLayoutPanel.SetColumnSpan(checkBoxEnableAudio, 2);
-            checkBoxEnableAudio.CheckedChanged += (s, e) => config.WriteValue("Wallpaper", "EnableAudio", checkBoxEnableAudio.Checked.ToString());
+            // Ajouter une checkbox pour activer/désactiver l'audio des vidéos
+            var checkBoxEnableAudio = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable video audio"),
+                Location = new Point(innerPadding, 110),
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Checked = config.ReadBool("Wallpaper", "EnableAudio", false)
+            };
 
-            var buttonTestWallpaper = new Button { Text = LocalizedStrings.GetString("Test Wallpaper"), Dock = DockStyle.Fill };
-            wallpaperLayoutPanel.Controls.Add(buttonTestWallpaper, 0, 5);
+            checkBoxEnableAudio.CheckedChanged += (s, e) =>
+            {
+                config.WriteValue("Wallpaper", "EnableAudio", checkBoxEnableAudio.Checked.ToString());
+            };
 
-            var buttonCloseWallpaper = new Button { Text = LocalizedStrings.GetString("Close Wallpaper"), Dock = DockStyle.Fill };
-            wallpaperLayoutPanel.Controls.Add(buttonCloseWallpaper, 1, 5);
+            checkBoxLoopVideo.CheckedChanged += (s, e) =>
+            {
+                config.WriteValue("Wallpaper", "LoopVideo", checkBoxLoopVideo.Checked.ToString());
+            };
 
+            // Ajouter un gestionnaire d'événements pour le changement d'état
             checkBoxEnableWithExplorer.CheckedChanged += (s, e) =>
             {
                 config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
+
                 var wallpaperManager = new WallpaperManager(config, logger, program);
                 if (Process.GetProcessesByName("explorer").Length > 0)
                 {
-                    if (checkBoxEnableWithExplorer.Checked) wallpaperManager.ShowWallpaper(forceShow: true);
-                    else wallpaperManager.CloseWallpaper();
+                    if (checkBoxEnableWithExplorer.Checked)
+                    {
+                        wallpaperManager.ShowWallpaper(forceShow: true);
+                    }
+                    else
+                    {
+                        wallpaperManager.CloseWallpaper();
+                    }
                 }
             };
+
+            // Bouton de test
+            var buttonTestWallpaper = new Button
+            {
+                Text = LocalizedStrings.GetString("Test Wallpaper"),
+                Location = new Point(innerPadding, 90),
+                Size = new Size(controlWidth, 30),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+
+            // Nouveau bouton pour fermer le wallpaper
+            var buttonCloseWallpaper = new Button
+            {
+                Text = LocalizedStrings.GetString("Close Wallpaper"),
+                Location = new Point(innerPadding + controlWidth - 120, 90),
+                Size = new Size(120, 30),
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
+            };
+
             buttonTestWallpaper.Click += (s, e) =>
             {
                 try
                 {
+                    // D'abord tuer VLC comme le fait le bouton Kill VLC
                     WallpaperManager.StopActiveMediaPlayer();
                     WallpaperManager.CleanupAllInstances();
                     GC.Collect(2, GCCollectionMode.Forced, true);
                     GC.WaitForPendingFinalizers();
 
+                    // Ensuite, vérifier et charger le nouveau fond d'écran
                     if (comboBoxWallpaper?.SelectedItem == null)
                     {
-                        MessageBox.Show(LocalizedStrings.GetString("Please select a wallpaper"), "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(
+                            LocalizedStrings.GetString("Please select a wallpaper"),
+                            "Error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
                         return;
                     }
+
                     string selectedWallpaper = comboBoxWallpaper.SelectedItem.ToString() ?? "None";
+
+                    // Sauvegarder la configuration
                     config.WriteValue("Wallpaper", "Selected", selectedWallpaper);
                     config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
+
+                    // Créer une nouvelle instance et afficher le fond d'écran
                     var wallpaperManager = new WallpaperManager(config, logger, program);
                     wallpaperManager.ShowWallpaper(forceShow: true);
                 }
                 catch (Exception ex)
                 {
                     logger.LogError($"Error testing wallpaper: {ex.Message}", ex);
-                    MessageBox.Show($"Error testing wallpaper: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        $"Error testing wallpaper: {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             };
+
             buttonCloseWallpaper.Click += (s, e) =>
             {
                 try
                 {
+                    // D'abord tuer VLC comme le fait le bouton Kill VLC
                     WallpaperManager.StopActiveMediaPlayer();
                     WallpaperManager.CleanupAllInstances();
                     GC.Collect(2, GCCollectionMode.Forced, true);
                     GC.WaitForPendingFinalizers();
+
+                    // Ensuite, fermer proprement le wallpaper
                     var wallpaperManager = new WallpaperManager(config, logger, program);
                     wallpaperManager.CloseWallpaper();
                 }
                 catch (Exception ex)
                 {
                     logger.LogError($"Error closing wallpaper: {ex.Message}", ex);
-                    MessageBox.Show($"Error closing wallpaper: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        $"Error closing wallpaper: {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             };
+
+            // Ajuster la position de la comboBox des wallpapers
+            if (comboBoxWallpaper != null)
+            {
+                comboBoxWallpaper.Location = new Point(innerPadding, 60);
+            }
+
+            // Ajuster la position des autres contrôles
+            if (checkBoxEnableWithExplorer != null)
+            {
+                checkBoxEnableWithExplorer.Location = new Point(innerPadding, 90);
+            }
+
+            // Ajuster la position des checkboxes
+            checkBoxLoopVideo.Location = new Point(innerPadding, 115);
+            checkBoxEnableAudio.Location = new Point(innerPadding, 140);
+
+            // Ajuster la position des boutons
+            buttonTestWallpaper.Location = new Point(innerPadding, 170);
+            buttonCloseWallpaper.Location = new Point(innerPadding + controlWidth - 120, 170);
+
             LoadWallpaperFolders();
+
+            // Ajouter les contrôles au groupBox
+            groupBoxWallpaper.Controls.Add(comboBoxWallpaperFolder);
+            groupBoxWallpaper.Controls.Add(comboBoxWallpaper);
+            groupBoxWallpaper.Controls.Add(checkBoxEnableWithExplorer);
+            groupBoxWallpaper.Controls.Add(checkBoxLoopVideo);
+            groupBoxWallpaper.Controls.Add(checkBoxEnableAudio);
+            groupBoxWallpaper.Controls.Add(buttonTestWallpaper);
+            groupBoxWallpaper.Controls.Add(buttonCloseWallpaper);
+            this.Controls.Add(groupBoxWallpaper);
+
+            // Ajuster la taille du groupBox pour accommoder tous les contrôles
+            if (groupBoxWallpaper != null)
+            {
+                groupBoxWallpaper.Height = 240;  // Augmenté pour accommoder la nouvelle disposition
+            }
+
+            // Ajuster la taille de la fenêtre
+            if (groupBoxWallpaper != null && buttonSave != null)
+            {
+                this.ClientSize = new Size(
+                    Math.Max(this.ClientSize.Width, groupBoxWallpaper.Right + 20),
+                    groupBoxWallpaper.Bottom + buttonSave.Height + 20
+                );
+
+                // Ajuster la position des boutons Save et Cancel
+                if (buttonCancel != null)
+                {
+                    buttonSave.Location = new Point(
+                        buttonSave.Location.X,
+                        groupBoxWallpaper.Bottom + 10
+                    );
+                    buttonCancel.Location = new Point(
+                        buttonCancel.Location.X,
+                        groupBoxWallpaper.Bottom + 10
+                    );
+
+                    // S'assurer que les boutons sont visibles
+                    this.MinimumSize = new Size(
+                        this.Width,
+                        buttonCancel.Bottom + 10
+                    );
+                }
+            }
+            else
+            {
+                // Taille par défaut si les contrôles ne sont pas initialisés
+                this.ClientSize = new Size(350, 450);
+            }
         }
 
         private void LoadWallpaperFolders()
         {
             if (comboBoxWallpaperFolder == null) return;
+
             comboBoxWallpaperFolder.Items.Clear();
-            comboBoxWallpaperFolder.Items.Add("/");
+            comboBoxWallpaperFolder.Items.Add("/");  // Dossier racine
+
+            // Ajouter le dossier vidéo d'EmulationStation s'il existe
             string esVideoPath = GetEmulationStationVideoPath();
             if (!string.IsNullOrEmpty(esVideoPath))
             {
                 comboBoxWallpaperFolder.Items.Add("ES Videos");
             }
+
             string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
             if (!Directory.Exists(wallpaperFolder))
             {
                 Directory.CreateDirectory(wallpaperFolder);
                 return;
             }
+
             var directories = Directory.GetDirectories(wallpaperFolder, "*", SearchOption.AllDirectories)
                 .Select(d => Path.GetRelativePath(wallpaperFolder, d))
                 .OrderBy(d => d);
+
             foreach (var dir in directories)
             {
                 comboBoxWallpaperFolder.Items.Add(dir);
             }
+
+            // Ne pas forcer la sélection du dossier racine ici
             if (comboBoxWallpaperFolder.Items.Count > 0 && comboBoxWallpaperFolder.SelectedIndex < 0)
             {
                 comboBoxWallpaperFolder.SelectedIndex = 0;
@@ -505,13 +903,16 @@ namespace BatRun
         private void LoadWallpaperList()
         {
             if (comboBoxWallpaper == null || comboBoxWallpaperFolder == null) return;
+
             try
             {
                 comboBoxWallpaper.Items.Clear();
                 comboBoxWallpaper.Items.Add(LocalizedStrings.GetString("None"));
                 comboBoxWallpaper.Items.Add(LocalizedStrings.GetString("Random Wallpaper"));
+
                 string selectedFolder = comboBoxWallpaperFolder.SelectedItem?.ToString() ?? "/";
                 string searchPath;
+
                 if (selectedFolder == "ES Videos")
                 {
                     searchPath = GetEmulationStationVideoPath();
@@ -521,17 +922,21 @@ namespace BatRun
                     string wallpaperFolder = Path.Combine(AppContext.BaseDirectory, "Wallpapers");
                     searchPath = selectedFolder == "/" ? wallpaperFolder : Path.Combine(wallpaperFolder, selectedFolder);
                 }
+
                 if (Directory.Exists(searchPath))
                 {
                     var imageFiles = Directory.GetFiles(searchPath, "*.*")
                         .Where(file => WallpaperManager.SupportedExtensions.Contains(Path.GetExtension(file).ToLower()))
                         .Select(f => selectedFolder == "ES Videos" ? Path.Combine("ES Videos", Path.GetFileName(f)) : Path.GetRelativePath(Path.Combine(AppContext.BaseDirectory, "Wallpapers"), f))
                         .OrderBy(f => f);
+
                     foreach (var file in imageFiles)
                     {
                         comboBoxWallpaper.Items.Add(file);
                     }
                 }
+
+                // Restaurer la sélection précédente si possible
                 string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
                 if (comboBoxWallpaper.Items.Contains(selectedWallpaper))
                 {
@@ -551,15 +956,19 @@ namespace BatRun
         private void CheckBoxHideESLoading_CheckedChanged(object? sender, EventArgs e)
         {
             bool isHideESChecked = checkBoxHideESLoading.Checked;
+
+            // Désactiver et décocher les options de splash screen et minimize windows si Hide ES est activé
             checkBoxShowSplashScreen.Enabled = !isHideESChecked;
             checkBoxShowHotkeySplash.Enabled = !isHideESChecked;
             checkBoxMinimizeWindows.Enabled = !isHideESChecked;
+
             if (isHideESChecked)
             {
                 checkBoxShowSplashScreen.Checked = false;
                 checkBoxShowHotkeySplash.Checked = false;
                 checkBoxMinimizeWindows.Checked = false;
 
+                // Afficher le message uniquement si ce n'est pas pendant l'initialisation
                 if (!isInitializing)
                 {
                     MessageBox.Show(
@@ -576,18 +985,26 @@ namespace BatRun
                     );
                 }
             }
+
+            // Créer ou supprimer le script system-selected
             string retrobatPath = program.GetRetrobatPath();
             if (!string.IsNullOrEmpty(retrobatPath))
             {
+                // Gérer le script system-selected
                 string scriptPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "emulationstation", ".emulationstation", "scripts", "system-selected");
-                Directory.CreateDirectory(scriptPath);
+                Directory.CreateDirectory(scriptPath); // Crée le dossier s'il n'existe pas
+
                 string scriptFile = Path.Combine(scriptPath, "notify_batrun.bat");
                 if (isHideESChecked)
                 {
+                    // Créer le script
                     string scriptContent = $@"@echo off
 set Focus_BatRun_path={AppContext.BaseDirectory}
 start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
+
                     File.WriteAllText(scriptFile, scriptContent);
+
+                    // Désactiver la vidéo d'intro dans retrobat.ini
                     string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "retrobat.ini");
                     if (File.Exists(retrobatIniPath))
                     {
@@ -613,10 +1030,13 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                 }
                 else
                 {
+                    // Supprimer le script s'il existe
                     if (File.Exists(scriptFile))
                     {
                         File.Delete(scriptFile);
                     }
+
+                    // Réactiver la vidéo d'intro dans retrobat.ini
                     string retrobatIniPath = Path.Combine(Path.GetDirectoryName(retrobatPath) ?? "", "retrobat.ini");
                     if (File.Exists(retrobatIniPath))
                     {
@@ -643,6 +1063,8 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
             }
         }
 
+
+        // Ajouter une méthode pour mettre à jour l'état du démarrage automatique
         public void UpdateStartupState(bool isCustomUIEnabled)
         {
             try
@@ -650,6 +1072,7 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                 if (isCustomUIEnabled)
                 {
                     logger.LogInfo("Custom UI is enabled, disabling startup methods...");
+                    // Désactiver le démarrage automatique
                     if (File.Exists(startupPath))
                     {
                         logger.LogInfo("Removing startup shortcut...");
@@ -710,9 +1133,11 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
 
         private void HandleStartupMethod()
         {
+            // Récupérer la valeur réelle (pas l'objet d'affichage)
             string startupMethod = comboBoxStartupMethod.SelectedItem?.ToString() ?? "Disabled";
             if (startupMethod.Contains("Value ="))
             {
+                // Si c'est un objet complexe, extraire juste la valeur
                 startupMethod = startupMethod.Split('=')[1].Split(',')[0].Trim();
             }
             
@@ -767,19 +1192,31 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
         {
             if (checkBoxHideESLoading == null) return;
 
-            var windowsLayoutPanel = groupBoxWindows.Controls.OfType<TableLayoutPanel>().First();
-
+            // Créer le bouton de configuration
             buttonESLoadingConfig = new Button
             {
                 Text = LocalizedStrings.GetString("MediaPlayer Settings"),
+                Location = new Point(checkBoxHideESLoading.Right + 10, checkBoxHideESLoading.Top),
+                Size = new Size(200, 23),  // Increased button width
                 Enabled = checkBoxHideESLoading.Checked,
-                Dock = DockStyle.Fill
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat
             };
-            windowsLayoutPanel.Controls.Add(buttonESLoadingConfig, 0, 7);
-            windowsLayoutPanel.SetColumnSpan(buttonESLoadingConfig, 2);
 
             buttonESLoadingConfig.Click += ButtonESLoadingConfig_Click;
+            groupBoxWindows.Controls.Add(buttonESLoadingConfig);
 
+            // Ajuster la largeur du groupBoxWindows si nécessaire
+            int requiredWidth = buttonESLoadingConfig.Right + 10;
+            if (groupBoxWindows.Width < requiredWidth)
+            {
+                groupBoxWindows.Width = requiredWidth;
+                // Ajuster la largeur de la fenêtre principale
+                this.Width = groupBoxWindows.Right + 40;
+            }
+
+            // Mettre à jour l'état du bouton quand l'option HideESLoading change
             checkBoxHideESLoading.CheckedChanged += (s, e) =>
             {
                 if (buttonESLoadingConfig != null)
@@ -787,6 +1224,11 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                     buttonESLoadingConfig.Enabled = checkBoxHideESLoading.Checked;
                 }
             };
+        }
+
+        private void LoadESLoadingVideos()
+        {
+            // Cette méthode n'est plus nécessaire car nous utilisons maintenant la fenêtre de configuration
         }
 
         private void ButtonESLoadingConfig_Click(object? sender, EventArgs e)
@@ -804,18 +1246,25 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
             {
                 logger.LogInfo("Saving configurations...");
 
+                // Windows Settings
                 config.WriteValue("Windows", "HideESLoading", checkBoxHideESLoading.Checked.ToString().ToLower());
                 logger.LogInfo($"Saved HideESLoading: {checkBoxHideESLoading.Checked}");
+
+                // Save other configurations...
                 config.WriteValue("Focus", "FocusDuration", numericFocusDuration.Value.ToString());
                 config.WriteValue("Focus", "FocusInterval", numericFocusInterval.Value.ToString());
+
                 config.WriteValue("Windows", "MinimizeWindows", checkBoxMinimizeWindows.Checked.ToString().ToLower());
                 config.WriteValue("Windows", "ShowSplashScreen", checkBoxShowSplashScreen.Checked.ToString().ToLower());
                 config.WriteValue("Windows", "ShowHotkeySplash", checkBoxShowHotkeySplash.Checked.ToString().ToLower());
+
                 config.WriteValue("Controller", "EnableVibration", checkBoxEnableVibration.Checked.ToString().ToLower());
                 config.WriteValue("Logging", "EnableLogging", checkBoxEnableLogging.Checked.ToString().ToLower());
 
+                // Wallpaper settings
                 string selectedWallpaper = comboBoxWallpaper?.SelectedItem?.ToString() ?? "None";
                 config.WriteValue("Wallpaper", "Selected", selectedWallpaper);
+
                 string selectedFolder = comboBoxWallpaperFolder?.SelectedItem?.ToString() ?? "/";
                 config.WriteValue("Wallpaper", "SelectedFolder", selectedFolder);
                 config.WriteValue("Wallpaper", "IsActive", (selectedWallpaper != "None").ToString().ToLower());
@@ -824,7 +1273,9 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                 {
                     config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString().ToLower());
                 }
+
                 HandleStartupMethod();
+
                 logger.LogInfo("Configurations saved successfully");
             }
             catch (Exception ex)

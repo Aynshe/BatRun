@@ -10,7 +10,6 @@ using System.Security.Principal;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Globalization;
-using System.Threading.Tasks;
 
 namespace BatRun
 {
@@ -28,8 +27,8 @@ namespace BatRun
         public int DelaySeconds { get; set; }
         public int Order { get; set; }
         public CommandType Type { get; set; } = CommandType.Application;
-        public string? GameSystemName { get; set; }
-        public string? GamePath { get; set; }
+        public string? GameSystemName { get; set; } // For ScrapedGame
+        public string? GamePath { get; set; } // For ScrapedGame, this is the ROM path
         public bool AutoHide { get; set; }
         public bool DoubleLaunch { get; set; }
         public int DoubleLaunchDelay { get; set; }
@@ -61,18 +60,21 @@ namespace BatRun
             this.logger = logger;
             this.configForm = configForm;
             
+            // Recharger les traductions avant de mettre à jour les textes
             LocalizedStrings.LoadTranslations();
+            UpdateLocalizedTexts();
             
+            // Enregistrer le fournisseur d'encodage pour Windows-1252
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             
+            // Initialiser le répertoire des commandes dans le dossier de l'application
             commandsDirectory = Path.Combine(AppContext.BaseDirectory, "ShellCommands");
-            Directory.CreateDirectory(commandsDirectory);
+                Directory.CreateDirectory(commandsDirectory);
 
             InitializeComponent();
-            ApplyDarkTheme();
-            UpdateLocalizedTexts();
             LoadCommands();
 
+            // Charger la configuration globale de RetroBAT
             if (launchRetroBatCheckBox != null)
                 launchRetroBatCheckBox.Checked = config.ReadBool("Shell", "LaunchRetroBatAtEnd", false);
             if (retroBatDelayNumeric != null)
@@ -82,6 +84,7 @@ namespace BatRun
             if (randomGameCheckBox != null)
             {
                 randomGameCheckBox.Checked = config.ReadBool("Shell", "LaunchRandomGame", false);
+                // If it's checked on load, we need to trigger the population of the combobox
                 if (randomGameCheckBox.Checked)
                 {
                     RandomGameCheckBox_CheckedChanged(randomGameCheckBox, EventArgs.Empty);
@@ -98,251 +101,40 @@ namespace BatRun
 
         private void UpdateLocalizedTexts()
         {
+            // Mettre à jour les textes du formulaire
             this.Text = LocalizedStrings.GetString("Shell Configuration");
 
-            // Find controls by a more reliable method if names are not set
-            var topPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<TableLayoutPanel>().First();
-            var windowsPolicyCheckBox = topPanel.Controls[0] as CheckBox;
-            if (windowsPolicyCheckBox != null)
-                windowsPolicyCheckBox.Text = LocalizedStrings.GetString("Enable Custom User Interface in Group Policy");
-
-            if (launchRetroBatCheckBox != null)
-                launchRetroBatCheckBox.Text = LocalizedStrings.GetString("Launch RetroBAT at the end of the list");
-
-            if (retroBatDelayNumericLabel != null)
-                retroBatDelayNumericLabel.Text = LocalizedStrings.GetString("Delay (seconds)");
-
-            var randomGameCheckBox = topPanel.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
-            if (randomGameCheckBox != null)
-                randomGameCheckBox.Text = LocalizedStrings.GetString("Launch a random game at startup (Shell Launcher only)");
-
-            var centerPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<TableLayoutPanel>().Last();
-            var actionPanel = centerPanel.Controls.OfType<FlowLayoutPanel>().First();
-            var scrapButton = actionPanel.Controls[2] as Button;
-            if(scrapButton != null)
-                scrapButton.Text = LocalizedStrings.GetString("Scrap Game");
-
-            if(commandListView != null)
-            {
-                commandListView.Columns[1].Text = LocalizedStrings.GetString("Path");
-                commandListView.Columns[2].Text = LocalizedStrings.GetString("Enable");
-                commandListView.Columns[3].Text = LocalizedStrings.GetString("Delay (seconds)");
-                commandListView.Columns[4].Text = LocalizedStrings.GetString("Type");
-                commandListView.Columns[5].Text = LocalizedStrings.GetString("Auto-Hide");
-                commandListView.Columns[6].Text = LocalizedStrings.GetString("Double Launch");
-            }
-
-            var buttonPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<FlowLayoutPanel>().Last();
-            var saveButton = buttonPanel.Controls[1] as Button;
-            if(saveButton != null)
-                saveButton.Text = LocalizedStrings.GetString("Save");
-            var cancelButton = buttonPanel.Controls[0] as Button;
-            if(cancelButton != null)
-                cancelButton.Text = LocalizedStrings.GetString("Cancel");
-        }
-
-        private void InitializeComponent()
-        {
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Shell Configuration";
-            this.ClientSize = new Size(850, 750);
-            this.Font = new Font("Segoe UI", 9F);
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.StartPosition = FormStartPosition.CenterParent;
-
-            var mainLayout = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(10),
-                RowCount = 3,
-                ColumnCount = 1,
-            };
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            this.Controls.Add(mainLayout);
-
-            var topPanel = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 2,
-                RowCount = 4,
-                AutoSize = true
-            };
-            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            topPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            mainLayout.Controls.Add(topPanel, 0, 0);
-
-            var windowsPolicyCheckBox = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Enable Custom User Interface in Group Policy"),
-                AutoSize = true
-            };
-            topPanel.Controls.Add(windowsPolicyCheckBox, 0, 0);
-            topPanel.SetColumnSpan(windowsPolicyCheckBox, 2);
-
-            launchRetroBatCheckBox = new CheckBox { Text = LocalizedStrings.GetString("Launch RetroBAT at the end of the list"), AutoSize = true };
-            topPanel.Controls.Add(launchRetroBatCheckBox, 0, 1);
-
-            var retroBatDelayPanel = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, AutoSize = true, Anchor = AnchorStyles.Left };
-            retroBatDelayNumeric = new NumericUpDown { Width = 50, Minimum = 0, Maximum = 40 };
-            retroBatDelayNumericLabel = new Label { Text = LocalizedStrings.GetString("Delay (seconds)"), AutoSize = true, Anchor = AnchorStyles.Left, TextAlign = ContentAlignment.MiddleLeft };
-            retroBatDelayPanel.Controls.Add(retroBatDelayNumeric);
-            retroBatDelayPanel.Controls.Add(retroBatDelayNumericLabel);
-            topPanel.Controls.Add(retroBatDelayPanel, 1, 1);
-
-            var randomGameCheckBox = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Launch a random game at startup (Shell Launcher only)"),
-                AutoSize = true,
-                Name = "randomGameCheckBox"
-            };
-            randomGameCheckBox.CheckedChanged += RandomGameCheckBox_CheckedChanged;
-            topPanel.Controls.Add(randomGameCheckBox, 0, 2);
-
-            randomSystemComboBox = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Enabled = false };
-            topPanel.Controls.Add(randomSystemComboBox, 1, 2);
-
-            var postLaunchPanel = new FlowLayoutPanel { FlowDirection = FlowDirection.LeftToRight, Dock = DockStyle.Fill, AutoSize = true };
-            var clearPostLaunchGameButton = new Button { Text = "Clear", FlatStyle = FlatStyle.Flat };
-            clearPostLaunchGameButton.Click += ClearPostLaunchGameButton_Click;
-            postLaunchGameLabel = new Label { Text = "Game to launch after RetroBat: None", AutoEllipsis = true, Anchor = AnchorStyles.Left, TextAlign = ContentAlignment.MiddleLeft, AutoSize = true };
-            postLaunchPanel.Controls.Add(clearPostLaunchGameButton);
-            postLaunchPanel.Controls.Add(postLaunchGameLabel);
-            topPanel.Controls.Add(postLaunchPanel, 0, 3);
-            topPanel.SetColumnSpan(postLaunchPanel, 2);
-
-            var centerPanel = new TableLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                ColumnCount = 1,
-                RowCount = 2,
-            };
-            centerPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            centerPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            mainLayout.Controls.Add(centerPanel, 0, 1);
-
-            var actionPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.LeftToRight, AutoSize = true };
-            var addButton = new Button { Text = "+", Width = 40 };
-            addButton.Click += AddButton_Click;
-            var removeButton = new Button { Text = "-", Width = 40 };
-            removeButton.Click += RemoveButton_Click;
-            var scrapButton = new Button { Text = "Scrap Game", AutoSize = true };
-            scrapButton.Click += ScrapButton_Click;
-            actionPanel.Controls.Add(addButton);
-            actionPanel.Controls.Add(removeButton);
-            actionPanel.Controls.Add(scrapButton);
-            centerPanel.Controls.Add(actionPanel, 0, 0);
-
-            commandListView = new ListView
-            {
-                Dock = DockStyle.Fill,
-                View = View.Details,
-                FullRowSelect = true,
-                GridLines = true,
-                CheckBoxes = true,
-                AllowDrop = true
-            };
-            commandListView.Columns.Add("#", 40);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Path"), 240);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Enable"), 60);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Delay (seconds)"), 100);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Type"), 80);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Auto-Hide"), 100);
-            commandListView.Columns.Add(LocalizedStrings.GetString("Double Launch"), 110);
-            commandListView.ItemChecked += CommandListView_ItemChecked;
-            commandListView.ItemDrag += CommandListView_ItemDrag;
-            commandListView.DragEnter += CommandListView_DragEnter;
-            commandListView.DragDrop += CommandListView_DragDrop;
-            commandListView.MouseDoubleClick += CommandListView_MouseDoubleClick;
-            commandListView.MouseClick += CommandListView_MouseClick;
-            centerPanel.Controls.Add(commandListView, 0, 1);
-
-            var buttonPanel = new FlowLayoutPanel { Dock = DockStyle.Fill, FlowDirection = FlowDirection.RightToLeft, AutoSize = true };
-            var saveButton = new Button { Text = LocalizedStrings.GetString("Save"), Width = 100 };
-            saveButton.Click += SaveButton_Click;
-            var cancelButton = new Button { Text = LocalizedStrings.GetString("Cancel"), Width = 100 };
-            cancelButton.Click += (s, e) => this.Close();
-            buttonPanel.Controls.Add(cancelButton);
-            buttonPanel.Controls.Add(saveButton);
-            mainLayout.Controls.Add(buttonPanel, 0, 2);
-
-            string checkScriptPath = Path.Combine(Path.GetTempPath(), "CheckShellKey.ps1");
-            File.WriteAllText(checkScriptPath, @"
-try {
-    $userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
-    $registryPath = ""Registry::HKEY_USERS\$userSID\Software\Microsoft\Windows\CurrentVersion\Policies\System""
-    $shellValue = Get-ItemProperty -Path $registryPath -Name ""Shell"" -ErrorAction SilentlyContinue
-    if ($shellValue -ne $null) { exit 1 } else { exit 0 }
-} catch { exit 0 }");
-
-            try
-            {
-                using var checkProcess = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{checkScriptPath}\"",
-                    UseShellExecute = true,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                });
-
-                if (checkProcess is not null)
-                {
-                    checkProcess.WaitForExit();
-                    windowsPolicyCheckBox.Checked = checkProcess.ExitCode == 1;
-                }
-            }
-            catch
-            {
-                windowsPolicyCheckBox.Checked = false;
-            }
-            finally
-            {
-                if (File.Exists(checkScriptPath))
-                {
-                    try { File.Delete(checkScriptPath); } catch { }
-                }
-            }
-            windowsPolicyCheckBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
-        }
-
-        private void ApplyDarkTheme()
-        {
-            this.BackColor = Color.FromArgb(28, 28, 28);
-            this.ForeColor = Color.White;
-
+            // Mettre à jour les textes des boutons
             foreach (Control control in this.Controls)
             {
-                ApplyControlTheme(control);
-            }
-        }
-
-        private void ApplyControlTheme(Control control)
-        {
-            control.ForeColor = Color.White;
-            if (control is Button || control is ComboBox || control is NumericUpDown)
-            {
-                control.BackColor = Color.FromArgb(45, 45, 48);
-                if(control is ComboBox combo) combo.FlatStyle = FlatStyle.Flat;
-                if(control is Button btn) btn.FlatStyle = FlatStyle.Flat;
-            }
-            if (control is ListView lv)
-            {
-                 lv.BackColor = Color.FromArgb(45, 45, 48);
-            }
-            if(control is Label lbl)
-            {
-                lbl.BackColor = Color.Transparent;
-            }
-
-            if (control is TableLayoutPanel tlp || control is FlowLayoutPanel flp || control is GroupBox gb)
-            {
-                foreach (Control c in control.Controls)
+                if (control is TableLayoutPanel mainLayout)
                 {
-                   ApplyControlTheme(c);
+                    foreach (Control panelControl in mainLayout.Controls)
+                    {
+                        if (panelControl is Panel configPanel)
+                        {
+                            foreach (Control ctrl in configPanel.Controls)
+                            {
+                                if (ctrl is CheckBox checkBox && checkBox.Text.Contains("Custom User Interface"))
+                                {
+                                    checkBox.Text = LocalizedStrings.GetString("Enable Custom User Interface in Group Policy");
+                                }
+                            }
+                        }
+                        else if (panelControl is FlowLayoutPanel buttonPanel)
+                        {
+                            foreach (Control button in buttonPanel.Controls)
+                            {
+                                if (button is Button btn)
+                                {
+                                    if (btn.Text == "Save")
+                                        btn.Text = LocalizedStrings.GetString("Save");
+                                    else if (btn.Text == "Cancel")
+                                        btn.Text = LocalizedStrings.GetString("Cancel");
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -391,6 +183,7 @@ try {
             randomSystemComboBox.DisplayMember = "fullname";
             randomSystemComboBox.ValueMember = "name";
 
+            // Load the saved setting
             string savedSystem = config.ReadValue("Shell", "RandomLaunchSystem", "all");
             var selectedSystem = dataSource.FirstOrDefault(s => s.name == savedSystem);
             if (selectedSystem != null)
@@ -401,7 +194,7 @@ try {
 
         private void ScrapButton_Click(object? sender, EventArgs e)
         {
-            var scraper = new EmulationStationScraper();
+            var scraper = new EmulationStationScraper(); // Assuming default IP is fine
             using var gameSelectionForm = new GameSelectionForm(scraper);
 
             if (gameSelectionForm.ShowDialog() == DialogResult.OK)
@@ -419,10 +212,271 @@ try {
             }
         }
 
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Text = "Shell Configuration";
+            this.ClientSize = new Size(850, 750);
+            this.BackColor = Color.FromArgb(32, 32, 32);
+            this.ForeColor = Color.White;
+            this.Font = new Font("Segoe UI", 9F);
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.StartPosition = FormStartPosition.CenterParent;
+
+            // Main layout panel
+            var mainLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Padding(10),
+                BackColor = Color.FromArgb(32, 32, 32),
+                RowCount = 3,
+                ColumnCount = 1,
+            };
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+
+            // Top settings panel
+            var topSettingsLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Padding = new Padding(10),
+                ColumnCount = 2,
+                RowCount = 4,
+                AutoSize = true,
+            };
+            topSettingsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            topSettingsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+
+            // Row 1: Enable Custom UI
+            var windowsPolicyCheckBox = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable Custom User Interface in Group Policy"),
+                AutoSize = true,
+                BackColor = Color.Transparent,
+                ForeColor = Color.White,
+                Margin = new Padding(3),
+            };
+            topSettingsLayout.Controls.Add(windowsPolicyCheckBox, 0, 0);
+            topSettingsLayout.SetColumnSpan(windowsPolicyCheckBox, 2);
+
+            // Row 2: Launch RetroBAT
+            var retroBatPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                WrapContents = false,
+            };
+            launchRetroBatCheckBox = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Enable"),
+                AutoSize = true,
+            };
+            Label retroBatLabel = new Label
+            {
+                Text = LocalizedStrings.GetString("Launch RetroBAT at the end of the list"),
+                AutoSize = true,
+                Margin = new Padding(3),
+                Anchor = AnchorStyles.Left,
+            };
+            retroBatDelayNumeric = new NumericUpDown
+            {
+                Width = 50,
+                Minimum = 0,
+                Maximum = 40,
+                Value = 0,
+            };
+            retroBatDelayNumericLabel = new Label
+            {
+                Text = LocalizedStrings.GetString("Delay (seconds)"),
+                AutoSize = true,
+                Margin = new Padding(3),
+                Anchor = AnchorStyles.Left,
+            };
+            retroBatPanel.Controls.Add(launchRetroBatCheckBox);
+            retroBatPanel.Controls.Add(retroBatLabel);
+            retroBatPanel.Controls.Add(retroBatDelayNumeric);
+            retroBatPanel.Controls.Add(retroBatDelayNumericLabel);
+            topSettingsLayout.Controls.Add(retroBatPanel, 0, 1);
+            topSettingsLayout.SetColumnSpan(retroBatPanel, 2);
+
+            // Row 3: Random Game
+            var randomGameCheckBox = new CheckBox
+            {
+                Text = LocalizedStrings.GetString("Launch a random game at startup (Shell Launcher only)"),
+                Name = "randomGameCheckBox",
+                AutoSize = true,
+                Margin = new Padding(3),
+                Anchor = AnchorStyles.Left,
+            };
+            randomSystemComboBox = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White,
+                Enabled = false,
+                Margin = new Padding(3),
+            };
+            randomGameCheckBox.CheckedChanged += RandomGameCheckBox_CheckedChanged;
+            topSettingsLayout.Controls.Add(randomGameCheckBox, 0, 2);
+            topSettingsLayout.Controls.Add(randomSystemComboBox, 1, 2);
+
+            // Row 4: Post-Launch Game
+            var postLaunchPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                AutoSize = true,
+                WrapContents = false,
+            };
+            var clearPostLaunchGameButton = new Button
+            {
+                Text = "Clear",
+                AutoSize = true,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(87, 87, 87),
+                ForeColor = Color.White,
+            };
+            postLaunchGameLabel = new Label
+            {
+                Text = "Game to launch after RetroBat: None",
+                AutoEllipsis = true,
+                AutoSize = true,
+                Anchor = AnchorStyles.Left,
+                Margin = new Padding(3),
+            };
+            clearPostLaunchGameButton.Click += ClearPostLaunchGameButton_Click;
+            postLaunchPanel.Controls.Add(clearPostLaunchGameButton);
+            postLaunchPanel.Controls.Add(postLaunchGameLabel);
+            topSettingsLayout.Controls.Add(postLaunchPanel, 0, 3);
+            topSettingsLayout.SetColumnSpan(postLaunchPanel, 2);
+
+            // Command list section
+            var commandSectionLayout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                BackColor = Color.FromArgb(45, 45, 48),
+                Padding = new Padding(10),
+                RowCount = 2,
+                ColumnCount = 1,
+            };
+            commandSectionLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            commandSectionLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+
+            // Action buttons for command list
+            var actionPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                AutoSize = true,
+            };
+            var addButton = new Button { Text = "+", Width = 40, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(0, 122, 204), ForeColor = Color.White };
+            var removeButton = new Button { Text = "-", Width = 40, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(204, 0, 0), ForeColor = Color.White };
+            var scrapButton = new Button { Text = "Scrap Game", AutoSize = true, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(28, 151, 62), ForeColor = Color.White };
+            addButton.Click += AddButton_Click;
+            removeButton.Click += RemoveButton_Click;
+            scrapButton.Click += ScrapButton_Click;
+            actionPanel.Controls.Add(addButton);
+            actionPanel.Controls.Add(removeButton);
+            actionPanel.Controls.Add(scrapButton);
+            commandSectionLayout.Controls.Add(actionPanel, 0, 0);
+
+            // Command ListView
+            commandListView = new ListView
+            {
+                Dock = DockStyle.Fill,
+                View = View.Details,
+                FullRowSelect = true,
+                GridLines = true,
+                CheckBoxes = true,
+                AllowDrop = true,
+                BackColor = Color.FromArgb(45, 45, 48),
+                ForeColor = Color.White
+            };
+            commandListView.Columns.Add("#", 40);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Path"), 240);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Enable"), 60);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Delay (seconds)"), 100);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Type"), 80);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Auto-Hide"), 100);
+            commandListView.Columns.Add(LocalizedStrings.GetString("Double Launch"), 110);
+            commandListView.ItemChecked += CommandListView_ItemChecked;
+            commandListView.ItemDrag += CommandListView_ItemDrag;
+            commandListView.DragEnter += CommandListView_DragEnter;
+            commandListView.DragDrop += CommandListView_DragDrop;
+            commandListView.MouseDoubleClick += CommandListView_MouseDoubleClick;
+            commandListView.MouseClick += CommandListView_MouseClick;
+            commandSectionLayout.Controls.Add(commandListView, 0, 1);
+
+            // Bottom button panel
+            var buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.RightToLeft,
+                AutoSize = true,
+            };
+            var saveButton = new Button { Text = LocalizedStrings.GetString("Save"), Width = 100, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(0, 122, 204), ForeColor = Color.White };
+            var cancelButton = new Button { Text = LocalizedStrings.GetString("Cancel"), Width = 100, Height = 30, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(87, 87, 87), ForeColor = Color.White };
+            saveButton.Click += SaveButton_Click;
+            cancelButton.Click += (s, e) => this.Close();
+            buttonPanel.Controls.Add(saveButton);
+            buttonPanel.Controls.Add(cancelButton);
+
+            // Add all sections to the main layout
+            mainLayout.Controls.Add(topSettingsLayout, 0, 0);
+            mainLayout.Controls.Add(commandSectionLayout, 0, 1);
+            mainLayout.Controls.Add(buttonPanel, 0, 2);
+
+            this.Controls.Add(mainLayout);
+
+            // Initial state check for windows policy
+            string checkScriptPath = Path.Combine(Path.GetTempPath(), "CheckShellKey.ps1");
+            File.WriteAllText(checkScriptPath, @"
+try {
+    $userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value
+    $registryPath = ""Registry::HKEY_USERS\$userSID\Software\Microsoft\Windows\CurrentVersion\Policies\System""
+    $shellValue = Get-ItemProperty -Path $registryPath -Name ""Shell"" -ErrorAction SilentlyContinue
+    if ($shellValue -ne $null) { exit 1 } else { exit 0 }
+} catch { exit 0 }");
+
+            try
+            {
+                using var checkProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{checkScriptPath}\"",
+                    UseShellExecute = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                });
+
+                if (checkProcess is not null)
+                {
+                    checkProcess.WaitForExit();
+                    windowsPolicyCheckBox.Checked = checkProcess.ExitCode == 1;
+                }
+            }
+            catch { windowsPolicyCheckBox.Checked = false; }
+            finally
+            {
+                if (File.Exists(checkScriptPath))
+                {
+                    try { File.Delete(checkScriptPath); } catch { }
+                }
+            }
+            windowsPolicyCheckBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
+            this.ResumeLayout(false);
+        }
+
         private void LoadCommands()
         {
             var tempCommands = new List<(ShellCommand command, int order)>();
 
+            // Charger les commandes
             int commandCount = config.ReadInt("Shell", "CommandCount", 0);
             for (int i = 0; i < commandCount; i++)
             {
@@ -460,6 +514,7 @@ try {
                 }
             }
 
+            // Charger les applications
             int appCount = config.ReadInt("Shell", "AppCount", 0);
             for (int i = 0; i < appCount; i++)
             {
@@ -494,6 +549,7 @@ try {
                 }
             }
 
+            // Trier les commandes par ordre
             commands.Clear();
             foreach (var (command, _) in tempCommands.OrderBy(x => x.order))
             {
@@ -521,6 +577,7 @@ try {
             item.Checked = command.IsEnabled;
             commandListView.Items.Add(item);
 
+            // Si c'est une application et que AutoHide est activé, ajouter son exécutable à la liste persistante
             if (command.Type == CommandType.Application && command.AutoHide)
             {
                 string executableName = Path.GetFileName(command.Path);
@@ -529,6 +586,7 @@ try {
                     int currentCount = config.ReadInt("PersistentHiddenWindows", "Count", 0);
                     bool alreadyExists = false;
 
+                    // Vérifier si l'exécutable existe déjà dans la liste
                     for (int i = 0; i < currentCount; i++)
                     {
                         string title = config.ReadValue("PersistentHiddenWindows", $"Window{i}", "");
@@ -539,6 +597,7 @@ try {
                         }
                     }
 
+                    // Ajouter seulement si l'exécutable n'existe pas déjà
                     if (!alreadyExists)
                     {
                         config.WriteValue("PersistentHiddenWindows", $"Window{currentCount}", executableName);
@@ -561,8 +620,8 @@ try {
         private void AddButton_Click(object? sender, EventArgs e)
         {
             var menu = new ContextMenuStrip();
-            menu.Items.Add(LocalizedStrings.GetString("Add Application"), null, (s, ev) => AddApplication());
-            menu.Items.Add(LocalizedStrings.GetString("Add Command"), null, (s, ev) => AddCommand());
+            menu.Items.Add(LocalizedStrings.GetString("Add Application"), null, (s, e) => AddApplication());
+            menu.Items.Add(LocalizedStrings.GetString("Add Command"), null, (s, e) => AddCommand());
 
             if (sender is Button button)
             {
@@ -578,9 +637,9 @@ try {
                 FilterIndex = 1
             };
 
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                ShowDelayDialog((delay) =>
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    ShowDelayDialog((delay) =>
                 {
                     ShowOnlyOneInstanceDialog((onlyOneInstance) =>
                     {
@@ -658,60 +717,60 @@ try {
                 MinimizeBox = false
             };
 
-            var textBox = new TextBox
-            {
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
-                Size = new Size(560, 280),
-                Location = new Point(10, 10),
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                Font = new Font("Consolas", 10F),
-                AcceptsReturn = true,
-                AcceptsTab = true
-            };
-
-            var okButton = new Button
-            {
-                Text = "OK",
-                DialogResult = DialogResult.OK,
-                Location = new Point(400, 310),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(0, 122, 204),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-
-            var cancelButton = new Button
-            {
-                Text = "Cancel",
-                DialogResult = DialogResult.Cancel,
-                Location = new Point(490, 310),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(87, 87, 87),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-
-            commandForm.Controls.AddRange(new Control[] { textBox, okButton, cancelButton });
-            commandForm.AcceptButton = okButton;
-            commandForm.CancelButton = cancelButton;
-
-            if (commandForm.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(textBox.Text))
-            {
-                ShowDelayDialog((delay) =>
+                var textBox = new TextBox
                 {
-                    var command = new ShellCommand
+                    Multiline = true,
+                    ScrollBars = ScrollBars.Vertical,
+                    Size = new Size(560, 280),
+                    Location = new Point(10, 10),
+                    BackColor = Color.FromArgb(45, 45, 48),
+                    ForeColor = Color.White,
+                    Font = new Font("Consolas", 10F),
+                    AcceptsReturn = true,
+                    AcceptsTab = true
+                };
+
+                var okButton = new Button
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(400, 310),
+                    Size = new Size(80, 30),
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                var cancelButton = new Button
+                {
+                    Text = "Cancel",
+                    DialogResult = DialogResult.Cancel,
+                    Location = new Point(490, 310),
+                    Size = new Size(80, 30),
+                    BackColor = Color.FromArgb(87, 87, 87),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
+
+                commandForm.Controls.AddRange(new Control[] { textBox, okButton, cancelButton });
+                commandForm.AcceptButton = okButton;
+                commandForm.CancelButton = cancelButton;
+
+                if (commandForm.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(textBox.Text))
+                {
+                    ShowDelayDialog((delay) =>
                     {
-                        IsEnabled = true,
-                        Path = textBox.Text,
-                        DelaySeconds = delay,
-                        Order = commands.Count,
-                        Type = CommandType.Command
-                    };
-                    commands.Add(command);
-                    AddCommandToListView(command);
-                });
+                        var command = new ShellCommand
+                        {
+                            IsEnabled = true,
+                            Path = textBox.Text,
+                            DelaySeconds = delay,
+                            Order = commands.Count,
+                            Type = CommandType.Command
+                        };
+                        commands.Add(command);
+                        AddCommandToListView(command);
+                    });
             }
         }
 
@@ -727,35 +786,35 @@ try {
                 ForeColor = Color.White
             };
 
-            var numericUpDown = new NumericUpDown
-            {
-                Location = new Point(20, 20),
-                Size = new Size(260, 30),
-                Minimum = 0,
-                Maximum = 3600,
-                Value = 0,
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White
-            };
+                var numericUpDown = new NumericUpDown
+                {
+                    Location = new Point(20, 20),
+                    Size = new Size(260, 30),
+                    Minimum = 0,
+                    Maximum = 3600,
+                    Value = 0,
+                    BackColor = Color.FromArgb(45, 45, 48),
+                    ForeColor = Color.White
+                };
 
-            var okButton = new Button
-            {
-                Text = "OK",
-                DialogResult = DialogResult.OK,
-                Location = new Point(110, 70),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(0, 122, 204),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
+                var okButton = new Button
+                {
+                    Text = "OK",
+                    DialogResult = DialogResult.OK,
+                    Location = new Point(110, 70),
+                    Size = new Size(80, 30),
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
 
-            delayForm.Controls.Add(numericUpDown);
-            delayForm.Controls.Add(okButton);
-            delayForm.AcceptButton = okButton;
+                delayForm.Controls.Add(numericUpDown);
+                delayForm.Controls.Add(okButton);
+                delayForm.AcceptButton = okButton;
 
-            if (delayForm.ShowDialog() == DialogResult.OK)
-            {
-                onDelaySet((int)numericUpDown.Value);
+                if (delayForm.ShowDialog() == DialogResult.OK)
+                {
+                    onDelaySet((int)numericUpDown.Value);
             }
         }
 
@@ -798,6 +857,7 @@ try {
                 int draggedIndex = draggedItem.Index;
                 int dragToIndex = dragToItem.Index;
 
+                // Réorganiser la liste
                 ListViewItem insertItem = (ListViewItem)draggedItem.Clone();
                 if (dragToIndex > draggedIndex)
                 {
@@ -833,6 +893,7 @@ try {
 
         private void SaveButton_Click(object? sender, EventArgs e)
         {
+            // Nettoyer toutes les anciennes entrées de configuration
             int oldCommandCount = config.ReadInt("Shell", "CommandCount", 0);
             int oldAppCount = config.ReadInt("Shell", "AppCount", 0);
 
@@ -863,6 +924,7 @@ try {
             int appCount = 0;
             int order = 0;
 
+            // Sauvegarder la configuration globale de RetroBAT
             config.WriteValue("Shell", "LaunchRetroBatAtEnd", launchRetroBatCheckBox?.Checked.ToString() ?? "False");
             config.WriteValue("Shell", "RetroBatDelay", retroBatDelayNumeric?.Value.ToString() ?? "0");
 
@@ -870,16 +932,18 @@ try {
             if (randomGameCheckBox != null)
                 config.WriteValue("Shell", "LaunchRandomGame", randomGameCheckBox.Checked.ToString());
 
+            // Save post-launch game settings
             config.WriteValue("PostLaunch", "DisplayName", _postLaunchGameDisplayName);
             config.WriteValue("PostLaunch", "GamePath", _postLaunchGamePath);
 
+            // Save random launch system setting
             if (randomGameCheckBox != null && randomGameCheckBox.Checked && randomSystemComboBox?.SelectedItem is SystemInfo selectedSystem)
             {
                 config.WriteValue("Shell", "RandomLaunchSystem", selectedSystem.name ?? "all");
             }
             else
             {
-                config.WriteValue("Shell", "RandomLaunchSystem", "all");
+                config.WriteValue("Shell", "RandomLaunchSystem", "all"); // Default to all if not checked or nothing selected
             }
 
             foreach (var command in commands)
@@ -887,6 +951,7 @@ try {
                 switch (command.Type)
                 {
                     case CommandType.Command:
+                        // Sauvegarder la commande dans un fichier batch
                         string batchFile = Path.Combine(commandsDirectory, $"command_{commandCount}.bat");
                         File.WriteAllText(batchFile, command.Path, Encoding.GetEncoding(1252));
                         
@@ -911,6 +976,7 @@ try {
                         config.WriteValue("Shell", $"App{appCount}OnlyOneInstance", command.OnlyOneInstance.ToString());
                         appCount++;
                         break;
+
                 }
                 order++;
             }
@@ -942,13 +1008,13 @@ try {
                     if (hitInfo.SubItem is not null && hitInfo.Item is not null)
                     {
                         int columnIndex = hitInfo.Item.SubItems.IndexOf(hitInfo.SubItem);
-                        if (columnIndex == 6)
+                        if (columnIndex == 6) // Double Launch column
                         {
                             EditDoubleLaunchDelay(command, item);
                         }
                         else
-                        {
-                            EditCommand(command, item);
+                {
+                    EditCommand(command, item);
                         }
                     }
                 }
@@ -1016,7 +1082,7 @@ try {
             using var commandForm = new Form
             {
                 Text = command.Type == CommandType.Command ? "Edit Command" : "Edit Application Path",
-                Size = new Size(800, 400),
+                Size = new Size(800, 400),  // Retour à la taille d'origine
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 StartPosition = FormStartPosition.CenterParent,
                 BackColor = Color.FromArgb(32, 32, 32),
@@ -1024,19 +1090,20 @@ try {
                 MinimizeBox = false
             };
 
-            var textBox = new TextBox
-            {
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
+                var textBox = new TextBox
+                {
+                    Multiline = true,
+                    ScrollBars = ScrollBars.Vertical,
                 Size = new Size(760, 280),
-                Location = new Point(10, 10),
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                Font = new Font("Consolas", 10F),
-                AcceptsReturn = true,
-                AcceptsTab = true,
-                Text = command.Path
+                    Location = new Point(10, 10),
+                    BackColor = Color.FromArgb(45, 45, 48),
+                    ForeColor = Color.White,
+                    Font = new Font("Consolas", 10F),
+                    AcceptsReturn = true,
+                AcceptsTab = true
             };
+
+            textBox.Text = command.Path;
 
             var browseButton = new Button
             {
@@ -1050,37 +1117,37 @@ try {
             };
 
             browseButton.Click += (s, e) =>
-            {
-                using var dialog = new OpenFileDialog
                 {
-                    Filter = "All Files (*.*)|*.*|Batch Files (*.bat)|*.bat|PowerShell Scripts (*.ps1)|*.ps1",
-                    FilterIndex = 1,
-                    FileName = textBox.Text
+                    using var dialog = new OpenFileDialog
+                    {
+                        Filter = "All Files (*.*)|*.*|Batch Files (*.bat)|*.bat|PowerShell Scripts (*.ps1)|*.ps1",
+                        FilterIndex = 1,
+                        FileName = textBox.Text
+                    };
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        textBox.Text = dialog.FileName;
+                    }
                 };
-                if (dialog.ShowDialog() == DialogResult.OK)
+
+                var delayLabel = new Label
                 {
-                    textBox.Text = dialog.FileName;
-                }
-            };
+                    Text = "Delay (seconds):",
+                    Location = new Point(10, 300),
+                    AutoSize = true,
+                    ForeColor = Color.White
+                };
 
-            var delayLabel = new Label
-            {
-                Text = "Delay (seconds):",
-                Location = new Point(10, 300),
-                AutoSize = true,
-                ForeColor = Color.White
-            };
-
-            var delayNumeric = new NumericUpDown
-            {
-                Value = command.DelaySeconds,
-                Location = new Point(10, 320),
-                Width = 100,
-                Minimum = 0,
-                Maximum = 3600,
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White
-            };
+                var delayNumeric = new NumericUpDown
+                {
+                    Value = command.DelaySeconds,
+                    Location = new Point(10, 320),
+                    Width = 100,
+                    Minimum = 0,
+                    Maximum = 3600,
+                    BackColor = Color.FromArgb(45, 45, 48),
+                    ForeColor = Color.White
+                };
 
             var onlyOneInstanceCheckBox = new CheckBox
             {
@@ -1090,50 +1157,50 @@ try {
                 ForeColor = Color.White,
                 Checked = command.OnlyOneInstance,
                 Visible = command.Type == CommandType.Application
-            };
+                };
 
-            var okButton = new Button
-            {
+                var okButton = new Button
+                {
                 Text = "OK",
-                DialogResult = DialogResult.OK,
+                    DialogResult = DialogResult.OK,
                 Location = new Point(600, 320),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(0, 122, 204),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
+                    Size = new Size(80, 30),
+                    BackColor = Color.FromArgb(0, 122, 204),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
 
-            var cancelButton = new Button
-            {
-                Text = "Cancel",
-                DialogResult = DialogResult.Cancel,
+                var cancelButton = new Button
+                {
+                    Text = "Cancel",
+                    DialogResult = DialogResult.Cancel,
                 Location = new Point(690, 320),
-                Size = new Size(80, 30),
-                BackColor = Color.FromArgb(87, 87, 87),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
+                    Size = new Size(80, 30),
+                    BackColor = Color.FromArgb(87, 87, 87),
+                    ForeColor = Color.White,
+                    FlatStyle = FlatStyle.Flat
+                };
 
             commandForm.Controls.AddRange(new Control[] {
                 textBox, browseButton, delayLabel, delayNumeric,
                 onlyOneInstanceCheckBox, okButton, cancelButton
             });
 
-            commandForm.AcceptButton = okButton;
-            commandForm.CancelButton = cancelButton;
+                commandForm.AcceptButton = okButton;
+                commandForm.CancelButton = cancelButton;
 
-            if (commandForm.ShowDialog() == DialogResult.OK)
-            {
-                command.Path = textBox.Text;
-                command.DelaySeconds = (int)delayNumeric.Value;
-                if (command.Type == CommandType.Application)
+                if (commandForm.ShowDialog() == DialogResult.OK)
                 {
-                    command.OnlyOneInstance = onlyOneInstanceCheckBox.Checked;
-                }
+                    command.Path = textBox.Text;
+                    command.DelaySeconds = (int)delayNumeric.Value;
+                    if (command.Type == CommandType.Application)
+                    {
+                        command.OnlyOneInstance = onlyOneInstanceCheckBox.Checked;
+                    }
 
-                item.SubItems[1].Text = command.Path;
-                item.SubItems[3].Text = command.DelaySeconds.ToString();
-            }
+                    item.SubItems[1].Text = command.Path;
+                    item.SubItems[3].Text = command.DelaySeconds.ToString();
+                }
         }
 
         private void WindowsPolicyCheckBox_CheckedChanged(object? sender, EventArgs e)
@@ -1142,11 +1209,17 @@ try {
             {
                 try
                 {
+                    // Sauvegarder l'état dans la configuration
                     config.WriteValue("Shell", "EnableCustomUI", checkBox.Checked.ToString());
 
+                    // Gérer directement la suppression du démarrage automatique si activé
                     if (checkBox.Checked)
                     {
-                        string startupPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), "BatRun.lnk");
+                        string startupPath = Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.Startup),
+                            "BatRun.lnk");
+
+                        // Supprimer le raccourci de démarrage s'il existe
                         if (File.Exists(startupPath))
                         {
                             try
@@ -1160,6 +1233,7 @@ try {
                             }
                         }
 
+                        // Supprimer la clé de registre de démarrage
                         try
                         {
                             using var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
@@ -1175,8 +1249,10 @@ try {
                         }
                     }
 
+                    // Notifier ConfigurationForm du changement
                     configForm?.UpdateStartupState(checkBox.Checked);
 
+                    // Demander confirmation avant de procéder
                     var result = MessageBox.Show(
                         checkBox.Checked
                             ? $"{LocalizedStrings.GetString("This action will configure BatRun as a custom shell.")}{Environment.NewLine}{Environment.NewLine}{LocalizedStrings.GetString("To restore Windows Explorer:")}{Environment.NewLine}{LocalizedStrings.GetString("- Uncheck this box")}{Environment.NewLine}{Environment.NewLine}{LocalizedStrings.GetString("Do you want to continue?")}"
@@ -1188,15 +1264,18 @@ try {
 
                     if (result != DialogResult.Yes)
                     {
+                        // Restaurer l'état précédent sans déclencher l'événement CheckedChanged
                         checkBox.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged;
                         checkBox.Checked = !checkBox.Checked;
                         checkBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
                         return;
                     }
 
+                    // Obtenir le SID de l'utilisateur actuel avant l'élévation des privilèges
                     string userSID = string.Empty;
                     string getSIDScriptPath = Path.Combine(Path.GetTempPath(), "GetUserSID.ps1");
-                    File.WriteAllText(getSIDScriptPath, @"[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value");
+                    File.WriteAllText(getSIDScriptPath, @"
+[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value");
 
                     try
                     {
@@ -1229,15 +1308,18 @@ try {
                         throw new Exception(LocalizedStrings.GetString("Unable to retrieve user SID"));
                     }
 
+                    // Créer un script PowerShell temporaire pour configurer le shell personnalisé
                     string tempScriptPath = Path.Combine(Path.GetTempPath(), "ConfigureShell.ps1");
                     string applicationPath = Application.ExecutablePath;
 
+                    // Écrire le script PowerShell avec la création du point de restauration
                     var scriptBuilder = new StringBuilder();
                     scriptBuilder.AppendLine("# Script to configure custom shell");
                     scriptBuilder.AppendLine("$ErrorActionPreference = 'Stop'");
                     scriptBuilder.AppendLine();
                     scriptBuilder.AppendLine("try {");
                     
+                    // Ajouter la création du point de restauration si on active le shell
                     if (checkBox.Checked)
                     {
                         scriptBuilder.AppendLine("    Write-Host 'Creating a system restore point...'");
@@ -1283,6 +1365,7 @@ try {
 
                     File.WriteAllText(tempScriptPath, scriptBuilder.ToString());
 
+                    // Créer un processus PowerShell avec élévation de privilèges
                     var startInfo = new ProcessStartInfo
                     {
                         FileName = "powershell.exe",
@@ -1311,12 +1394,14 @@ try {
                     }
                     catch (System.ComponentModel.Win32Exception ex) when ((uint)ex.ErrorCode == 0x80004005)
                     {
+                        // L'utilisateur a annulé l'élévation des privilèges
                         MessageBox.Show(
                             LocalizedStrings.GetString("Operation cancelled. Administrative privileges are required."),
                             LocalizedStrings.GetString("Operation cancelled"),
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Warning
                         );
+                        // Restaurer l'état précédent
                         checkBox.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged;
                         checkBox.Checked = !checkBox.Checked;
                         checkBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
@@ -1329,12 +1414,14 @@ try {
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error
                         );
+                        // Restaurer l'état précédent
                         checkBox.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged;
                         checkBox.Checked = !checkBox.Checked;
                         checkBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
                     }
                     finally
                     {
+                        // Nettoyer le fichier temporaire
                         if (File.Exists(tempScriptPath))
                         {
                             try { File.Delete(tempScriptPath); } catch { }
@@ -1349,6 +1436,7 @@ try {
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error
                     );
+                    // Restaurer l'état précédent
                     checkBox.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged;
                     checkBox.Checked = !checkBox.Checked;
                     checkBox.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged;
@@ -1364,19 +1452,22 @@ try {
             if (hitInfo is { SubItem: not null, Item: not null })
             {
                 int columnIndex = hitInfo.Item.SubItems.IndexOf(hitInfo.SubItem);
-                if (columnIndex == 5 && hitInfo.Item.Tag is ShellCommand command)
+                if (columnIndex == 5 && hitInfo.Item.Tag is ShellCommand command) // Auto-Hide column
                 {
                     command.AutoHide = !command.AutoHide;
                     hitInfo.Item.SubItems[5].Text = command.AutoHide ? "✓" : "";
 
+                    // Gérer la liste persistante si c'est une application
                     if (command.Type == CommandType.Application)
                     {
                         string executableName = Path.GetFileName(command.Path);
                         if (!string.IsNullOrEmpty(executableName))
                         {
+                            // Nettoyer d'abord toutes les entrées existantes pour cet exécutable
                             int currentCount = config.ReadInt("PersistentHiddenWindows", "Count", 0);
                             var uniqueTitles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+                            // Collecter toutes les entrées uniques sauf celle qu'on veut retirer
                             for (int i = 0; i < currentCount; i++)
                             {
                                 string title = config.ReadValue("PersistentHiddenWindows", $"Window{i}", "");
@@ -1384,14 +1475,17 @@ try {
                                 {
                                     uniqueTitles.Add(title);
                                 }
+                                // Nettoyer l'ancienne entrée
                                 config.WriteValue("PersistentHiddenWindows", $"Window{i}", "");
                             }
 
+                            // Ajouter le nouvel exécutable si AutoHide est activé
                             if (command.AutoHide)
                             {
                                 uniqueTitles.Add(executableName);
                             }
 
+                            // Réécrire la liste mise à jour
                             int newIndex = 0;
                             foreach (string title in uniqueTitles)
                             {
@@ -1402,10 +1496,11 @@ try {
                         }
                     }
                 }
-                else if (columnIndex == 6 && hitInfo.Item.Tag is ShellCommand cmdItem)
+                else if (columnIndex == 6 && hitInfo.Item.Tag is ShellCommand cmdItem) // Double Launch column
                 {
                     if (!cmdItem.DoubleLaunch)
                     {
+                        // Si non coché, on propose d'ajouter le délai
                         using var delayForm = new Form
                         {
                             Text = LocalizedStrings.GetString("Double Launch Delay"),
@@ -1458,6 +1553,7 @@ try {
                     }
                     else
                     {
+                        // Si déjà coché, on désactive simplement l'option
                         cmdItem.DoubleLaunch = false;
                         hitInfo.Item.SubItems[6].Text = "";
                     }

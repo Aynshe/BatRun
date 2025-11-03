@@ -34,7 +34,7 @@
           "Microsoft.WindowsDesktop.App.WindowsForms"
         ]
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.18": {
+      "Microsoft.NET.ILLink.Tasks/8.0.21": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
@@ -1394,1714 +1394,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "VideoLAN.LibVLC.Windows/3.0.20": {
-        "type": "package",
-        "build": {
-          "build/VideoLAN.LibVLC.Windows.targets": {}
-        }
-      }
-    },
-    "net8.0-windows7.0/linux-x64": {
-      "LibVLCSharp/3.8.2": {
-        "type": "package",
-        "compile": {
-          "lib/net6.0/LibVLCSharp.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/LibVLCSharp.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "LibVLCSharp.WinForms/3.8.2": {
-        "type": "package",
-        "dependencies": {
-          "LibVLCSharp": "3.8.2"
-        },
-        "compile": {
-          "lib/net6.0-windows7.0/LibVLCSharp.WinForms.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0-windows7.0/LibVLCSharp.WinForms.dll": {
-            "related": ".xml"
-          }
-        },
-        "frameworkReferences": [
-          "Microsoft.WindowsDesktop.App.WindowsForms"
-        ]
-      },
-      "Microsoft.NET.ILLink.Tasks/8.0.18": {
-        "type": "package",
-        "build": {
-          "build/Microsoft.NET.ILLink.Tasks.props": {}
-        }
-      },
-      "Microsoft.NETCore.Platforms/1.1.0": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "Microsoft.NETCore.Targets/1.1.0": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "Microsoft.Win32.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.unix.Microsoft.Win32.Primitives": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "NETStandard.Library/1.6.1": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.Win32.Primitives": "4.3.0",
-          "System.AppContext": "4.3.0",
-          "System.Collections": "4.3.0",
-          "System.Collections.Concurrent": "4.3.0",
-          "System.Console": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tools": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Globalization.Calendars": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.Compression": "4.3.0",
-          "System.IO.Compression.ZipFile": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Linq": "4.3.0",
-          "System.Linq.Expressions": "4.3.0",
-          "System.Net.Http": "4.3.0",
-          "System.Net.Primitives": "4.3.0",
-          "System.Net.Sockets": "4.3.0",
-          "System.ObjectModel": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Extensions": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Runtime.InteropServices.RuntimeInformation": "4.3.0",
-          "System.Runtime.Numerics": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Security.Cryptography.X509Certificates": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Text.Encoding.Extensions": "4.3.0",
-          "System.Text.RegularExpressions": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "System.Threading.Timer": "4.3.0",
-          "System.Xml.ReaderWriter": "4.3.0",
-          "System.Xml.XDocument": "4.3.0"
-        }
-      },
-      "Newtonsoft.Json/13.0.3": {
-        "type": "package",
-        "compile": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net6.0/Newtonsoft.Json.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "runtime.any.System.Collections/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Collections.dll": {}
-        }
-      },
-      "runtime.any.System.Diagnostics.Tools/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Diagnostics.Tools.dll": {}
-        }
-      },
-      "runtime.any.System.Diagnostics.Tracing/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.5/System.Diagnostics.Tracing.dll": {}
-        }
-      },
-      "runtime.any.System.Globalization/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Globalization.dll": {}
-        }
-      },
-      "runtime.any.System.Globalization.Calendars/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Globalization.Calendars.dll": {}
-        }
-      },
-      "runtime.any.System.IO/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.5/System.IO.dll": {}
-        }
-      },
-      "runtime.any.System.Reflection/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.5/System.Reflection.dll": {}
-        }
-      },
-      "runtime.any.System.Reflection.Extensions/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Reflection.Extensions.dll": {}
-        }
-      },
-      "runtime.any.System.Reflection.Primitives/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Reflection.Primitives.dll": {}
-        }
-      },
-      "runtime.any.System.Resources.ResourceManager/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Resources.ResourceManager.dll": {}
-        }
-      },
-      "runtime.any.System.Runtime/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Private.Uri": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.5/System.Runtime.dll": {}
-        }
-      },
-      "runtime.any.System.Runtime.Handles/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Runtime.Handles.dll": {}
-        }
-      },
-      "runtime.any.System.Runtime.InteropServices/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.6/System.Runtime.InteropServices.dll": {}
-        }
-      },
-      "runtime.any.System.Text.Encoding/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Text.Encoding.dll": {}
-        }
-      },
-      "runtime.any.System.Text.Encoding.Extensions/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Text.Encoding.Extensions.dll": {}
-        }
-      },
-      "runtime.any.System.Threading.Tasks/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Threading.Tasks.dll": {}
-        }
-      },
-      "runtime.any.System.Threading.Timer/4.3.0": {
-        "type": "package",
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Threading.Timer.dll": {}
-        }
-      },
-      "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.native.System/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "runtime.native.System.IO.Compression/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "runtime.native.System.Net.Http/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "runtime.native.System.Security.Cryptography.Apple/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.Apple": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.opensuse.42.1-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.rhel.7-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0",
-          "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard1.0/_._": {}
-        }
-      },
-      "runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.opensuse.42.1-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.Apple/4.3.0": {
-        "type": "package"
-      },
-      "runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.rhel.7-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package"
-      },
-      "runtime.unix.Microsoft.Win32.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "runtime.unix.System.Console/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Text.Encoding.Extensions": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Console.dll": {}
-        }
-      },
-      "runtime.unix.System.Diagnostics.Debug/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Diagnostics.Debug.dll": {}
-        }
-      },
-      "runtime.unix.System.IO.FileSystem/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Buffers": "4.3.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Text.Encoding.Extensions": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.IO.FileSystem.dll": {}
-        }
-      },
-      "runtime.unix.System.Net.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.Win32.Primitives": "4.3.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Threading": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Net.Primitives.dll": {}
-        }
-      },
-      "runtime.unix.System.Net.Sockets/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.Net.NameResolution": "4.3.0",
-          "System.Net.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "System.Threading.ThreadPool": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Net.Sockets.dll": {}
-        }
-      },
-      "runtime.unix.System.Private.Uri/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.0/System.Private.Uri.dll": {}
-        }
-      },
-      "runtime.unix.System.Runtime.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Private.Uri": "4.3.0",
-          "runtime.native.System": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.5/System.Runtime.Extensions.dll": {}
-        }
-      },
-      "SDL2-CS.NetCore/2.0.8": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/SDL2-CS.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/SDL2-CS.dll": {}
-        }
-      },
-      "SharpDX/4.2.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1"
-        },
-        "compile": {
-          "lib/netstandard1.1/SharpDX.dll": {
-            "related": ".pdb"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.1/SharpDX.dll": {
-            "related": ".pdb"
-          }
-        }
-      },
-      "SharpDX.DirectInput/4.2.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "SharpDX": "4.2.0"
-        },
-        "compile": {
-          "lib/netstandard1.3/SharpDX.DirectInput.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/SharpDX.DirectInput.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "SharpDX.XInput/4.2.0": {
-        "type": "package",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "SharpDX": "4.2.0"
-        },
-        "compile": {
-          "lib/netstandard1.1/SharpDX.XInput.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.1/SharpDX.XInput.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
-      "System.AppContext/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/System.AppContext.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.6/System.AppContext.dll": {}
-        }
-      },
-      "System.Buffers/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.1/System.Buffers.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.1/System.Buffers.dll": {}
-        }
-      },
-      "System.Collections/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Collections": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Collections.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Collections.Concurrent/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Collections.Concurrent.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Collections.Concurrent.dll": {}
-        }
-      },
-      "System.Console/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "runtime.unix.System.Console": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Console.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Diagnostics.Debug/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.unix.System.Diagnostics.Debug": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Diagnostics.Debug.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Diagnostics.DiagnosticSource/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.3/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Diagnostics.DiagnosticSource.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Diagnostics.Tools/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Diagnostics.Tools": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/System.Diagnostics.Tools.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Diagnostics.Tracing/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Diagnostics.Tracing": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/System.Diagnostics.Tracing.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Globalization/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Globalization": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Globalization.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Globalization.Calendars/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Globalization": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Globalization.Calendars": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Globalization.Calendars.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Globalization.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Globalization": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Globalization.Extensions.dll": {}
-        }
-      },
-      "System.IO/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.any.System.IO": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/System.IO.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.IO.Compression/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Buffers": "4.3.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.native.System": "4.3.0",
-          "runtime.native.System.IO.Compression": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.IO.Compression.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.IO.Compression.dll": {}
-        }
-      },
-      "System.IO.Compression.ZipFile/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Buffers": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.Compression": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Text.Encoding": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.IO.Compression.ZipFile.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.IO.Compression.ZipFile.dll": {}
-        }
-      },
-      "System.IO.FileSystem/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.unix.System.IO.FileSystem": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.IO.FileSystem.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.IO.FileSystem.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.IO.FileSystem.Primitives.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {}
-        }
-      },
-      "System.Linq/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/System.Linq.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.6/System.Linq.dll": {}
-        }
-      },
-      "System.Linq.Expressions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Linq": "4.3.0",
-          "System.ObjectModel": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Emit": "4.3.0",
-          "System.Reflection.Emit.ILGeneration": "4.3.0",
-          "System.Reflection.Emit.Lightweight": "4.3.0",
-          "System.Reflection.Extensions": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Reflection.TypeExtensions": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/System.Linq.Expressions.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.6/System.Linq.Expressions.dll": {}
-        }
-      },
-      "System.Net.Http/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.DiagnosticSource": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Globalization.Extensions": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.Net.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.OpenSsl": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Security.Cryptography.X509Certificates": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.native.System": "4.3.0",
-          "runtime.native.System.Net.Http": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Net.Http.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Net.Http.dll": {}
-        }
-      },
-      "System.Net.NameResolution/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Net.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Principal.Windows": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Net.NameResolution.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Net.NameResolution.dll": {}
-        }
-      },
-      "System.Net.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "runtime.unix.System.Net.Primitives": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Net.Primitives.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Net.Sockets/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.Net.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "runtime.unix.System.Net.Sockets": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Net.Sockets.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.ObjectModel/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.ObjectModel.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.ObjectModel.dll": {}
-        }
-      },
-      "System.Private.Uri/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "runtime.unix.System.Private.Uri": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard/_._": {}
-        }
-      },
-      "System.Reflection/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Reflection": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/System.Reflection.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Reflection.Emit/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.IO": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Emit.ILGeneration": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.1/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Reflection.Emit.dll": {}
-        }
-      },
-      "System.Reflection.Emit.ILGeneration/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Reflection.Emit.ILGeneration.dll": {}
-        }
-      },
-      "System.Reflection.Emit.Lightweight/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Emit.ILGeneration": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Reflection.Emit.Lightweight.dll": {}
-        }
-      },
-      "System.Reflection.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Reflection": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Reflection.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/System.Reflection.Extensions.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Reflection.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Reflection.Primitives": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/System.Reflection.Primitives.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Reflection.TypeExtensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Reflection": "4.3.0",
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
-        }
-      },
-      "System.Resources.ResourceManager/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Globalization": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Resources.ResourceManager": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/System.Resources.ResourceManager.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Runtime/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "runtime.any.System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/System.Runtime.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Runtime.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.unix.System.Runtime.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.5/System.Runtime.Extensions.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Runtime.Handles/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Runtime.Handles": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Runtime.Handles.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Runtime.InteropServices/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Primitives": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "runtime.any.System.Runtime.InteropServices": "4.3.0"
-        },
-        "compile": {
-          "ref/netcoreapp1.1/System.Runtime.InteropServices.dll": {}
-        }
-      },
-      "System.Runtime.InteropServices.RuntimeInformation/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Reflection": "4.3.0",
-          "System.Reflection.Extensions": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Threading": "4.3.0",
-          "runtime.native.System": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.1/System.Runtime.InteropServices.RuntimeInformation.dll": {}
-        }
-      },
-      "System.Runtime.Numerics/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Globalization": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.1/System.Runtime.Numerics.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Runtime.Numerics.dll": {}
-        }
-      },
-      "System.Security.Claims/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Security.Principal": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Security.Claims.dll": {}
-        }
-      },
-      "System.Security.Cryptography.Algorithms/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Collections": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Runtime.Numerics": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "runtime.native.System.Security.Cryptography.Apple": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/System.Security.Cryptography.Algorithms.dll": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.Algorithms.dll": {}
-        }
-      },
-      "System.Security.Cryptography.Cng/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.Cng.dll": {}
-        }
-      },
-      "System.Security.Cryptography.Csp/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.IO": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Security.Cryptography.Csp.dll": {}
-        }
-      },
-      "System.Security.Cryptography.Encoding/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Collections": "4.3.0",
-          "System.Collections.Concurrent": "4.3.0",
-          "System.Linq": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Security.Cryptography.Encoding.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Security.Cryptography.Encoding.dll": {}
-        }
-      },
-      "System.Security.Cryptography.OpenSsl/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Runtime.Numerics": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.6/_._": {}
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.OpenSsl.dll": {}
-        }
-      },
-      "System.Security.Cryptography.Primitives/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Threading.Tasks": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Security.Cryptography.Primitives.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Security.Cryptography.Primitives.dll": {}
-        }
-      },
-      "System.Security.Cryptography.X509Certificates/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.Globalization.Calendars": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Runtime.Numerics": "4.3.0",
-          "System.Security.Cryptography.Algorithms": "4.3.0",
-          "System.Security.Cryptography.Cng": "4.3.0",
-          "System.Security.Cryptography.Csp": "4.3.0",
-          "System.Security.Cryptography.Encoding": "4.3.0",
-          "System.Security.Cryptography.OpenSsl": "4.3.0",
-          "System.Security.Cryptography.Primitives": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0",
-          "runtime.native.System": "4.3.0",
-          "runtime.native.System.Net.Http": "4.3.0",
-          "runtime.native.System.Security.Cryptography.OpenSsl": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.4/System.Security.Cryptography.X509Certificates.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.6/System.Security.Cryptography.X509Certificates.dll": {}
-        }
-      },
-      "System.Security.Principal/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.0/System.Security.Principal.dll": {}
-        }
-      },
-      "System.Security.Principal.Windows/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.Win32.Primitives": "4.3.0",
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.Handles": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Security.Claims": "4.3.0",
-          "System.Security.Principal": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "runtimes/unix/lib/netstandard1.3/System.Security.Principal.Windows.dll": {}
-        }
-      },
-      "System.Text.Encoding/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Text.Encoding": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Text.Encoding.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Text.Encoding.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "runtime.any.System.Text.Encoding.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Text.Encoding.Extensions.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Text.RegularExpressions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0"
-        },
-        "compile": {
-          "ref/netcoreapp1.1/System.Text.RegularExpressions.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.6/System.Text.RegularExpressions.dll": {}
-        }
-      },
-      "System.Threading/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0",
-          "System.Threading.Tasks": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Threading.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Threading.dll": {}
-        }
-      },
-      "System.Threading.Tasks/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Threading.Tasks": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Threading.Tasks.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Threading.Tasks.Extensions/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading.Tasks": "4.3.0"
-        },
-        "compile": {
-          "lib/netstandard1.0/_._": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.0/System.Threading.Tasks.Extensions.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Threading.ThreadPool/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Handles": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Threading.ThreadPool.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Threading.ThreadPool.dll": {}
-        }
-      },
-      "System.Threading.Timer/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "1.1.0",
-          "Microsoft.NETCore.Targets": "1.1.0",
-          "System.Runtime": "4.3.0",
-          "runtime.any.System.Threading.Timer": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.2/System.Threading.Timer.dll": {
-            "related": ".xml"
-          }
-        }
-      },
-      "System.Xml.ReaderWriter/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.IO.FileSystem": "4.3.0",
-          "System.IO.FileSystem.Primitives": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Runtime.InteropServices": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Text.Encoding.Extensions": "4.3.0",
-          "System.Text.RegularExpressions": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "System.Threading.Tasks.Extensions": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Xml.ReaderWriter.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Xml.ReaderWriter.dll": {}
-        }
-      },
-      "System.Xml.XDocument/4.3.0": {
-        "type": "package",
-        "dependencies": {
-          "System.Collections": "4.3.0",
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tools": "4.3.0",
-          "System.Globalization": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Reflection": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Runtime.Extensions": "4.3.0",
-          "System.Text.Encoding": "4.3.0",
-          "System.Threading": "4.3.0",
-          "System.Xml.ReaderWriter": "4.3.0"
-        },
-        "compile": {
-          "ref/netstandard1.3/System.Xml.XDocument.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard1.3/System.Xml.XDocument.dll": {}
-        }
-      },
-      "VideoLAN.LibVLC.Windows/3.0.20": {
+      "VideoLAN.LibVLC.Windows/3.0.21": {
         "type": "package",
         "build": {
           "build/VideoLAN.LibVLC.Windows.targets": {}
@@ -3141,7 +1434,7 @@
           "Microsoft.WindowsDesktop.App.WindowsForms"
         ]
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.18": {
+      "Microsoft.NET.ILLink.Tasks/8.0.21": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
@@ -4787,7 +3080,7 @@
           "lib/netstandard1.3/System.Xml.XDocument.dll": {}
         }
       },
-      "VideoLAN.LibVLC.Windows/3.0.20": {
+      "VideoLAN.LibVLC.Windows/3.0.21": {
         "type": "package",
         "build": {
           "build/VideoLAN.LibVLC.Windows.targets": {}
@@ -4863,10 +3156,10 @@
         "libvlcsharp.winforms.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/8.0.18": {
-      "sha512": "OiXqr2YIBEV9dsAWEtasK470ALyJ0VxJ9k4MotOxlWV6HeEgrJKYMW4HHj1OCCXvqE0/A25wEKPkpfiBARgDZA==",
+    "Microsoft.NET.ILLink.Tasks/8.0.21": {
+      "sha512": "s8H5PZQs50OcNkaB6Si54+v3GWM7vzs6vxFRMlD3aXsbM+aPCtod62gmK0BYWou9diGzmo56j8cIf/PziijDqQ==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/8.0.18",
+      "path": "microsoft.net.illink.tasks/8.0.21",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -4880,7 +3173,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.8.0.18.nupkg.sha512",
+        "microsoft.net.illink.tasks.8.0.21.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net472/ILLink.Tasks.dll",
         "tools/net472/ILLink.Tasks.dll.config",
@@ -5696,126 +3989,6 @@
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.4.3.0.nupkg.sha512",
         "runtime.ubuntu.16.10-x64.runtime.native.system.security.cryptography.openssl.nuspec",
         "runtimes/ubuntu.16.10-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
-      ]
-    },
-    "runtime.unix.Microsoft.Win32.Primitives/4.3.0": {
-      "sha512": "2mI2Mfq+CVatgr4RWGvAWBjoCfUafy6VNFU7G9OA52DjO8x/okfIbsEq2UPgeGfdpO7X5gmPXKT8slx0tn0Mhw==",
-      "type": "package",
-      "path": "runtime.unix.microsoft.win32.primitives/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.microsoft.win32.primitives.4.3.0.nupkg.sha512",
-        "runtime.unix.microsoft.win32.primitives.nuspec",
-        "runtimes/unix/lib/netstandard1.3/Microsoft.Win32.Primitives.dll"
-      ]
-    },
-    "runtime.unix.System.Console/4.3.0": {
-      "sha512": "JSEiU9EvE2vJTHUuHnSg9le8XDbvZmjZ/3PhLviICzY1TTDE7c/uNYVtE9qTA9PAOZsqccy5lxvfaZOeBhT3tA==",
-      "type": "package",
-      "path": "runtime.unix.system.console/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.console.4.3.0.nupkg.sha512",
-        "runtime.unix.system.console.nuspec",
-        "runtimes/unix/lib/netstandard1.3/System.Console.dll"
-      ]
-    },
-    "runtime.unix.System.Diagnostics.Debug/4.3.0": {
-      "sha512": "WV8KLRHWVUVUDduFnvGMHt0FsEt2wK6xPl1EgDKlaMx2KnZ43A/O0GzP8wIuvAC7mq4T9V1mm90r+PXkL9FPdQ==",
-      "type": "package",
-      "path": "runtime.unix.system.diagnostics.debug/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.diagnostics.debug.4.3.0.nupkg.sha512",
-        "runtime.unix.system.diagnostics.debug.nuspec",
-        "runtimes/unix/lib/netstandard1.3/System.Diagnostics.Debug.dll"
-      ]
-    },
-    "runtime.unix.System.IO.FileSystem/4.3.0": {
-      "sha512": "ajmTcjrqc3vgV1TH54DRioshbEniaFbOAJ0kReGuNsp9uIcqYle0RmUo6+Qlwqe3JIs4TDxgnqs3UzX3gRJ1rA==",
-      "type": "package",
-      "path": "runtime.unix.system.io.filesystem/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.io.filesystem.4.3.0.nupkg.sha512",
-        "runtime.unix.system.io.filesystem.nuspec",
-        "runtimes/unix/lib/netstandard1.3/System.IO.FileSystem.dll"
-      ]
-    },
-    "runtime.unix.System.Net.Primitives/4.3.0": {
-      "sha512": "AZcRXhH7Gamr+bckUfX3iHefPIrujJTt9XWQWo0elNiP1SNasX0KBWINZkDKY0GsOrsyJ7cB4MgIRTZzLlsTKg==",
-      "type": "package",
-      "path": "runtime.unix.system.net.primitives/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.net.primitives.4.3.0.nupkg.sha512",
-        "runtime.unix.system.net.primitives.nuspec",
-        "runtimes/unix/lib/netstandard1.3/System.Net.Primitives.dll"
-      ]
-    },
-    "runtime.unix.System.Net.Sockets/4.3.0": {
-      "sha512": "4NcLbqajFaD3PvhOdmbieeBlKY4d8/kBfgJ5g28n6k1jWEICabvLM62gvmUS/CvyfvcZxVanKPl+E9LhPzfXZw==",
-      "type": "package",
-      "path": "runtime.unix.system.net.sockets/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.net.sockets.4.3.0.nupkg.sha512",
-        "runtime.unix.system.net.sockets.nuspec",
-        "runtimes/unix/lib/netstandard1.3/System.Net.Sockets.dll"
-      ]
-    },
-    "runtime.unix.System.Private.Uri/4.3.0": {
-      "sha512": "ooWzobr5RAq34r9uan1r/WPXJYG1XWy9KanrxNvEnBzbFdQbMG7Y3bVi4QxR7xZMNLOxLLTAyXvnSkfj5boZSg==",
-      "type": "package",
-      "path": "runtime.unix.system.private.uri/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.private.uri.4.3.0.nupkg.sha512",
-        "runtime.unix.system.private.uri.nuspec",
-        "runtimes/unix/lib/netstandard1.0/System.Private.Uri.dll"
-      ]
-    },
-    "runtime.unix.System.Runtime.Extensions/4.3.0": {
-      "sha512": "zQiTBVpiLftTQZW8GFsV0gjYikB1WMkEPIxF5O6RkUrSV/OgvRRTYgeFQha/0keBpuS0HYweraGRwhfhJ7dj7w==",
-      "type": "package",
-      "path": "runtime.unix.system.runtime.extensions/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "ref/netstandard/_._",
-        "runtime.unix.system.runtime.extensions.4.3.0.nupkg.sha512",
-        "runtime.unix.system.runtime.extensions.nuspec",
-        "runtimes/unix/lib/netstandard1.5/System.Runtime.Extensions.dll"
       ]
     },
     "runtime.win.Microsoft.Win32.Primitives/4.3.0": {
@@ -9004,46 +7177,6 @@
         "system.threading.tasks.extensions.nuspec"
       ]
     },
-    "System.Threading.ThreadPool/4.3.0": {
-      "sha512": "k/+g4b7vjdd4aix83sTgC9VG6oXYKAktSfNIJUNGxPEj7ryEOfzHHhfnmsZvjxawwcD9HyWXKCXmPjX8U4zeSw==",
-      "type": "package",
-      "path": "system.threading.threadpool/4.3.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "ThirdPartyNotices.txt",
-        "dotnet_library_license.txt",
-        "lib/MonoAndroid10/_._",
-        "lib/MonoTouch10/_._",
-        "lib/net46/System.Threading.ThreadPool.dll",
-        "lib/netcore50/_._",
-        "lib/netstandard1.3/System.Threading.ThreadPool.dll",
-        "lib/xamarinios10/_._",
-        "lib/xamarinmac20/_._",
-        "lib/xamarintvos10/_._",
-        "lib/xamarinwatchos10/_._",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net46/System.Threading.ThreadPool.dll",
-        "ref/netstandard1.3/System.Threading.ThreadPool.dll",
-        "ref/netstandard1.3/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/de/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/es/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/fr/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/it/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/ja/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/ko/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/ru/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/zh-hans/System.Threading.ThreadPool.xml",
-        "ref/netstandard1.3/zh-hant/System.Threading.ThreadPool.xml",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "system.threading.threadpool.4.3.0.nupkg.sha512",
-        "system.threading.threadpool.nuspec"
-      ]
-    },
     "System.Threading.Timer/4.3.0": {
       "sha512": "Z6YfyYTCg7lOZjJzBjONJTFKGN9/NIYKSxhU5GRd+DTwHSZyvWp1xuI5aR+dLg+ayyC5Xv57KiY4oJ0tMO89fQ==",
       "type": "package",
@@ -9241,10 +7374,10 @@
         "system.xml.xdocument.nuspec"
       ]
     },
-    "VideoLAN.LibVLC.Windows/3.0.20": {
-      "sha512": "ahujCn2kTPJSLEpwXu2BHIyv9Ke/iahd367hFwMMHSP9UkSOYC5QekOGFrSxKz22yZP67arcfCgNgDIcV31DpQ==",
+    "VideoLAN.LibVLC.Windows/3.0.21": {
+      "sha512": "1b1yjZPIzS2+s6YZv9Z5Co/q2srIvo03ZToPvZblWreeyeFGkLDwX7WZat8AxCB9uMQV6VUnms67SgQqko7Z0w==",
       "type": "package",
-      "path": "videolan.libvlc.windows/3.0.20",
+      "path": "videolan.libvlc.windows/3.0.21",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -9450,7 +7583,6 @@
         "build/x64/plugins/access/libaccess_concat_plugin.dll",
         "build/x64/plugins/access/libaccess_imem_plugin.dll",
         "build/x64/plugins/access/libaccess_mms_plugin.dll",
-        "build/x64/plugins/access/libaccess_realrtsp_plugin.dll",
         "build/x64/plugins/access/libaccess_srt_plugin.dll",
         "build/x64/plugins/access/libaccess_wasapi_plugin.dll",
         "build/x64/plugins/access/libattachment_plugin.dll",
@@ -9458,10 +7590,7 @@
         "build/x64/plugins/access/libbluray-j2se-1.3.2.jar",
         "build/x64/plugins/access/libcdda_plugin.dll",
         "build/x64/plugins/access/libdcp_plugin.dll",
-        "build/x64/plugins/access/libdshow_plugin.dll",
         "build/x64/plugins/access/libdtv_plugin.dll",
-        "build/x64/plugins/access/libdvdnav_plugin.dll",
-        "build/x64/plugins/access/libdvdread_plugin.dll",
         "build/x64/plugins/access/libfilesystem_plugin.dll",
         "build/x64/plugins/access/libftp_plugin.dll",
         "build/x64/plugins/access/libhttp_plugin.dll",
@@ -9484,7 +7613,6 @@
         "build/x64/plugins/access/libudp_plugin.dll",
         "build/x64/plugins/access/libvcd_plugin.dll",
         "build/x64/plugins/access/libvdr_plugin.dll",
-        "build/x64/plugins/access/libvnc_plugin.dll",
         "build/x64/plugins/access_output/libaccess_output_dummy_plugin.dll",
         "build/x64/plugins/access_output/libaccess_output_file_plugin.dll",
         "build/x64/plugins/access_output/libaccess_output_http_plugin.dll",
@@ -9497,17 +7625,12 @@
         "build/x64/plugins/audio_filter/libaudiobargraph_a_plugin.dll",
         "build/x64/plugins/audio_filter/libchorus_flanger_plugin.dll",
         "build/x64/plugins/audio_filter/libcompressor_plugin.dll",
-        "build/x64/plugins/audio_filter/libdolby_surround_decoder_plugin.dll",
         "build/x64/plugins/audio_filter/libequalizer_plugin.dll",
         "build/x64/plugins/audio_filter/libgain_plugin.dll",
-        "build/x64/plugins/audio_filter/libheadphone_channel_mixer_plugin.dll",
         "build/x64/plugins/audio_filter/libkaraoke_plugin.dll",
-        "build/x64/plugins/audio_filter/libmad_plugin.dll",
-        "build/x64/plugins/audio_filter/libmono_plugin.dll",
         "build/x64/plugins/audio_filter/libnormvol_plugin.dll",
         "build/x64/plugins/audio_filter/libparam_eq_plugin.dll",
         "build/x64/plugins/audio_filter/libremap_plugin.dll",
-        "build/x64/plugins/audio_filter/libsamplerate_plugin.dll",
         "build/x64/plugins/audio_filter/libscaletempo_pitch_plugin.dll",
         "build/x64/plugins/audio_filter/libscaletempo_plugin.dll",
         "build/x64/plugins/audio_filter/libsimple_channel_mixer_plugin.dll",
@@ -9527,12 +7650,10 @@
         "build/x64/plugins/audio_output/libmmdevice_plugin.dll",
         "build/x64/plugins/audio_output/libwasapi_plugin.dll",
         "build/x64/plugins/audio_output/libwaveout_plugin.dll",
-        "build/x64/plugins/codec/liba52_plugin.dll",
         "build/x64/plugins/codec/libadpcm_plugin.dll",
         "build/x64/plugins/codec/libaes3_plugin.dll",
         "build/x64/plugins/codec/libaom_plugin.dll",
         "build/x64/plugins/codec/libaraw_plugin.dll",
-        "build/x64/plugins/codec/libaribsub_plugin.dll",
         "build/x64/plugins/codec/libavcodec_plugin.dll",
         "build/x64/plugins/codec/libcc_plugin.dll",
         "build/x64/plugins/codec/libcdg_plugin.dll",
@@ -9540,20 +7661,17 @@
         "build/x64/plugins/codec/libcvdsub_plugin.dll",
         "build/x64/plugins/codec/libd3d11va_plugin.dll",
         "build/x64/plugins/codec/libdav1d_plugin.dll",
-        "build/x64/plugins/codec/libdca_plugin.dll",
         "build/x64/plugins/codec/libddummy_plugin.dll",
         "build/x64/plugins/codec/libdmo_plugin.dll",
         "build/x64/plugins/codec/libdvbsub_plugin.dll",
         "build/x64/plugins/codec/libdxva2_plugin.dll",
         "build/x64/plugins/codec/libedummy_plugin.dll",
-        "build/x64/plugins/codec/libfaad_plugin.dll",
         "build/x64/plugins/codec/libflac_plugin.dll",
         "build/x64/plugins/codec/libfluidsynth_plugin.dll",
         "build/x64/plugins/codec/libg711_plugin.dll",
         "build/x64/plugins/codec/libjpeg_plugin.dll",
         "build/x64/plugins/codec/libkate_plugin.dll",
         "build/x64/plugins/codec/liblibass_plugin.dll",
-        "build/x64/plugins/codec/liblibmpeg2_plugin.dll",
         "build/x64/plugins/codec/liblpcm_plugin.dll",
         "build/x64/plugins/codec/libmft_plugin.dll",
         "build/x64/plugins/codec/libmpg123_plugin.dll",
@@ -9575,7 +7693,6 @@
         "build/x64/plugins/codec/libsubstx3g_plugin.dll",
         "build/x64/plugins/codec/libsubsusf_plugin.dll",
         "build/x64/plugins/codec/libsvcdsub_plugin.dll",
-        "build/x64/plugins/codec/libt140_plugin.dll",
         "build/x64/plugins/codec/libtextst_plugin.dll",
         "build/x64/plugins/codec/libtheora_plugin.dll",
         "build/x64/plugins/codec/libttml_plugin.dll",
@@ -9585,17 +7702,7 @@
         "build/x64/plugins/codec/libvpx_plugin.dll",
         "build/x64/plugins/codec/libwebvtt_plugin.dll",
         "build/x64/plugins/codec/libx26410b_plugin.dll",
-        "build/x64/plugins/codec/libx264_plugin.dll",
-        "build/x64/plugins/codec/libx265_plugin.dll",
         "build/x64/plugins/codec/libzvbi_plugin.dll",
-        "build/x64/plugins/control/libdummy_plugin.dll",
-        "build/x64/plugins/control/libgestures_plugin.dll",
-        "build/x64/plugins/control/libhotkeys_plugin.dll",
-        "build/x64/plugins/control/libnetsync_plugin.dll",
-        "build/x64/plugins/control/libntservice_plugin.dll",
-        "build/x64/plugins/control/liboldrc_plugin.dll",
-        "build/x64/plugins/control/libwin_hotkeys_plugin.dll",
-        "build/x64/plugins/control/libwin_msg_plugin.dll",
         "build/x64/plugins/d3d11/libdirect3d11_filters_plugin.dll",
         "build/x64/plugins/d3d9/libdirect3d9_filters_plugin.dll",
         "build/x64/plugins/demux/libadaptive_plugin.dll",
@@ -9619,7 +7726,6 @@
         "build/x64/plugins/demux/libmkv_plugin.dll",
         "build/x64/plugins/demux/libmod_plugin.dll",
         "build/x64/plugins/demux/libmp4_plugin.dll",
-        "build/x64/plugins/demux/libmpc_plugin.dll",
         "build/x64/plugins/demux/libmpgv_plugin.dll",
         "build/x64/plugins/demux/libnoseek_plugin.dll",
         "build/x64/plugins/demux/libnsc_plugin.dll",
@@ -9632,8 +7738,6 @@
         "build/x64/plugins/demux/librawaud_plugin.dll",
         "build/x64/plugins/demux/librawdv_plugin.dll",
         "build/x64/plugins/demux/librawvid_plugin.dll",
-        "build/x64/plugins/demux/libreal_plugin.dll",
-        "build/x64/plugins/demux/libsid_plugin.dll",
         "build/x64/plugins/demux/libsmf_plugin.dll",
         "build/x64/plugins/demux/libsubtitle_plugin.dll",
         "build/x64/plugins/demux/libts_plugin.dll",
@@ -9644,24 +7748,16 @@
         "build/x64/plugins/demux/libvoc_plugin.dll",
         "build/x64/plugins/demux/libwav_plugin.dll",
         "build/x64/plugins/demux/libxa_plugin.dll",
-        "build/x64/plugins/gui/libqt_plugin.dll",
-        "build/x64/plugins/gui/libskins2_plugin.dll",
         "build/x64/plugins/keystore/libfile_keystore_plugin.dll",
         "build/x64/plugins/keystore/libmemory_keystore_plugin.dll",
         "build/x64/plugins/logger/libconsole_logger_plugin.dll",
-        "build/x64/plugins/logger/libfile_logger_plugin.dll",
         "build/x64/plugins/lua/liblua_plugin.dll",
         "build/x64/plugins/meta_engine/libfolder_plugin.dll",
         "build/x64/plugins/meta_engine/libtaglib_plugin.dll",
         "build/x64/plugins/misc/libaddonsfsstorage_plugin.dll",
         "build/x64/plugins/misc/libaddonsvorepository_plugin.dll",
-        "build/x64/plugins/misc/libaudioscrobbler_plugin.dll",
-        "build/x64/plugins/misc/libexport_plugin.dll",
         "build/x64/plugins/misc/libfingerprinter_plugin.dll",
         "build/x64/plugins/misc/libgnutls_plugin.dll",
-        "build/x64/plugins/misc/liblogger_plugin.dll",
-        "build/x64/plugins/misc/libstats_plugin.dll",
-        "build/x64/plugins/misc/libvod_rtsp_plugin.dll",
         "build/x64/plugins/misc/libxml_plugin.dll",
         "build/x64/plugins/mux/libmux_asf_plugin.dll",
         "build/x64/plugins/mux/libmux_avi_plugin.dll",
@@ -9672,7 +7768,6 @@
         "build/x64/plugins/mux/libmux_ps_plugin.dll",
         "build/x64/plugins/mux/libmux_ts_plugin.dll",
         "build/x64/plugins/mux/libmux_wav_plugin.dll",
-        "build/x64/plugins/packetizer/libpacketizer_a52_plugin.dll",
         "build/x64/plugins/packetizer/libpacketizer_av1_plugin.dll",
         "build/x64/plugins/packetizer/libpacketizer_copy_plugin.dll",
         "build/x64/plugins/packetizer/libpacketizer_dirac_plugin.dll",
@@ -9686,10 +7781,7 @@
         "build/x64/plugins/packetizer/libpacketizer_mpegaudio_plugin.dll",
         "build/x64/plugins/packetizer/libpacketizer_mpegvideo_plugin.dll",
         "build/x64/plugins/packetizer/libpacketizer_vc1_plugin.dll",
-        "build/x64/plugins/services_discovery/libmediadirs_plugin.dll",
         "build/x64/plugins/services_discovery/libmicrodns_plugin.dll",
-        "build/x64/plugins/services_discovery/libpodcast_plugin.dll",
-        "build/x64/plugins/services_discovery/libsap_plugin.dll",
         "build/x64/plugins/services_discovery/libupnp_plugin.dll",
         "build/x64/plugins/services_discovery/libwindrive_plugin.dll",
         "build/x64/plugins/spu/libaudiobargraph_v_plugin.dll",
@@ -9713,7 +7805,6 @@
         "build/x64/plugins/stream_out/libstream_out_bridge_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_chromaprint_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_chromecast_plugin.dll",
-        "build/x64/plugins/stream_out/libstream_out_cycle_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_delay_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_description_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_display_plugin.dll",
@@ -9723,7 +7814,6 @@
         "build/x64/plugins/stream_out/libstream_out_gather_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_mosaic_bridge_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_record_plugin.dll",
-        "build/x64/plugins/stream_out/libstream_out_rtp_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_setid_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_smem_plugin.dll",
         "build/x64/plugins/stream_out/libstream_out_standard_plugin.dll",
@@ -9780,11 +7870,9 @@
         "build/x64/plugins/video_filter/libmotiondetect_plugin.dll",
         "build/x64/plugins/video_filter/liboldmovie_plugin.dll",
         "build/x64/plugins/video_filter/libposterize_plugin.dll",
-        "build/x64/plugins/video_filter/libpostproc_plugin.dll",
         "build/x64/plugins/video_filter/libpsychedelic_plugin.dll",
         "build/x64/plugins/video_filter/libpuzzle_plugin.dll",
         "build/x64/plugins/video_filter/libripple_plugin.dll",
-        "build/x64/plugins/video_filter/librotate_plugin.dll",
         "build/x64/plugins/video_filter/libscale_plugin.dll",
         "build/x64/plugins/video_filter/libscene_plugin.dll",
         "build/x64/plugins/video_filter/libsepia_plugin.dll",
@@ -10017,7 +8105,6 @@
         "build/x86/plugins/access/libaccess_concat_plugin.dll",
         "build/x86/plugins/access/libaccess_imem_plugin.dll",
         "build/x86/plugins/access/libaccess_mms_plugin.dll",
-        "build/x86/plugins/access/libaccess_realrtsp_plugin.dll",
         "build/x86/plugins/access/libaccess_srt_plugin.dll",
         "build/x86/plugins/access/libaccess_wasapi_plugin.dll",
         "build/x86/plugins/access/libattachment_plugin.dll",
@@ -10025,10 +8112,7 @@
         "build/x86/plugins/access/libbluray-j2se-1.3.2.jar",
         "build/x86/plugins/access/libcdda_plugin.dll",
         "build/x86/plugins/access/libdcp_plugin.dll",
-        "build/x86/plugins/access/libdshow_plugin.dll",
         "build/x86/plugins/access/libdtv_plugin.dll",
-        "build/x86/plugins/access/libdvdnav_plugin.dll",
-        "build/x86/plugins/access/libdvdread_plugin.dll",
         "build/x86/plugins/access/libfilesystem_plugin.dll",
         "build/x86/plugins/access/libftp_plugin.dll",
         "build/x86/plugins/access/libhttp_plugin.dll",
@@ -10051,7 +8135,6 @@
         "build/x86/plugins/access/libudp_plugin.dll",
         "build/x86/plugins/access/libvcd_plugin.dll",
         "build/x86/plugins/access/libvdr_plugin.dll",
-        "build/x86/plugins/access/libvnc_plugin.dll",
         "build/x86/plugins/access_output/libaccess_output_dummy_plugin.dll",
         "build/x86/plugins/access_output/libaccess_output_file_plugin.dll",
         "build/x86/plugins/access_output/libaccess_output_http_plugin.dll",
@@ -10064,17 +8147,12 @@
         "build/x86/plugins/audio_filter/libaudiobargraph_a_plugin.dll",
         "build/x86/plugins/audio_filter/libchorus_flanger_plugin.dll",
         "build/x86/plugins/audio_filter/libcompressor_plugin.dll",
-        "build/x86/plugins/audio_filter/libdolby_surround_decoder_plugin.dll",
         "build/x86/plugins/audio_filter/libequalizer_plugin.dll",
         "build/x86/plugins/audio_filter/libgain_plugin.dll",
-        "build/x86/plugins/audio_filter/libheadphone_channel_mixer_plugin.dll",
         "build/x86/plugins/audio_filter/libkaraoke_plugin.dll",
-        "build/x86/plugins/audio_filter/libmad_plugin.dll",
-        "build/x86/plugins/audio_filter/libmono_plugin.dll",
         "build/x86/plugins/audio_filter/libnormvol_plugin.dll",
         "build/x86/plugins/audio_filter/libparam_eq_plugin.dll",
         "build/x86/plugins/audio_filter/libremap_plugin.dll",
-        "build/x86/plugins/audio_filter/libsamplerate_plugin.dll",
         "build/x86/plugins/audio_filter/libscaletempo_pitch_plugin.dll",
         "build/x86/plugins/audio_filter/libscaletempo_plugin.dll",
         "build/x86/plugins/audio_filter/libsimple_channel_mixer_plugin.dll",
@@ -10094,12 +8172,10 @@
         "build/x86/plugins/audio_output/libmmdevice_plugin.dll",
         "build/x86/plugins/audio_output/libwasapi_plugin.dll",
         "build/x86/plugins/audio_output/libwaveout_plugin.dll",
-        "build/x86/plugins/codec/liba52_plugin.dll",
         "build/x86/plugins/codec/libadpcm_plugin.dll",
         "build/x86/plugins/codec/libaes3_plugin.dll",
         "build/x86/plugins/codec/libaom_plugin.dll",
         "build/x86/plugins/codec/libaraw_plugin.dll",
-        "build/x86/plugins/codec/libaribsub_plugin.dll",
         "build/x86/plugins/codec/libavcodec_plugin.dll",
         "build/x86/plugins/codec/libcc_plugin.dll",
         "build/x86/plugins/codec/libcdg_plugin.dll",
@@ -10107,20 +8183,17 @@
         "build/x86/plugins/codec/libcvdsub_plugin.dll",
         "build/x86/plugins/codec/libd3d11va_plugin.dll",
         "build/x86/plugins/codec/libdav1d_plugin.dll",
-        "build/x86/plugins/codec/libdca_plugin.dll",
         "build/x86/plugins/codec/libddummy_plugin.dll",
         "build/x86/plugins/codec/libdmo_plugin.dll",
         "build/x86/plugins/codec/libdvbsub_plugin.dll",
         "build/x86/plugins/codec/libdxva2_plugin.dll",
         "build/x86/plugins/codec/libedummy_plugin.dll",
-        "build/x86/plugins/codec/libfaad_plugin.dll",
         "build/x86/plugins/codec/libflac_plugin.dll",
         "build/x86/plugins/codec/libfluidsynth_plugin.dll",
         "build/x86/plugins/codec/libg711_plugin.dll",
         "build/x86/plugins/codec/libjpeg_plugin.dll",
         "build/x86/plugins/codec/libkate_plugin.dll",
         "build/x86/plugins/codec/liblibass_plugin.dll",
-        "build/x86/plugins/codec/liblibmpeg2_plugin.dll",
         "build/x86/plugins/codec/liblpcm_plugin.dll",
         "build/x86/plugins/codec/libmft_plugin.dll",
         "build/x86/plugins/codec/libmpg123_plugin.dll",
@@ -10142,7 +8215,6 @@
         "build/x86/plugins/codec/libsubstx3g_plugin.dll",
         "build/x86/plugins/codec/libsubsusf_plugin.dll",
         "build/x86/plugins/codec/libsvcdsub_plugin.dll",
-        "build/x86/plugins/codec/libt140_plugin.dll",
         "build/x86/plugins/codec/libtextst_plugin.dll",
         "build/x86/plugins/codec/libtheora_plugin.dll",
         "build/x86/plugins/codec/libttml_plugin.dll",
@@ -10152,17 +8224,7 @@
         "build/x86/plugins/codec/libvpx_plugin.dll",
         "build/x86/plugins/codec/libwebvtt_plugin.dll",
         "build/x86/plugins/codec/libx26410b_plugin.dll",
-        "build/x86/plugins/codec/libx264_plugin.dll",
-        "build/x86/plugins/codec/libx265_plugin.dll",
         "build/x86/plugins/codec/libzvbi_plugin.dll",
-        "build/x86/plugins/control/libdummy_plugin.dll",
-        "build/x86/plugins/control/libgestures_plugin.dll",
-        "build/x86/plugins/control/libhotkeys_plugin.dll",
-        "build/x86/plugins/control/libnetsync_plugin.dll",
-        "build/x86/plugins/control/libntservice_plugin.dll",
-        "build/x86/plugins/control/liboldrc_plugin.dll",
-        "build/x86/plugins/control/libwin_hotkeys_plugin.dll",
-        "build/x86/plugins/control/libwin_msg_plugin.dll",
         "build/x86/plugins/d3d11/libdirect3d11_filters_plugin.dll",
         "build/x86/plugins/d3d9/libdirect3d9_filters_plugin.dll",
         "build/x86/plugins/demux/libadaptive_plugin.dll",
@@ -10186,7 +8248,6 @@
         "build/x86/plugins/demux/libmkv_plugin.dll",
         "build/x86/plugins/demux/libmod_plugin.dll",
         "build/x86/plugins/demux/libmp4_plugin.dll",
-        "build/x86/plugins/demux/libmpc_plugin.dll",
         "build/x86/plugins/demux/libmpgv_plugin.dll",
         "build/x86/plugins/demux/libnoseek_plugin.dll",
         "build/x86/plugins/demux/libnsc_plugin.dll",
@@ -10199,8 +8260,6 @@
         "build/x86/plugins/demux/librawaud_plugin.dll",
         "build/x86/plugins/demux/librawdv_plugin.dll",
         "build/x86/plugins/demux/librawvid_plugin.dll",
-        "build/x86/plugins/demux/libreal_plugin.dll",
-        "build/x86/plugins/demux/libsid_plugin.dll",
         "build/x86/plugins/demux/libsmf_plugin.dll",
         "build/x86/plugins/demux/libsubtitle_plugin.dll",
         "build/x86/plugins/demux/libts_plugin.dll",
@@ -10211,24 +8270,16 @@
         "build/x86/plugins/demux/libvoc_plugin.dll",
         "build/x86/plugins/demux/libwav_plugin.dll",
         "build/x86/plugins/demux/libxa_plugin.dll",
-        "build/x86/plugins/gui/libqt_plugin.dll",
-        "build/x86/plugins/gui/libskins2_plugin.dll",
         "build/x86/plugins/keystore/libfile_keystore_plugin.dll",
         "build/x86/plugins/keystore/libmemory_keystore_plugin.dll",
         "build/x86/plugins/logger/libconsole_logger_plugin.dll",
-        "build/x86/plugins/logger/libfile_logger_plugin.dll",
         "build/x86/plugins/lua/liblua_plugin.dll",
         "build/x86/plugins/meta_engine/libfolder_plugin.dll",
         "build/x86/plugins/meta_engine/libtaglib_plugin.dll",
         "build/x86/plugins/misc/libaddonsfsstorage_plugin.dll",
         "build/x86/plugins/misc/libaddonsvorepository_plugin.dll",
-        "build/x86/plugins/misc/libaudioscrobbler_plugin.dll",
-        "build/x86/plugins/misc/libexport_plugin.dll",
         "build/x86/plugins/misc/libfingerprinter_plugin.dll",
         "build/x86/plugins/misc/libgnutls_plugin.dll",
-        "build/x86/plugins/misc/liblogger_plugin.dll",
-        "build/x86/plugins/misc/libstats_plugin.dll",
-        "build/x86/plugins/misc/libvod_rtsp_plugin.dll",
         "build/x86/plugins/misc/libxml_plugin.dll",
         "build/x86/plugins/mux/libmux_asf_plugin.dll",
         "build/x86/plugins/mux/libmux_avi_plugin.dll",
@@ -10239,7 +8290,6 @@
         "build/x86/plugins/mux/libmux_ps_plugin.dll",
         "build/x86/plugins/mux/libmux_ts_plugin.dll",
         "build/x86/plugins/mux/libmux_wav_plugin.dll",
-        "build/x86/plugins/packetizer/libpacketizer_a52_plugin.dll",
         "build/x86/plugins/packetizer/libpacketizer_av1_plugin.dll",
         "build/x86/plugins/packetizer/libpacketizer_copy_plugin.dll",
         "build/x86/plugins/packetizer/libpacketizer_dirac_plugin.dll",
@@ -10253,10 +8303,7 @@
         "build/x86/plugins/packetizer/libpacketizer_mpegaudio_plugin.dll",
         "build/x86/plugins/packetizer/libpacketizer_mpegvideo_plugin.dll",
         "build/x86/plugins/packetizer/libpacketizer_vc1_plugin.dll",
-        "build/x86/plugins/services_discovery/libmediadirs_plugin.dll",
         "build/x86/plugins/services_discovery/libmicrodns_plugin.dll",
-        "build/x86/plugins/services_discovery/libpodcast_plugin.dll",
-        "build/x86/plugins/services_discovery/libsap_plugin.dll",
         "build/x86/plugins/services_discovery/libupnp_plugin.dll",
         "build/x86/plugins/services_discovery/libwindrive_plugin.dll",
         "build/x86/plugins/spu/libaudiobargraph_v_plugin.dll",
@@ -10280,7 +8327,6 @@
         "build/x86/plugins/stream_out/libstream_out_bridge_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_chromaprint_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_chromecast_plugin.dll",
-        "build/x86/plugins/stream_out/libstream_out_cycle_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_delay_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_description_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_display_plugin.dll",
@@ -10290,7 +8336,6 @@
         "build/x86/plugins/stream_out/libstream_out_gather_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_mosaic_bridge_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_record_plugin.dll",
-        "build/x86/plugins/stream_out/libstream_out_rtp_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_setid_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_smem_plugin.dll",
         "build/x86/plugins/stream_out/libstream_out_standard_plugin.dll",
@@ -10347,11 +8392,9 @@
         "build/x86/plugins/video_filter/libmotiondetect_plugin.dll",
         "build/x86/plugins/video_filter/liboldmovie_plugin.dll",
         "build/x86/plugins/video_filter/libposterize_plugin.dll",
-        "build/x86/plugins/video_filter/libpostproc_plugin.dll",
         "build/x86/plugins/video_filter/libpsychedelic_plugin.dll",
         "build/x86/plugins/video_filter/libpuzzle_plugin.dll",
         "build/x86/plugins/video_filter/libripple_plugin.dll",
-        "build/x86/plugins/video_filter/librotate_plugin.dll",
         "build/x86/plugins/video_filter/libscale_plugin.dll",
         "build/x86/plugins/video_filter/libscene_plugin.dll",
         "build/x86/plugins/video_filter/libsepia_plugin.dll",
@@ -10384,7 +8427,7 @@
         "build/x86/vlc.lib",
         "build/x86/vlccore.lib",
         "icon.png",
-        "videolan.libvlc.windows.3.0.20.nupkg.sha512",
+        "videolan.libvlc.windows.3.0.21.nupkg.sha512",
         "videolan.libvlc.windows.nuspec"
       ]
     }
@@ -10392,21 +8435,21 @@
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
       "LibVLCSharp.WinForms >= 3.8.2",
-      "Microsoft.NET.ILLink.Tasks >= 8.0.18",
+      "Microsoft.NET.ILLink.Tasks >= 8.0.21",
       "Newtonsoft.Json >= 13.0.3",
       "SDL2-CS.NetCore >= 2.0.8",
       "SharpDX >= 4.2.0",
       "SharpDX.DirectInput >= 4.2.0",
       "SharpDX.XInput >= 4.2.0",
       "System.Runtime.InteropServices >= 4.3.0",
-      "VideoLAN.LibVLC.Windows >= 3.0.20"
+      "VideoLAN.LibVLC.Windows >= 3.0.21"
     ]
   },
   "packageFolders": {
     "/home/jules/.nuget/packages/": {}
   },
   "project": {
-    "version": "2.2.0",
+    "version": "2.2.3",
     "restore": {
       "projectUniqueName": "/app/BatRun.csproj",
       "projectName": "BatRun",
@@ -10433,6 +8476,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -10446,7 +8494,7 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[8.0.18, )",
+            "version": "[8.0.21, )",
             "autoReferenced": true
           },
           "Newtonsoft.Json": {
@@ -10475,7 +8523,7 @@
           },
           "VideoLAN.LibVLC.Windows": {
             "target": "Package",
-            "version": "[3.0.20, )"
+            "version": "[3.0.21, )"
           }
         },
         "imports": [
@@ -10491,42 +8539,38 @@
         "warn": true,
         "downloadDependencies": [
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-            "version": "[8.0.18, 8.0.18]"
-          },
-          {
             "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
-            "version": "[8.0.18, 8.0.18]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.linux-x64",
-            "version": "[8.0.18, 8.0.18]"
+            "version": "[8.0.21, 8.0.21]"
           },
           {
             "name": "Microsoft.NETCore.App.Host.win-x64",
-            "version": "[8.0.18, 8.0.18]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-            "version": "[8.0.18, 8.0.18]"
+            "version": "[8.0.21, 8.0.21]"
           },
           {
             "name": "Microsoft.NETCore.App.Runtime.win-x64",
-            "version": "[8.0.18, 8.0.18]"
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
+            "version": "[8.0.21, 8.0.21]"
           }
         ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
+          },
+          "Microsoft.WindowsDesktop.App.WindowsForms": {
+            "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.118/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/jules/.dotnet/sdk/8.0.415/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {
-      "linux-x64": {
-        "#import": []
-      },
       "win-x64": {
         "#import": []
       }

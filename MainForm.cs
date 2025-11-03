@@ -90,7 +90,7 @@ namespace BatRun
             this.BackColor = Color.FromArgb(32, 32, 32);
             this.ForeColor = Color.White;
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-            this.Size = new Size(800, 550); // Augmenté pour accommoder la box de mise à jour en bas
+            this.ClientSize = new Size(800, 550); // Augmenté pour accommoder la box de mise à jour en bas
 
             // Création du panneau principal qui contiendra les boutons
             var mainPanel = new TableLayoutPanel
@@ -278,18 +278,19 @@ namespace BatRun
 
             var layout = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                AutoSize = true
+                Height = 170,
+                AutoSize = false
             };
 
-            // Configuration des lignes avec des hauteurs automatiques
+            // Configuration des lignes avec des hauteurs fixes
             layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 1
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 2
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Titre
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 1
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 2
 
             // Titre du panneau
             var titleLabel = new Label
@@ -328,18 +329,19 @@ namespace BatRun
 
             var layout = new TableLayoutPanel
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.Top,
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                AutoSize = true
+                Height = 170,
+                AutoSize = false
             };
 
-            // Configuration des lignes avec des hauteurs automatiques
+            // Configuration des lignes avec des hauteurs fixes
             layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 1
-            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 2
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Titre
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 1
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 2
 
             // Titre du panneau
             var titleLabel = new Label
