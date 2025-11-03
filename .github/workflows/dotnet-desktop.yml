@@ -2,9 +2,13 @@ name: Build BatRun
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev*
+      - feature/*
+      - hotfix/*
   pull_request:
-    branches: [ "main" ]
+    branches: ['**']  # toutes les PR vers n’importe quelle branche
 
 jobs:
   build:
