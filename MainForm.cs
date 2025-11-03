@@ -278,19 +278,18 @@ namespace BatRun
 
             var layout = new TableLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                Height = 170,
-                AutoSize = false
+                AutoSize = true
             };
 
-            // Configuration des lignes avec des hauteurs fixes
+            // Configuration des lignes avec des hauteurs automatiques
             layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 1
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 2
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Titre
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 1
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 2
 
             // Titre du panneau
             var titleLabel = new Label
@@ -329,19 +328,18 @@ namespace BatRun
 
             var layout = new TableLayoutPanel
             {
-                Dock = DockStyle.Top,
+                Dock = DockStyle.Fill,
                 Padding = new Padding(10),
                 RowCount = 3,
                 ColumnCount = 1,
-                Height = 170,
-                AutoSize = false
+                AutoSize = true
             };
 
-            // Configuration des lignes avec des hauteurs fixes
+            // Configuration des lignes avec des hauteurs automatiques
             layout.RowStyles.Clear();
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 50)); // Titre
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 1
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 60)); // Bouton 2
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize)); // Titre
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 1
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Bouton 2
 
             // Titre du panneau
             var titleLabel = new Label

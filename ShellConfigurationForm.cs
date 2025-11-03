@@ -99,6 +99,46 @@ namespace BatRun
         private void UpdateLocalizedTexts()
         {
             this.Text = LocalizedStrings.GetString("Shell Configuration");
+
+            // Find controls by a more reliable method if names are not set
+            var topPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<TableLayoutPanel>().First();
+            var windowsPolicyCheckBox = topPanel.Controls[0] as CheckBox;
+            if (windowsPolicyCheckBox != null)
+                windowsPolicyCheckBox.Text = LocalizedStrings.GetString("Enable Custom User Interface in Group Policy");
+
+            if (launchRetroBatCheckBox != null)
+                launchRetroBatCheckBox.Text = LocalizedStrings.GetString("Launch RetroBAT at the end of the list");
+
+            if (retroBatDelayNumericLabel != null)
+                retroBatDelayNumericLabel.Text = LocalizedStrings.GetString("Delay (seconds)");
+
+            var randomGameCheckBox = topPanel.Controls.Find("randomGameCheckBox", true).FirstOrDefault() as CheckBox;
+            if (randomGameCheckBox != null)
+                randomGameCheckBox.Text = LocalizedStrings.GetString("Launch a random game at startup (Shell Launcher only)");
+
+            var centerPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<TableLayoutPanel>().Last();
+            var actionPanel = centerPanel.Controls.OfType<FlowLayoutPanel>().First();
+            var scrapButton = actionPanel.Controls[2] as Button;
+            if(scrapButton != null)
+                scrapButton.Text = LocalizedStrings.GetString("Scrap Game");
+
+            if(commandListView != null)
+            {
+                commandListView.Columns[1].Text = LocalizedStrings.GetString("Path");
+                commandListView.Columns[2].Text = LocalizedStrings.GetString("Enable");
+                commandListView.Columns[3].Text = LocalizedStrings.GetString("Delay (seconds)");
+                commandListView.Columns[4].Text = LocalizedStrings.GetString("Type");
+                commandListView.Columns[5].Text = LocalizedStrings.GetString("Auto-Hide");
+                commandListView.Columns[6].Text = LocalizedStrings.GetString("Double Launch");
+            }
+
+            var buttonPanel = this.Controls.OfType<TableLayoutPanel>().First().Controls.OfType<FlowLayoutPanel>().Last();
+            var saveButton = buttonPanel.Controls[1] as Button;
+            if(saveButton != null)
+                saveButton.Text = LocalizedStrings.GetString("Save");
+            var cancelButton = buttonPanel.Controls[0] as Button;
+            if(cancelButton != null)
+                cancelButton.Text = LocalizedStrings.GetString("Cancel");
         }
 
         private void InitializeComponent()

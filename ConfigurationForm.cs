@@ -164,10 +164,6 @@ namespace BatRun
                 {
                     startupMethod = "Registry";
                 }
-                else if (IsStartupTaskExists())
-                {
-                    startupMethod = "Task Scheduler";
-                }
                 
                 if (comboBoxStartupMethod.Items.Contains(startupMethod))
                 {
@@ -191,14 +187,12 @@ namespace BatRun
             comboBoxStartupMethod.Items.Add("Disabled");
             comboBoxStartupMethod.Items.Add("Shortcut");
             comboBoxStartupMethod.Items.Add("Registry");
-            comboBoxStartupMethod.Items.Add("Task Scheduler");
             
             var displayTexts = new Dictionary<string, string>
             {
                 { "Disabled", LocalizedStrings.GetString("Disabled") },
                 { "Shortcut", LocalizedStrings.GetString("Shortcut") },
-                { "Registry", LocalizedStrings.GetString("Registry") },
-                { "Task Scheduler", LocalizedStrings.GetString("Task Scheduler") }
+                { "Registry", LocalizedStrings.GetString("Registry") }
             };
 
             comboBoxStartupMethod.Format += (s, e) =>
@@ -714,133 +708,6 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
             return string.Empty;
         }
 
-        private bool IsStartupTaskExists()
-        {
-            try
-            {
-                using var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "schtasks",
-                        Arguments = "/query /tn \"BatRun_Startup\"",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    }
-                };
-                process.Start();
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-                return output.Contains("BatRun_Startup");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error checking startup task", ex);
-                return false;
-            }
-        }
-
-        private void CreateStartupTask()
-        {
-            try
-            {
-                string exePath = Application.ExecutablePath;
-                string workingDir = Path.GetDirectoryName(exePath) ?? "";
-                string domainUser = Environment.UserDomainName + "\\" + Environment.UserName;
-
-                exePath = exePath.Replace("\"", "\\\"");
-                workingDir = workingDir.Replace("\"", "\\\"");
-
-                string script = $@"
-                    Import-Module ScheduledTasks
-                    try {{
-                        $action = New-ScheduledTaskAction -Execute '{exePath}' -WorkingDirectory '{workingDir}'
-                        $trigger = New-ScheduledTaskTrigger -AtLogon -User '{domainUser}'
-                        $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit 0
-                        $principal = New-ScheduledTaskPrincipal -GroupId 'BUILTIN\Users' -RunLevel Limited
-                        Unregister-ScheduledTask -TaskName 'BatRun_Startup' -Confirm:$false -ErrorAction SilentlyContinue
-                        Register-ScheduledTask -TaskName 'BatRun_Startup' `
-                                             -Action $action `
-                                             -Trigger $trigger `
-                                             -Settings $settings `
-                                             -Principal $principal `
-                                             -Description 'BatRun Startup Task' `
-                                             -Force
-                    }}
-                    catch {{
-                        Write-Error $_.Exception.Message
-                        exit 1
-                    }}
-                ";
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using var process = Process.Start(startInfo);
-                if (process != null)
-                {
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-
-                    if (process.ExitCode != 0)
-                    {
-                        throw new Exception($"PowerShell error: {error}");
-                    }
-
-                    logger.LogInfo("Created startup task successfully using PowerShell");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error creating startup task: {ex.Message}", ex);
-                throw;
-            }
-        }
-
-        private void RemoveStartupTask()
-        {
-            try
-            {
-                string script = @"
-                    $taskName = 'BatRun_Startup'
-                    $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-                    if ($task) {
-                        Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-                    }
-                ";
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{script}\"",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using var process = Process.Start(startInfo);
-                if (process != null)
-                {
-                    process.WaitForExit();
-                }
-                logger.LogInfo("Removed startup task successfully");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("Error removing startup task", ex);
-            }
-        }
-
         private void HandleStartupMethod()
         {
             string startupMethod = comboBoxStartupMethod.SelectedItem?.ToString() ?? "Disabled";
@@ -863,14 +730,12 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                             File.Delete(startupPath);
                         }
                         SetStartupRegistry(false);
-                        RemoveStartupTask();
                         logger.LogInfo("All startup methods disabled successfully");
                         break;
 
                     case "Shortcut":
                         logger.LogInfo("Creating startup shortcut...");
                         SetStartupRegistry(false);
-                        RemoveStartupTask();
                         CreateStartupShortcut();
                         logger.LogInfo("Startup shortcut created successfully");
                         break;
@@ -882,21 +747,8 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                             logger.LogInfo("Removing existing shortcut...");
                             File.Delete(startupPath);
                         }
-                        RemoveStartupTask();
                         SetStartupRegistry(true);
                         logger.LogInfo("Registry startup set successfully");
-                        break;
-
-                    case "Task Scheduler":
-                        logger.LogInfo("Setting up task scheduler startup...");
-                        if(File.Exists(startupPath))
-                        {
-                            logger.LogInfo("Removing existing shortcut...");
-                            File.Delete(startupPath);
-                        }
-                        SetStartupRegistry(false);
-                        CreateStartupTask();
-                        logger.LogInfo("Task scheduler startup set successfully");
                         break;
 
                     default:

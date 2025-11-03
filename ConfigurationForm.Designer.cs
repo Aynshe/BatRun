@@ -83,7 +83,6 @@ namespace BatRun
             focusLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             
             this.groupBoxFocus.Controls.Add(focusLayoutPanel);
-            this.groupBoxFocus.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxFocus.AutoSize = true;
             this.groupBoxFocus.Name = "groupBoxFocus";
             this.groupBoxFocus.TabIndex = 0;
@@ -156,7 +155,6 @@ namespace BatRun
             windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             this.groupBoxWindows.Controls.Add(windowsLayoutPanel);
-            this.groupBoxWindows.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBoxWindows.AutoSize = true;
             this.groupBoxWindows.Name = "groupBoxWindows";
             this.groupBoxWindows.TabIndex = 1;
@@ -264,7 +262,8 @@ namespace BatRun
             // ConfigurationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(550, 750);
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.Controls.Add(mainLayoutPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
