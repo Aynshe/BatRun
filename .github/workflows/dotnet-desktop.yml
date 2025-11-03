@@ -2,9 +2,13 @@ name: Build BatRun
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - dev*
+      - feature/*
+      - hotfix/*
   pull_request:
-    branches: [ "main" ]
+    branches: ['**']
 
 jobs:
   build:
@@ -26,8 +30,16 @@ jobs:
     # - name: Run tests
     #   run: dotnet test Path\To\TestProject.csproj --configuration Release
 
+    - name: Sanitize ref name for artifact name
+      id: sanitize
+      run: |
+        $ref = "${{ github.ref_name }}"
+        $sanitized_ref = $ref.Replace('/', '-')
+        echo "ref_name=$sanitized_ref" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: BatRun-Build
+        name: BatRun-Build-${{ steps.sanitize.outputs.ref_name }}
         path: bin/Release/**
