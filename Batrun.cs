@@ -1153,55 +1153,71 @@ namespace BatRun
             }
         }
 
-        private void FocusEmulationStation()
+        private async void FocusEmulationStation()
         {
-            try
+            // Use the robust looping focus logic to ensure ES comes to the foreground, especially after the loading video.
+            int focusDuration = config.ReadInt("Focus", "FocusDuration", 10000); // Try for 10 seconds
+            int focusInterval = config.ReadInt("Focus", "FocusInterval", 500);
+            int elapsedTime = 0;
+
+            logger.LogInfo($"Starting robust focus sequence for EmulationStation (Duration: {focusDuration}ms, Interval: {focusInterval}ms)");
+
+            while (elapsedTime < focusDuration)
             {
-                Process[] processes = Process.GetProcessesByName("EmulationStation");
-                if (processes.Length > 0 && !processes[0].HasExited)
+                try
                 {
-                    IntPtr hWnd = processes[0].MainWindowHandle;
+                    var process = Process.GetProcessesByName("emulationstation").FirstOrDefault();
+                    IntPtr hWnd = process?.MainWindowHandle ?? IntPtr.Zero;
+
                     if (hWnd != IntPtr.Zero)
                     {
-                        // Allow focus change for this process
-                        NativeMethods.AllowSetForegroundWindow(processes[0].Id);
-
-                        // Get thread IDs
-                        uint foregroundThread = NativeMethods.GetWindowThreadProcessId(
-                            NativeMethods.GetForegroundWindow(), IntPtr.Zero);
-                        uint appThread = NativeMethods.GetCurrentThreadId();
-
-                        // Attach threads for focus
-                        bool threadAttached = false;
-                        if (foregroundThread != appThread)
+                        if (process != null)
                         {
-                            threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
-                        }
+                            NativeMethods.AllowSetForegroundWindow(process.Id);
+                            uint foregroundThread = NativeMethods.GetWindowThreadProcessId(NativeMethods.GetForegroundWindow(), IntPtr.Zero);
+                            uint appThread = NativeMethods.GetCurrentThreadId();
+                            bool threadAttached = false;
 
-                        try
-                        {
-                            NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
-                            NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
-                            NativeMethods.BringWindowToTop(hWnd);
-                            NativeMethods.SetForegroundWindow(hWnd);
-
-                            logger.LogInfo("Focus forcefully applied to EmulationStation");
-                        }
-                        finally
-                        {
-                            // Detach threads if necessary
-                            if (threadAttached)
+                            if (foregroundThread != appThread)
                             {
-                                NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
+                                threadAttached = NativeMethods.AttachThreadInput(foregroundThread, appThread, true);
+                            }
+
+                            try
+                            {
+                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_RESTORE);
+                                NativeMethods.ShowWindow(hWnd, NativeMethods.SW_SHOW);
+                                NativeMethods.BringWindowToTop(hWnd);
+                                NativeMethods.SetForegroundWindow(hWnd);
+                                logger.LogInfo($"Focus applied to EmulationStation (attempt {elapsedTime / focusInterval + 1})");
+
+                                // If the window is now in the foreground, we can stop trying.
+                                if (NativeMethods.GetForegroundWindow() == hWnd)
+                                {
+                                    logger.LogInfo("EmulationStation is now in the foreground. Stopping focus loop.");
+                                    return;
+                                }
+                            }
+                            finally
+                            {
+                                if (threadAttached)
+                                {
+                                    NativeMethods.AttachThreadInput(foregroundThread, appThread, false);
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error setting focus to EmulationStation", ex);
+                }
+
+                await Task.Delay(focusInterval);
+                elapsedTime += focusInterval;
             }
-            catch (Exception ex)
-            {
-                logger.LogError($"Error focusing EmulationStation: {ex.Message}");
-            }
+
+            logger.LogWarning("End of robust focus sequence. EmulationStation may not be in the foreground.");
         }
 
 
