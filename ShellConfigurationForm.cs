@@ -306,11 +306,6 @@ try {
             }
         }
 
-        private void UpdateLocalizedTexts()
-        {
-            this.Text = LocalizedStrings.GetString("Shell Configuration");
-        }
-
         private void ClearPostLaunchGameButton_Click(object? sender, EventArgs e)
         {
             _postLaunchGamePath = string.Empty;
