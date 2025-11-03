@@ -8,7 +8,7 @@ on:
       - feature/*
       - hotfix/*
   pull_request:
-    branches: ['**']  # toutes les PR vers n’importe quelle branche
+    branches: ['**']
 
 jobs:
   build:
