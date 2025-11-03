@@ -8,11 +8,7 @@ on:
       - feature/*
       - hotfix/*
   pull_request:
-    branches:
-      - main
-      - dev*
-      - feature/*
-      - hotfix/*
+    branches: ['**']  # toutes les PR vers n’importe quelle branche
 
 jobs:
   build:
@@ -37,6 +33,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          # Inclure le nom de la branche dans l’artifact pour les différencier
           name: BatRun-Build-${{ github.ref_name }}
           path: bin/Release/**
