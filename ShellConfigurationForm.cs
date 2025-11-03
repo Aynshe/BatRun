@@ -103,6 +103,7 @@ namespace BatRun
 
         private void InitializeComponent()
         {
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Text = "Shell Configuration";
             this.ClientSize = new Size(850, 750);
             this.Font = new Font("Segoe UI", 9F);

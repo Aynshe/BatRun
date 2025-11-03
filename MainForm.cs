@@ -81,6 +81,8 @@ namespace BatRun
 
         private void InitializeCustomComponents()
         {
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+
             LocalizedStrings.LoadTranslations(); // Ensure translations are loaded
             var strings = new LocalizedStrings();
 
