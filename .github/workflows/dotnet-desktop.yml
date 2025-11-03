@@ -8,30 +8,38 @@ on:
       - feature/*
       - hotfix/*
   pull_request:
-    branches: ['**']  # toutes les PR vers n’importe quelle branche
+    branches: ['**']
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
 
-      - name: Build BatRun project
-        run: dotnet build BatRun.csproj --configuration Release
+    - name: Build BatRun project
+      run: dotnet build BatRun.csproj --configuration Release
 
-      # Étape optionnelle pour les tests
-      # - name: Run tests
-      #   run: dotnet test Path\To\TestProject.csproj --configuration Release
+    # Étape optionnelle si un jour tu ajoutes des tests
+    # - name: Run tests
+    #   run: dotnet test Path\To\TestProject.csproj --configuration Release
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: BatRun-Build-${{ github.ref_name }}
-          path: bin/Release/**
+    - name: Sanitize ref name for artifact name
+      id: sanitize
+      run: |
+        $ref = "${{ github.ref_name }}"
+        $sanitized_ref = $ref.Replace('/', '-')
+        echo "ref_name=$sanitized_ref" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: BatRun-Build-${{ steps.sanitize.outputs.ref_name }}
+        path: bin/Release/**
