@@ -88,7 +88,7 @@ namespace BatRun
             this.BackColor = Color.FromArgb(32, 32, 32);
             this.ForeColor = Color.White;
             this.Font = new Font("Segoe UI", 9F, FontStyle.Regular);
-            this.ClientSize = new Size(800, 550); // Augmenté pour accommoder la box de mise à jour en bas
+            this.Size = new Size(800, 550); // Augmenté pour accommoder la box de mise à jour en bas
 
             // Création du panneau principal qui contiendra les boutons
             var mainPanel = new TableLayoutPanel

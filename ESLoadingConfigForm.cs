@@ -23,93 +23,107 @@ namespace BatRun
             this.config = config;
             this.logger = logger;
 
-            Text = LocalizedStrings.GetString("MediaPlayer Settings");
-            Size = new Size(450, 300);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            StartPosition = FormStartPosition.CenterParent;
-            BackColor = Color.FromArgb(28, 28, 28);
-            ForeColor = Color.White;
+            InitializeComponent();
 
-            // Video list
-            var labelVideos = new Label
+            // Setup main layout
+            var mainLayoutPanel = new TableLayoutPanel
             {
-                Text = LocalizedStrings.GetString("Available videos:"),
-                Location = new Point(10, 10),
-                AutoSize = true,
-                ForeColor = Color.White
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 5,
+                Padding = new Padding(10)
             };
-            Controls.Add(labelVideos);
+            mainLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            mainLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            mainLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            mainLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            mainLayoutPanel.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            this.Controls.Add(mainLayoutPanel);
 
-            comboBoxVideos = new ComboBox
-            {
-                Location = new Point(10, 30),
-                Size = new Size(415, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            Controls.Add(comboBoxVideos);
+            // Controls
+            var labelVideos = new Label { Text = LocalizedStrings.GetString("Available videos:"), AutoSize = true };
+            comboBoxVideos = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
 
-            // Playback options
-            checkBoxLoop = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Loop playback"),
-                Location = new Point(10, 70),
-                AutoSize = true,
-                ForeColor = Color.White
-            };
+            var optionsGroupBox = new GroupBox { Text = "Playback Options", Dock = DockStyle.Fill, AutoSize = true };
+            var optionsLayoutPanel = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, AutoSize = true };
+            optionsGroupBox.Controls.Add(optionsLayoutPanel);
+
+            checkBoxLoop = new CheckBox { Text = LocalizedStrings.GetString("Loop playback"), AutoSize = true };
+            checkBoxMuteAfterFirst = new CheckBox { Text = LocalizedStrings.GetString("Mute after first playback"), AutoSize = true, Enabled = false };
+            checkBoxMuteAll = new CheckBox { Text = LocalizedStrings.GetString("Mute all audio"), AutoSize = true };
+
+            var buttonsLayoutPanel = new TableLayoutPanel { Dock = DockStyle.Bottom, ColumnCount = 3, Height = 40 };
+            buttonsLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            buttonsLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            buttonsLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            buttonOK = new Button { Text = LocalizedStrings.GetString("OK"), DialogResult = DialogResult.OK };
+            buttonCancel = new Button { Text = LocalizedStrings.GetString("Cancel"), DialogResult = DialogResult.Cancel };
+            buttonsLayoutPanel.Controls.Add(buttonOK, 1, 0);
+            buttonsLayoutPanel.Controls.Add(buttonCancel, 2, 0);
+
+            // Add controls to layouts
+            mainLayoutPanel.Controls.Add(labelVideos, 0, 0);
+            mainLayoutPanel.Controls.Add(comboBoxVideos, 0, 1);
+            mainLayoutPanel.Controls.Add(optionsGroupBox, 0, 2);
+            mainLayoutPanel.Controls.Add(buttonsLayoutPanel, 0, 4);
+
+            optionsLayoutPanel.Controls.Add(checkBoxLoop);
+            optionsLayoutPanel.Controls.Add(checkBoxMuteAfterFirst);
+            optionsLayoutPanel.Controls.Add(checkBoxMuteAll);
+
+            // Event handlers
             checkBoxLoop.CheckedChanged += CheckBoxLoop_CheckedChanged!;
-            Controls.Add(checkBoxLoop);
 
-            checkBoxMuteAfterFirst = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Mute after first playback"),
-                Location = new Point(10, 95),
-                AutoSize = true,
-                Enabled = false,
-                ForeColor = Color.White
-            };
-            Controls.Add(checkBoxMuteAfterFirst);
-
-            checkBoxMuteAll = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Mute all audio"),
-                Location = new Point(10, 120),
-                AutoSize = true,
-                ForeColor = Color.White
-            };
-            Controls.Add(checkBoxMuteAll);
-
-            // Buttons
-            buttonOK = new Button
-            {
-                Text = LocalizedStrings.GetString("OK"),
-                DialogResult = DialogResult.OK,
-                Location = new Point(220, 230),
-                Size = new Size(100, 30),
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            Controls.Add(buttonOK);
-
-            buttonCancel = new Button
-            {
-                Text = LocalizedStrings.GetString("Cancel"),
-                DialogResult = DialogResult.Cancel,
-                Location = new Point(330, 230),
-                Size = new Size(100, 30),
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            Controls.Add(buttonCancel);
-
+            // Apply styles and load data
+            ApplyDarkTheme();
             LoadSettings();
             LoadVideos();
+        }
+
+        private void ApplyDarkTheme()
+        {
+            this.BackColor = Color.FromArgb(28, 28, 28);
+            this.ForeColor = Color.White;
+
+            foreach (Control control in this.Controls)
+            {
+                if (control is TableLayoutPanel tlp)
+                {
+                    foreach (Control c in tlp.Controls)
+                    {
+                        ApplyControlTheme(c);
+                    }
+                }
+                else
+                {
+                    ApplyControlTheme(control);
+                }
+            }
+        }
+
+        private void ApplyControlTheme(Control control)
+        {
+            control.ForeColor = Color.White;
+            if (control is Button || control is ComboBox)
+            {
+                control.BackColor = Color.FromArgb(45, 45, 48);
+                if(control is ComboBox combo) combo.FlatStyle = FlatStyle.Flat;
+                if(control is Button btn) btn.FlatStyle = FlatStyle.Flat;
+            }
+            if (control is GroupBox gb)
+            {
+                foreach (Control c in gb.Controls)
+                {
+                   ApplyControlTheme(c);
+                }
+            }
+             if (control is TableLayoutPanel tlp)
+            {
+                foreach (Control c in tlp.Controls)
+                {
+                   ApplyControlTheme(c);
+                }
+            }
         }
 
         private void CheckBoxLoop_CheckedChanged(object? sender, EventArgs e)
@@ -165,4 +179,4 @@ namespace BatRun
             }
         }
     }
-} 
+}

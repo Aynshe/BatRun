@@ -50,104 +50,132 @@ namespace BatRun
             this.buttonSave = new System.Windows.Forms.Button();
             this.buttonCancel = new System.Windows.Forms.Button();
 
+            //
+            // mainLayoutPanel
+            //
+            var mainLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            mainLayoutPanel.SuspendLayout();
+            this.SuspendLayout();
+            mainLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            mainLayoutPanel.ColumnCount = 1;
+            mainLayoutPanel.RowCount = 4;
+            mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            mainLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            mainLayoutPanel.Padding = new System.Windows.Forms.Padding(10);
+
+
             // groupBoxFocus
             this.groupBoxFocus.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericFocusDuration)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFocusInterval)).BeginInit();
+
+            var focusLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            focusLayoutPanel.SuspendLayout();
+            focusLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            focusLayoutPanel.ColumnCount = 3;
+            focusLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            focusLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            focusLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            focusLayoutPanel.RowCount = 2;
+            focusLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            focusLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
             
-            this.groupBoxFocus.Controls.Add(this.labelDurationMs);
-            this.groupBoxFocus.Controls.Add(this.labelIntervalMs);
-            this.groupBoxFocus.Controls.Add(this.numericFocusInterval);
-            this.groupBoxFocus.Controls.Add(this.numericFocusDuration);
-            this.groupBoxFocus.Controls.Add(this.labelFocusInterval);
-            this.groupBoxFocus.Controls.Add(this.labelFocusDuration);
-            this.groupBoxFocus.Location = new System.Drawing.Point(12, 12);
+            this.groupBoxFocus.Controls.Add(focusLayoutPanel);
+            this.groupBoxFocus.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxFocus.AutoSize = true;
             this.groupBoxFocus.Name = "groupBoxFocus";
-            this.groupBoxFocus.Size = new System.Drawing.Size(380, 100);
             this.groupBoxFocus.TabIndex = 0;
             this.groupBoxFocus.TabStop = false;
             this.groupBoxFocus.Text = "Focus Settings";
 
             // labelFocusDuration
+            this.labelFocusDuration.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelFocusDuration.AutoSize = true;
-            this.labelFocusDuration.Location = new System.Drawing.Point(15, 25);
             this.labelFocusDuration.Name = "labelFocusDuration";
-            this.labelFocusDuration.Size = new System.Drawing.Size(89, 15);
             this.labelFocusDuration.TabIndex = 0;
             this.labelFocusDuration.Text = "Focus Duration:";
-
-            // labelFocusInterval
-            this.labelFocusInterval.AutoSize = true;
-            this.labelFocusInterval.Location = new System.Drawing.Point(15, 60);
-            this.labelFocusInterval.Name = "labelFocusInterval";
-            this.labelFocusInterval.Size = new System.Drawing.Size(84, 15);
-            this.labelFocusInterval.TabIndex = 1;
-            this.labelFocusInterval.Text = "Focus Interval:";
+            focusLayoutPanel.Controls.Add(this.labelFocusDuration, 0, 0);
 
             // numericFocusDuration
-            this.numericFocusDuration.Location = new System.Drawing.Point(135, 23);
+            this.numericFocusDuration.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numericFocusDuration.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             this.numericFocusDuration.Minimum = new decimal(new int[] { 1000, 0, 0, 0 });
             this.numericFocusDuration.Name = "numericFocusDuration";
-            this.numericFocusDuration.Size = new System.Drawing.Size(100, 23);
             this.numericFocusDuration.TabIndex = 2;
             this.numericFocusDuration.Value = new decimal(new int[] { 15000, 0, 0, 0 });
+            focusLayoutPanel.Controls.Add(this.numericFocusDuration, 1, 0);
+
+            // labelDurationMs
+            this.labelDurationMs.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelDurationMs.AutoSize = true;
+            this.labelDurationMs.Name = "labelDurationMs";
+            this.labelDurationMs.TabIndex = 4;
+            this.labelDurationMs.Text = "ms";
+            focusLayoutPanel.Controls.Add(this.labelDurationMs, 2, 0);
+
+            // labelFocusInterval
+            this.labelFocusInterval.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.labelFocusInterval.AutoSize = true;
+            this.labelFocusInterval.Name = "labelFocusInterval";
+            this.labelFocusInterval.TabIndex = 1;
+            this.labelFocusInterval.Text = "Focus Interval:";
+            focusLayoutPanel.Controls.Add(this.labelFocusInterval, 0, 1);
 
             // numericFocusInterval
-            this.numericFocusInterval.Location = new System.Drawing.Point(135, 58);
+            this.numericFocusInterval.Dock = System.Windows.Forms.DockStyle.Fill;
             this.numericFocusInterval.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             this.numericFocusInterval.Minimum = new decimal(new int[] { 1000, 0, 0, 0 });
             this.numericFocusInterval.Name = "numericFocusInterval";
-            this.numericFocusInterval.Size = new System.Drawing.Size(100, 23);
             this.numericFocusInterval.TabIndex = 3;
             this.numericFocusInterval.Value = new decimal(new int[] { 5000, 0, 0, 0 });
-
-            // labelDurationMs
-            this.labelDurationMs.AutoSize = true;
-            this.labelDurationMs.Location = new System.Drawing.Point(236, 25);
-            this.labelDurationMs.Name = "labelDurationMs";
-            this.labelDurationMs.Size = new System.Drawing.Size(23, 15);
-            this.labelDurationMs.TabIndex = 4;
-            this.labelDurationMs.Text = "ms";
+            focusLayoutPanel.Controls.Add(this.numericFocusInterval, 1, 1);
 
             // labelIntervalMs
+            this.labelIntervalMs.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelIntervalMs.AutoSize = true;
-            this.labelIntervalMs.Location = new System.Drawing.Point(236, 60);
             this.labelIntervalMs.Name = "labelIntervalMs";
-            this.labelIntervalMs.Size = new System.Drawing.Size(23, 15);
             this.labelIntervalMs.TabIndex = 5;
             this.labelIntervalMs.Text = "ms";
+            focusLayoutPanel.Controls.Add(this.labelIntervalMs, 2, 1);
 
             // groupBoxWindows
-            this.groupBoxWindows.Controls.Add(this.comboBoxStartupMethod);
-            this.groupBoxWindows.Controls.Add(this.labelStartupMethod);
-            this.groupBoxWindows.Controls.Add(this.checkBoxMinimizeWindows);
-            this.groupBoxWindows.Controls.Add(this.checkBoxEnableVibration);
-            this.groupBoxWindows.Controls.Add(this.checkBoxEnableLogging);
-            this.groupBoxWindows.Controls.Add(this.checkBoxHideESLoading);
-            this.groupBoxWindows.Controls.Add(this.checkBoxShowSplashScreen);
-            this.groupBoxWindows.Controls.Add(this.checkBoxShowHotkeySplash);
-            this.groupBoxWindows.Location = new System.Drawing.Point(12, 118);
+            var windowsLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            windowsLayoutPanel.SuspendLayout();
+            windowsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            windowsLayoutPanel.ColumnCount = 2;
+            windowsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            windowsLayoutPanel.RowCount = 7;
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            windowsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.groupBoxWindows.Controls.Add(windowsLayoutPanel);
+            this.groupBoxWindows.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBoxWindows.AutoSize = true;
             this.groupBoxWindows.Name = "groupBoxWindows";
-            this.groupBoxWindows.Size = new System.Drawing.Size(380, 215);
             this.groupBoxWindows.TabIndex = 1;
             this.groupBoxWindows.TabStop = false;
             this.groupBoxWindows.Text = "Windows Settings";
 
             // labelStartupMethod
+            this.labelStartupMethod.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.labelStartupMethod.AutoSize = true;
-            this.labelStartupMethod.Location = new System.Drawing.Point(15, 25);
             this.labelStartupMethod.Name = "labelStartupMethod";
-            this.labelStartupMethod.Size = new System.Drawing.Size(120, 15);
             this.labelStartupMethod.TabIndex = 5;
             this.labelStartupMethod.Text = "Start with Windows:";
+            windowsLayoutPanel.Controls.Add(this.labelStartupMethod, 0, 0);
 
             // comboBoxStartupMethod
+            this.comboBoxStartupMethod.Dock = System.Windows.Forms.DockStyle.Fill;
             this.comboBoxStartupMethod.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxStartupMethod.FormattingEnabled = true;
-            this.comboBoxStartupMethod.Location = new System.Drawing.Point(160, 22);
             this.comboBoxStartupMethod.Name = "comboBoxStartupMethod";
-            this.comboBoxStartupMethod.Size = new System.Drawing.Size(190, 23);
             this.comboBoxStartupMethod.TabIndex = 6;
             this.comboBoxStartupMethod.Items.AddRange(new object[] {
                 LocalizedStrings.GetString("Disabled"),
@@ -155,79 +183,89 @@ namespace BatRun
                 LocalizedStrings.GetString("Registry")
             });
             this.comboBoxStartupMethod.SelectedIndex = 0;
+            windowsLayoutPanel.Controls.Add(this.comboBoxStartupMethod, 1, 0);
 
             // checkBoxMinimizeWindows
             this.checkBoxMinimizeWindows.AutoSize = true;
-            this.checkBoxMinimizeWindows.Location = new System.Drawing.Point(15, 50);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxMinimizeWindows, 2);
             this.checkBoxMinimizeWindows.Name = "checkBoxMinimizeWindows";
-            this.checkBoxMinimizeWindows.Size = new System.Drawing.Size(180, 19);
             this.checkBoxMinimizeWindows.TabIndex = 0;
             this.checkBoxMinimizeWindows.Text = "Minimize active windows on launch";
+            windowsLayoutPanel.Controls.Add(this.checkBoxMinimizeWindows, 0, 1);
 
             // checkBoxEnableVibration
             this.checkBoxEnableVibration.AutoSize = true;
-            this.checkBoxEnableVibration.Location = new System.Drawing.Point(15, 75);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxEnableVibration, 2);
             this.checkBoxEnableVibration.Name = "checkBoxEnableVibration";
-            this.checkBoxEnableVibration.Size = new System.Drawing.Size(180, 19);
             this.checkBoxEnableVibration.TabIndex = 7;
             this.checkBoxEnableVibration.Text = "Enable controller vibration";
+            windowsLayoutPanel.Controls.Add(this.checkBoxEnableVibration, 0, 2);
 
             // checkBoxEnableLogging
             this.checkBoxEnableLogging.AutoSize = true;
-            this.checkBoxEnableLogging.Location = new System.Drawing.Point(15, 100);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxEnableLogging, 2);
             this.checkBoxEnableLogging.Name = "checkBoxEnableLogging";
-            this.checkBoxEnableLogging.Size = new System.Drawing.Size(180, 19);
             this.checkBoxEnableLogging.TabIndex = 2;
             this.checkBoxEnableLogging.Text = "Enable logging (requires restart)";
+            windowsLayoutPanel.Controls.Add(this.checkBoxEnableLogging, 0, 3);
 
             // checkBoxHideESLoading
             this.checkBoxHideESLoading.AutoSize = true;
-            this.checkBoxHideESLoading.Location = new System.Drawing.Point(15, 125);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxHideESLoading, 2);
             this.checkBoxHideESLoading.Name = "checkBoxHideESLoading";
-            this.checkBoxHideESLoading.Size = new System.Drawing.Size(180, 19);
             this.checkBoxHideESLoading.TabIndex = 8;
             this.checkBoxHideESLoading.Text = "Hide ES during loading";
+            windowsLayoutPanel.Controls.Add(this.checkBoxHideESLoading, 0, 4);
 
             // checkBoxShowSplashScreen
             this.checkBoxShowSplashScreen.AutoSize = true;
-            this.checkBoxShowSplashScreen.Location = new System.Drawing.Point(15, 150);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxShowSplashScreen, 2);
             this.checkBoxShowSplashScreen.Name = "checkBoxShowSplashScreen";
-            this.checkBoxShowSplashScreen.Size = new System.Drawing.Size(180, 19);
             this.checkBoxShowSplashScreen.TabIndex = 9;
             this.checkBoxShowSplashScreen.Text = "Show splash screen on startup";
+            windowsLayoutPanel.Controls.Add(this.checkBoxShowSplashScreen, 0, 5);
 
             // checkBoxShowHotkeySplash
             this.checkBoxShowHotkeySplash.AutoSize = true;
-            this.checkBoxShowHotkeySplash.Location = new System.Drawing.Point(15, 175);
+            windowsLayoutPanel.SetColumnSpan(this.checkBoxShowHotkeySplash, 2);
             this.checkBoxShowHotkeySplash.Name = "checkBoxShowHotkeySplash";
-            this.checkBoxShowHotkeySplash.Size = new System.Drawing.Size(180, 19);
             this.checkBoxShowHotkeySplash.TabIndex = 10;
             this.checkBoxShowHotkeySplash.Text = "Show RetroBat splash screen";
+            windowsLayoutPanel.Controls.Add(this.checkBoxShowHotkeySplash, 0, 6);
 
-            // buttonSave
-            this.buttonSave.Location = new System.Drawing.Point(236, 265);
+            // buttonSave and buttonCancel
+            var buttonsLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            buttonsLayoutPanel.SuspendLayout();
+            buttonsLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            buttonsLayoutPanel.ColumnCount = 3;
+            buttonsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            buttonsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            buttonsLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            buttonsLayoutPanel.RowCount = 1;
+            buttonsLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.AutoSize));
+
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(75, 23);
             this.buttonSave.TabIndex = 2;
             this.buttonSave.Text = "Save";
             this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
+            buttonsLayoutPanel.Controls.Add(this.buttonSave, 1, 0);
 
-            // buttonCancel
-            this.buttonCancel.Location = new System.Drawing.Point(317, 265);
             this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(75, 23);
             this.buttonCancel.TabIndex = 3;
             this.buttonCancel.Text = "Cancel";
             this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
+            buttonsLayoutPanel.Controls.Add(this.buttonCancel, 2, 0);
+
+            // Add all to main layout panel
+            mainLayoutPanel.Controls.Add(this.groupBoxFocus, 0, 0);
+            mainLayoutPanel.Controls.Add(this.groupBoxWindows, 0, 1);
+            mainLayoutPanel.Controls.Add(buttonsLayoutPanel, 0, 3);
 
             // ConfigurationForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(405, 320);
-            this.Controls.Add(this.buttonCancel);
-            this.Controls.Add(this.buttonSave);
-            this.Controls.Add(this.groupBoxWindows);
-            this.Controls.Add(this.groupBoxFocus);
+            this.ClientSize = new System.Drawing.Size(500, 600);
+            this.Controls.Add(mainLayoutPanel);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -237,10 +275,17 @@ namespace BatRun
             
             this.groupBoxFocus.ResumeLayout(false);
             this.groupBoxFocus.PerformLayout();
+            focusLayoutPanel.ResumeLayout(false);
+            focusLayoutPanel.PerformLayout();
             this.groupBoxWindows.ResumeLayout(false);
             this.groupBoxWindows.PerformLayout();
+            windowsLayoutPanel.ResumeLayout(false);
+            windowsLayoutPanel.PerformLayout();
+            buttonsLayoutPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.numericFocusDuration)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericFocusInterval)).EndInit();
+            mainLayoutPanel.ResumeLayout(false);
+            mainLayoutPanel.PerformLayout();
             this.ResumeLayout(false);
         }
 
@@ -265,4 +310,4 @@ namespace BatRun
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonCancel;
     }
-} 
+}
