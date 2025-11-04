@@ -131,6 +131,7 @@ namespace BatRun
             System.Diagnostics.ProcessStartInfo startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = _retrobatPath,
+                Arguments = "--external-launcher",
                 UseShellExecute = false
             };
             System.Diagnostics.Process.Start(startInfo);
