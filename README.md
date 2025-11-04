@@ -10,7 +10,12 @@ ________________________________________________________________________________
 <img width="786" height="543" alt="image" src="https://github.com/user-attachments/assets/903374b4-4f0e-4219-8213-4f077c937084" />
 _____________________________________________________________________________________________________________________________________________________
 
-## ✨ New — Automatic Launch game (BatRun 2.2.0)
+## ✨ New — fix (BatRun 2.2.4)
+
+- Added a combined function with RetroBat.exe (starting with version 7.5.0.1) so that Batrun does not compete for focus
+- Lock DPI scaling
+
+## Automatic Launch game (BatRun 2.2.0)
 
 - **System selection**: Choose a system (console, arcade, etc.) and BatRun will directly launch a game from that system.
 - **Random mode** *(optional)*: Enable the option to have a game randomly selected from the chosen system.
