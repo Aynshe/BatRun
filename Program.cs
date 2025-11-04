@@ -66,7 +66,7 @@ namespace BatRun
                         return;
                     }
 
-                    Application.SetHighDpiMode(HighDpiMode.SystemAware);
+                    Application.SetHighDpiMode(HighDpiMode.DpiUnaware);
                     Application.EnableVisualStyles();
                     Application.SetCompatibleTextRenderingDefault(false);
 
