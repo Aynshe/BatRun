@@ -215,9 +215,20 @@ namespace BatRun
             {
                 OpenAllJoysticks();
                 string selectedVideo = config.ReadValue("Windows", "ESLoadingVideo", "None");
-                if (selectedVideo == "None") return;
+                logger.LogInfo($"ES loading video config value: '{selectedVideo}'");
 
-                if (!File.Exists(videoPath))
+                if (selectedVideo == "None")
+                {
+                    logger.LogInfo("ES loading video is set to 'None' in config, skipping video.");
+                    return;
+                }
+
+                logger.LogInfo($"Requested ES loading video path: {videoPath}");
+
+                bool videoExists = File.Exists(videoPath);
+                logger.LogInfo($"ES loading video file exists: {videoExists}");
+
+                if (!videoExists)
                 {
                     logger.LogError($"Loading video not found: {videoPath}");
                     return;
@@ -335,14 +346,19 @@ namespace BatRun
                 videoThread.Start();
 
                 var timeout = Task.Delay(TimeSpan.FromSeconds(15));
-                if (await Task.WhenAny(tcs.Task, timeout) == timeout)
+                var completedTask = await Task.WhenAny(tcs.Task, timeout);
+
+                if (completedTask == timeout)
                 {
-                    // Timeout
-                    logger.LogError("Video player startup timed out after 15 seconds. The video thread may be hanging.");
-                    // Attempt to clean up by closing the video, which might help if the thread is stuck
+                    // Timeout: log and clean up, but do not block RetroBAT launch
+                    string mediaState = mediaPlayer != null ? mediaPlayer.State.ToString() : "null";
+                    bool threadAlive = videoThread.IsAlive;
+                    logger.LogError($"Video player startup timed out after 15 seconds. State={{mediaState}}, IsVideoPlaying={{isVideoPlaying}}, VideoThreadAlive={{threadAlive}}. The video thread may be hanging.");
                     CloseVideo();
-                    throw new TimeoutException("Video player failed to start within the 15-second time limit.");
+                    CloseAllJoysticks();
+                    return;
                 }
+
                 // If we get here, tcs.Task completed successfully. We can check for exceptions.
                 await tcs.Task;
             }
@@ -350,7 +366,7 @@ namespace BatRun
             {
                 logger.LogError($"Error playing ES loading video: {ex.Message}", ex);
                 CloseAllJoysticks();
-                throw;
+                // Do not rethrow here: failure to play the loading video should not block RetroBAT launch
             }
         }
 
