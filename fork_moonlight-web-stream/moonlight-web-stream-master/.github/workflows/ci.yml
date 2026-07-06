@@ -1,0 +1,252 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test x86_64-unknown-linux-gnu
+    runs-on: ubuntu-latest
+  
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: nightly-2026-02-13
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+
+      # Format check
+      - name: Rustfmt
+        run: cargo fmt --all -- --check
+
+      # Clippy
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      # Binstall
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      # Cargo Shear
+      - name: Install cargo-shear
+        run: cargo binstall --force --no-confirm cargo-shear
+      - name: Cargo Shear
+        run: cargo shear --expand
+  
+      # Test
+      - name: Test
+        run: cargo test --workspace --locked
+
+  build:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            app-suffix: .exe
+          - target: x86_64-unknown-linux-gnu
+            app-suffix: ""
+          # TODO: fix musl build by disabling SIMD in moonlight-common-c
+          #- target: x86_64-unknown-linux-musl
+          #  app-suffix: ""
+          - target: aarch64-unknown-linux-gnu
+            app-suffix: ""
+          - target: aarch64-unknown-linux-musl
+            app-suffix: ""
+
+    name: Build ${{ matrix.target }}
+    runs-on: ubuntu-latest
+  
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        submodules: recursive
+  
+    # Install node
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: npm
+  
+    # Install rust
+    - uses: actions-rust-lang/setup-rust-toolchain@v1
+      with:
+        toolchain: nightly-2026-02-13
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: cross-${{ matrix.target }}
+  
+    # Install cross
+    - name: Install cargo-binstall
+      uses: cargo-bins/cargo-binstall@main
+    - name: Install Cross
+      run: cargo binstall --force cross
+  
+    # Build
+    - name: Build
+      run: |
+        cross build --release --target ${{ matrix.target }}
+  
+        npm ci
+        npm run build
+        mv dist static
+  
+        rm -rf streamer web-server
+        mv target/${{ matrix.target }}/release/streamer${{ matrix.app-suffix }} streamer${{ matrix.app-suffix }}
+        mv target/${{ matrix.target }}/release/web-server${{ matrix.app-suffix }} web-server${{ matrix.app-suffix }}
+  
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: moonlight-web-${{ matrix.target }}
+        path: |
+          streamer${{ matrix.app-suffix }}
+          web-server${{ matrix.app-suffix }}
+          static
+
+  release:
+    name: Publish GitHub Release Artifacts
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            suffix: .exe
+          - target: x86_64-unknown-linux-gnu
+            suffix: ""
+          - target: aarch64-unknown-linux-gnu
+            suffix: ""
+          - target: aarch64-unknown-linux-musl
+            suffix: ""
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: moonlight-web-${{ matrix.target }}
+          path: dist
+
+      - name: Create archive
+        run: |
+          mkdir package
+          mv dist/streamer${{ matrix.suffix }} package/
+          mv dist/web-server${{ matrix.suffix }} package/
+          mv dist/static package/
+
+          ARCHIVE="moonlight-web-${{ matrix.target }}"
+
+          if [[ "${{ matrix.suffix }}" == ".exe" ]]; then
+            zip -r "$ARCHIVE.zip" package
+            echo "ASSET=$ARCHIVE.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$ARCHIVE.tar.gz" package
+            echo "ASSET=$ARCHIVE.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ASSET }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  docker:
+    name: Docker ${{ matrix.name }}
+    needs: build
+
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+            platform: amd64
+          - runner: ubuntu-24.04-arm
+            arch: aarch64
+            platform: arm64
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: moonlight-web-${{ matrix.arch }}-unknown-linux-gnu
+          path: ./docker/moonlight-web
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./docker/
+          file: ./docker/Dockerfile.action
+          tags: mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}-${{ matrix.platform }}
+          push: true
+
+  docker-manifest:
+    name: Docker create multi-arch manifest for versioned images
+    runs-on: ubuntu-latest
+
+    needs: docker
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create mrcreativ3001/moonlight-web-stream:${{ github.ref_name }} \
+            --amend mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}-amd64 \
+            --amend mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}-arm64
+
+          docker manifest push mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}
+
+  docker-manifest-latest:
+    name: Docker point latest image to versioned image
+    runs-on: ubuntu-latest
+
+    needs: docker
+    if: "!contains(github.ref_name, '-prerelease')"
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Create and push manifest
+        run: |
+          docker manifest create mrcreativ3001/moonlight-web-stream:latest \
+            --amend mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}-amd64 \
+            --amend mrcreativ3001/moonlight-web-stream:${{ github.ref_name }}-arm64
+
+          docker manifest push mrcreativ3001/moonlight-web-stream:latest

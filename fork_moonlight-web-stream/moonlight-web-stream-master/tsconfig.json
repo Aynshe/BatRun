@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "rootDir": "web",
+    "outDir": "./dist",
+    "target": "ES6",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "web/**/*"
+  ],
+}

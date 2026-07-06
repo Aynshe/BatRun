@@ -1,0 +1,16 @@
+# Rust
+/target
+finalOutput
+ignore
+
+# VsCode
+.vscode
+
+# npm / js
+node_modules
+dist
+bindings
+web/api_bindings.ts
+
+# Server
+server

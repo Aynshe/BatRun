@@ -10,7 +10,36 @@ ________________________________________________________________________________
 <img width="786" height="543" alt="image" src="https://github.com/user-attachments/assets/903374b4-4f0e-4219-8213-4f077c937084" />
 _____________________________________________________________________________________________________________________________________________________
 
-## ✨ New — fix (BatRun 2.2.4)
+## ✨ (BatRun 3.0.0) 
+
+- Arcade Mode (A silly idea, but I'm sharing it ^^ as it's part of BatRun) 
+*This mode originally started as a personal project to simply lock my arcade cabinet without my authorization. It eventually evolved into an alternative credit management system to control front-end usage... If the cabinet is set to freeplay on all games, added credits are managed as gameplay time. A web page is also available to administer it from a browser, where you can see the live game in progress, as well as game history and play time.*
+
+
+# Warning - This special mode is very intrusive...
+
+**Information: The arcade mode settings also include a "moonlight" setting. This is a very unstable function (its development is experimental, and I'm not sure I'll continue fixing the problems). It allows you to run games remotely from a web browser via "moonlight-web-stream" (Sunshine must be installed on the machine) through a portal that lists games. I've made some modifications to the settings and web display. The "streamer.exe" and "web-server.exe" applications have not been modified and are not included. I believe the latest updates should remain compatible. "streamer.exe" and "web-server.exe" must be placed in the ".moonlight-web-stream" folder. This is unstable; you can test it, but don't expect reliable use. Furthermore, to access it remotely, you need to open the Sunshine and Moonlight web server access points... there is a proxy function to redirect port 8080 to port 4321 of the portal... which adds even more instability.**
+
+- **Credit Management**: Time-based countdown per credit, automatic locking at zero.
+- **Dedicated Hardware**: Assign a unique device authorized to add credits (e.g., RP2040-Zero emulating a keyboard key connected to a coin acceptor).
+- **Process Control**: Pause (NtSuspendProcess) and Termination (WM_CLOSE/Kill) of executables.
+- **Operator Mode**: Accessible universally via the `9` key (or `NumPad9`). Features a password interface (default: `admin` if not set) to unlock without credits, Free Play mode, manual credit addition, and a floating mini-overlay to quickly relock the cabinet after maintenance.
+- **Crash Recovery & Guardian**: A background watchdog (`BatrunGuardian`) monitors BatRun for crashes or UI freezes. If an issue occurs, it restarts the system and utilizes a `session_state` to seamlessly restore current credits, game time, and Free Play status. You can manually call the Guardian overlay at any time by pressing the `0` key (or `NumPad0`) to manually force a restart.
+- **Dashboard & Network**: Web Dashboard, remote control API and monitoring via UDP Discovery.
+- **Security & Focus Management**: Blocks dangerous Windows shortcuts (Win, Ctrl+Esc, Alt+F4, Alt+Esc) via a Low-Level Keyboard Hook to prevent players from reaching the desktop.
+- **Safe Task Switcher (Alt+Tab)**: Controlled Alt+Tab mode displaying a custom dedicated UI, which strictly authorizes switching only to a predefined whitelist of applications.
+- **Core Engine Upgrade**: Migration to **.NET 10.0**.
+- **Code Refactoring**: Structural project reorganization (UI, Core, Input, Models, Utils) following modern .NET standards.
+
+- **fix** Splashtop stuck start RetroBat (enable by default)
+- **fix** stuck boot ESLoadingPlayer vidéo alternative
+- **Misc**
+
+## fix (BatRun 2.2.5)
+
+- Enhanced ESLoadingPlayer to add detailed logging for video selection and file existence, improved timeout handling to avoid blocking RetroBAT launch
+
+## fix (BatRun 2.2.4)
 
 - Added a combined function with RetroBat.exe (starting with version 7.5.0.1) so that Batrun does not compete for focus
 - Lock DPI scaling
@@ -24,7 +53,7 @@ ________________________________________________________________________________
 
 - fix / Refactoring code
 
-> **Requirement**: [.NET Desktop Runtime 8.0.x](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) must be installed on your system.
+> **Requirement**: [.NET Desktop Runtime 10.0.x](https://dotnet.microsoft.com/en-us/download/dotnet/10.0) must be installed on your system.
 _____________________________________________________________________________________________________________________________________________________
 ## 2.1.0
 ### New "Hide ES during loading" option

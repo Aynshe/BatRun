@@ -97,3 +97,10 @@ node_modules/promise/src/rejection-tracking.js
 node_modules/promise/src/synchronous.js
 package-lock.json
 package.json
+.bak/*
+bin/*
+.vs/*
+err.txt
+log_*.txt
+task.md
+*.7z

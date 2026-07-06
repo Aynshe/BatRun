@@ -1,0 +1,93 @@
+[
+  {
+    "ExeName": "retroarch",
+    "PauseKey": "P",
+    "ResumeKey": "P",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "mame",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "mame64",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "mame32",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "TeknoParrotUi",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "Dolphin",
+    "PauseKey": "P",
+    "ResumeKey": "P",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "DolphinWX",
+    "PauseKey": "P",
+    "ResumeKey": "P",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "pcsx2",
+    "PauseKey": "SPACE",
+    "ResumeKey": "SPACE",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "pcsx2-qt",
+    "PauseKey": "SPACE",
+    "ResumeKey": "SPACE",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "duckstation-qt-x64-ReleaseLTCG",
+    "PauseKey": "SPACE",
+    "ResumeKey": "SPACE",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "Cemu",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "emulator_multicpu",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  },
+  {
+    "ExeName": "[DEFAULT_PC_GAME]",
+    "PauseKey": "SUSPEND",
+    "ResumeKey": "SUSPEND",
+    "TimeoutKey": "",
+    "TimeoutSeconds": 0
+  }
+]

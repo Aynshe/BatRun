@@ -3,8 +3,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>2.2.5</Version>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <Version>3.0.0</Version>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -24,56 +24,174 @@
     <HeapCount>1</HeapCount>
     <GCAllowVeryLargeObjects>false</GCAllowVeryLargeObjects>
     <GCServer>false</GCServer>
-  </PropertyGroup>
+    <Platforms>AnyCPU;x64</Platforms>
+</PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Guardian\**" />
+    <Compile Remove="z.BatRun_Arcade_mode_*\**" />
+    <EmbeddedResource Remove="Guardian\**" />
+    <EmbeddedResource Remove="z.BatRun_Arcade_mode_*\**" />
+    <None Remove="Guardian\**" />
+    <None Remove="z.BatRun_Arcade_mode_*\**" />
+</ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+  </Content>
+</ItemGroup>
 
   <ItemGroup>
-    <Compile Update="MappingConfigurationForm.cs">
+    <Compile Update="UI\MappingConfigurationForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="MappingConfigurationForm.Designer.cs">
+  </Compile>
+    <Compile Update="UI\MappingConfigurationForm.Designer.cs">
       <DependentUpon>MappingConfigurationForm.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
+  </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+  </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+  </Compile>
+</ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+  </None>
     <None Update="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+  </None>
+</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibVLCSharp.WinForms" Version="3.8.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="LibVLCSharp.WinForms" Version="3.9.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="SDL2-CS.NetCore" Version="2.0.8" />
     <PackageReference Include="SharpDX" Version="4.2.0" />
     <PackageReference Include="SharpDX.DirectInput" Version="4.2.0" />
     <PackageReference Include="SharpDX.XInput" Version="4.2.0" />
-    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
-  </ItemGroup>
+    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.23" />
+</ItemGroup>
 
   <ItemGroup>
     <Content Include="Locales\**\*.po">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+  </Content>
+</ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+  </EmbeddedResource>
+</ItemGroup>
+
+  <!--
+       Build the Guardian sub-project alongside BatRun. We force Platform=x64 + RID
+       win-x64 so the Guardian ends up directly under bin/Debug/net10.0-windows7.0/win-x64/
+       next to BatRun.exe, not in the stale AnyCPU default folder
+       (bin/Debug/net10.0-windows7.0/).
+  -->
+  <Target Name="BuildGuardian" BeforeTargets="BeforeBuild">
+    <Exec Command="dotnet build $(MSBuildThisFileDirectory)Guardian\BatRunGuardian.csproj -c $(Configuration) -p:Platform=x64 -r win-x64" />
+</Target>
+
+<Target Name="CleanGuardian" BeforeTargets="Clean">
+    <Exec Command="dotnet clean $(MSBuildThisFileDirectory)Guardian\BatRunGuardian.csproj -c $(Configuration) -p:Platform=x64 -r win-x64" ContinueOnError="true" />
+    
+    <PropertyGroup>
+      <GuardianBinFolder>$(MSBuildThisFileDirectory)Guardian\bin\</GuardianBinFolder>
+      <GuardianObjFolder>$(MSBuildThisFileDirectory)Guardian\obj\</GuardianObjFolder>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <_GuardianRoots Include="$(GuardianBinFolder);$(GuardianObjFolder)" />
+      <_GuardianOutputs Include="$(OutputPath)BatRunGuardian.exe" />
+      <_GuardianOutputs Include="$(OutputPath)BatRunGuardian.pdb" />
+    </ItemGroup>
+    
+    <RemoveDir Directories="@(_GuardianRoots)" />
+    
+    <Delete Files="@(_GuardianOutputs)" TreatErrorsAsWarnings="true" />
+  </Target>
 
   <!-- Configuration pour les DLLs de LibVLC -->
   <Target Name="CopyLibVLCBinaries" AfterTargets="Build">
     <PropertyGroup>
       <LibVLCDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)$(BaseOutputPath)$(Configuration)/$(TargetFramework)/libvlc'))</LibVLCDir>
-    </PropertyGroup>
+  </PropertyGroup>
     <ItemGroup>
       <LibVLCFiles Include="$(NuGetPackageRoot)\videolan.libvlc.windows\3.0.20\build\x64\**\*.*" />
-    </ItemGroup>
+  </ItemGroup>
     <Copy SourceFiles="@(LibVLCFiles)" DestinationFiles="@(LibVLCFiles->'$(LibVLCDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     <Message Text="Copied LibVLC files to: $(LibVLCDir)" Importance="high" />
+</Target>
+  <Target Name="CopyMoonlightWebStream" AfterTargets="Build">
+    <PropertyGroup>
+      <!-- EN: Destination = .moonlight-web-stream subfolder next to BatRun.exe -->
+      <!-- FR: Destination = sous-dossier .moonlight-web-stream à côté de BatRun.exe -->
+      <MoonlightDestDir>$(OutputPath).moonlight-web-stream\</MoonlightDestDir>
+  </PropertyGroup>
+
+    <ItemGroup>
+      <!-- EN: Group sources by their intended destination subfolder -->
+      <!-- FR: Groupement des sources par sous-dossier de destination -->
+      <MoonlightStaticInclude Include="fork_moonlight-web-stream\moonlight-web-stream-master\dist\**\*.*" />
+      <MoonlightWebSourceInclude Include="fork_moonlight-web-stream\moonlight-web-stream-master\web\**\*.*" />
+      <MoonlightServerInclude Include="fork_moonlight-web-stream\moonlight-web-stream-master\server\**\*.*" />
+  </ItemGroup>
+
+    <!-- EN: Copy compiled JS and assets to /static -->
+    <!-- FR: Copier le JS compilé et les assets vers /static -->
+    <Copy SourceFiles="@(MoonlightStaticInclude)" DestinationFiles="@(MoonlightStaticInclude->'$(MoonlightDestDir)static\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+
+    <!-- EN: Copy TS sources to /static (for debugging/completeness) -->
+    <!-- FR: Copier les sources TS vers /static (pour debug/complétude) -->
+    <Copy SourceFiles="@(MoonlightWebSourceInclude)" DestinationFiles="@(MoonlightWebSourceInclude->'$(MoonlightDestDir)static\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+
+    <!-- EN: Copy server files (config/readme) to /server -->
+    <!-- FR: Copier les fichiers serveur (config/readme) vers /server -->
+    <Copy SourceFiles="@(MoonlightServerInclude)" DestinationFiles="@(MoonlightServerInclude->'$(MoonlightDestDir)server\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" />
+
+    <Message Text="[BatRun] Moonlight Web Stream assets updated in: $(MoonlightDestDir)" Importance="high" />
+</Target>
+
+<Target Name="DeepCleanBinaries" AfterTargets="Clean">
+    <PropertyGroup>
+      <TargetCleanDir>$([System.IO.Path]::GetFullPath('$(OutputPath)'))</TargetCleanDir>
+    </PropertyGroup>
+    
+    <Message Text="[BatRun Clean] Nettoyage ciblé des binaires .NET dans : $(TargetCleanDir)" Importance="high" />
+    
+    <ItemGroup>
+      <_FilesToClean Include="$(TargetCleanDir)**\*.dll" />
+      <_FilesToClean Include="$(TargetCleanDir)**\*.exe" />
+      <_FilesToClean Include="$(TargetCleanDir)**\*.pdb" />
+      <_FilesToClean Include="$(TargetCleanDir)**\*.deps.json" />
+      <_FilesToClean Include="$(TargetCleanDir)**\*.runtimeconfig.json" />
+
+      <_FilesToClean Remove="$(TargetCleanDir)**\*.ini" />
+      
+      <_FilesToClean Remove="$(TargetCleanDir)SDL2.dll" />
+      
+      <_FilesToClean Remove="$(TargetCleanDir)config.ini" />
+    </ItemGroup>
+
+    <Delete Files="@(_FilesToClean)" ContinueOnError="true" />
+
+    <ItemGroup>
+      <_EmptyDirs Include="$(TargetCleanDir)**\*" />
+    </ItemGroup>
+    
+    <RemoveDir Directories="@(_EmptyDirs)" ContinueOnError="true" />
   </Target>
 
 </Project>

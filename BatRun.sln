@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11612.153
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatRun", "BatRun.csproj", "{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Debug|x64.ActiveCfg = Debug|x64
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Debug|x64.Build.0 = Debug|x64
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Release|x64.ActiveCfg = Release|x64
+		{C6EBB75A-A8C8-DD48-A385-9C7293533DEA}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAC36973-C4F6-4FB9-980E-E5EDC0363867}
+	EndGlobalSection
+EndGlobal

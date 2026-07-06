@@ -1,0 +1,7 @@
+compile ts => js
+
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+
+npm install 
+
+npm run build-light  

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <AssemblyName>BatRunGuardian</AssemblyName>
+    <ApplicationIcon>..\Assets\icon2.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64</Platforms>
+</PropertyGroup>
+
+  <!--
+       When the host solution builds us with -p:Platform=x64 -r win-x64, MSBuild emits to
+       bin/x64/Debug/net10.0-windows7.0/win-x64/. Our PostBuild then copies the resulting
+       files to the same directory as BatRun.exe (= bin/x64/$(Configuration)/....).
+  -->
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <GuardianFiles Include="$(TargetDir)*.*" />
+  </ItemGroup>
+    <Copy SourceFiles="@(GuardianFiles)" DestinationFolder="$(ProjectDir)..\bin\x64\$(Configuration)\net10.0-windows7.0\win-x64\" SkipUnchangedFiles="true" />
+</Target>
+
+  <ItemGroup>
+    <Content Include="..\Assets\icon2.ico" Link="icon2.ico" CopyToOutputDirectory="Never" />
+</ItemGroup>
+
+</Project>
