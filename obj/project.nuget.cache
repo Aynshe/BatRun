@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "B8QyHlx4AqI=",
+  "dgSpecHash": "t2ieKuBbwz4=",
   "success": true,
-  "projectFilePath": "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\BatRun.csproj",
+  "projectFilePath": "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\BatRun.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Win11\\.nuget\\packages\\libvlcsharp\\3.9.6\\libvlcsharp.3.9.6.nupkg.sha512",
     "C:\\Users\\Win11\\.nuget\\packages\\libvlcsharp.winforms\\3.9.6\\libvlcsharp.winforms.3.9.6.nupkg.sha512",

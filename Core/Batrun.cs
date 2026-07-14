@@ -44,7 +44,7 @@ namespace BatRun.Core
         private WallpaperManager? wallpaperManager;
         public ArcadeManager? ArcadeManager => _arcadeManager;
 
-        public const string APP_VERSION = "3.0.0";
+        public const string APP_VERSION = "3.1.0";
 
         private bool hideESLoading;
         private bool arcadeMode;
@@ -112,6 +112,20 @@ namespace BatRun.Core
                 catch (Exception ex)
                 {
                     logger.LogError("Error executing shell commands", ex);
+                }
+            });
+
+            // EN: Launch plugins configured to start with BatRun
+            // FR: Lancer les plugins configurés pour démarrer avec BatRun
+            Task.Run(() =>
+            {
+                try
+                {
+                    PluginManager.LaunchBatRunPlugins(logger, config, _retroBatService);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError("Error starting BatRun plugins", ex);
                 }
             });
 
@@ -352,7 +366,7 @@ namespace BatRun.Core
         private void MinimizeActiveWindows()
         {
             // Read the minimize windows setting from the INI file
-            bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", true);
+            bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", false);
 
             if (!minimizeWindows)
             {
@@ -1474,7 +1488,7 @@ namespace BatRun.Core
                 else
                 {
                     // Appliquer la séquence standard quand ESLoadingPlayer n'est pas utilisé
-                    bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", true);
+                    bool minimizeWindows = config.ReadBool("Windows", "MinimizeWindows", false);
                     if (minimizeWindows)
                     {
                         MinimizeActiveWindows();

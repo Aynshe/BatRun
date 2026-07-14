@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\BatRunGuardian.csproj": {}
+    "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\BatRunGuardian.csproj": {}
   },
   "projects": {
-    "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\BatRunGuardian.csproj": {
+    "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\BatRunGuardian.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\BatRunGuardian.csproj",
+        "projectUniqueName": "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\BatRunGuardian.csproj",
         "projectName": "BatRunGuardian",
-        "projectPath": "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\BatRunGuardian.csproj",
+        "projectPath": "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\BatRunGuardian.csproj",
         "packagesPath": "C:\\Users\\Win11\\.nuget\\packages\\",
-        "outputPath": "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\obj\\",
+        "outputPath": "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

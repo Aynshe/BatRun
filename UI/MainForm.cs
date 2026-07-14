@@ -244,7 +244,7 @@ namespace BatRun.UI
 
         private void BtnToolsPlugins_Click(object sender, EventArgs e)
         {
-            using var pluginsForm = new PluginsForm();
+            using var pluginsForm = new PluginsForm(mainProgram, logger, config);
             pluginsForm.ShowDialog(this);
         }
 

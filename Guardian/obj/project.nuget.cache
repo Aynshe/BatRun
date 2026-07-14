@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "inLRnwqDKuw=",
+  "dgSpecHash": "w1mH0q9ppJ0=",
   "success": true,
-  "projectFilePath": "Z:\\.Code\\.vsCodeProject\\BatRun_Alpha_v3.0.0_\\Guardian\\BatRunGuardian.csproj",
+  "projectFilePath": "Z:\\.Code\\.Antigravity\\BatRun_release_v3.0.0\\Guardian\\BatRunGuardian.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Win11\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.9\\microsoft.net.illink.tasks.10.0.9.nupkg.sha512",
     "C:\\Users\\Win11\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.9\\microsoft.netcore.app.runtime.win-x64.10.0.9.nupkg.sha512",

@@ -179,7 +179,7 @@ namespace BatRun.UI
             numericFocusInterval.Value = config.ReadInt("Focus", "FocusInterval", 3000);
 
                 // Charger les paramètres de fenêtre
-            checkBoxMinimizeWindows.Checked = config.ReadBool("Windows", "MinimizeWindows", true);
+            checkBoxMinimizeWindows.Checked = config.ReadBool("Windows", "MinimizeWindows", false);
             checkBoxHideESLoading.Checked = config.ReadBool("Windows", "HideESLoading", false);
             checkBoxShowSplashScreen.Checked = config.ReadBool("Windows", "ShowSplashScreen", true);
             checkBoxShowHotkeySplash.Checked = config.ReadBool("Windows", "ShowHotkeySplash", true);
@@ -677,6 +677,15 @@ namespace BatRun.UI
                 Checked = config.ReadBool("Wallpaper", "EnableAudio", false)
             };
 
+            var labelAudioMuteNote = new Label
+            {
+                Text = "(Audio will be muted on subsequent loops)",
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Italic),
+                ForeColor = Color.Gray,
+                AutoSize = true,
+                BackColor = Color.FromArgb(45, 45, 48)
+            };
+
             checkBoxEnableAudio.CheckedChanged += (s, e) =>
             {
                 config.WriteValue("Wallpaper", "EnableAudio", checkBoxEnableAudio.Checked.ToString());
@@ -813,10 +822,11 @@ namespace BatRun.UI
             // Ajuster la position des checkboxes
             checkBoxLoopVideo.Location = new Point(innerPadding, 115);
             checkBoxEnableAudio.Location = new Point(innerPadding, 140);
+            labelAudioMuteNote.Location = new Point(innerPadding + 20, 160);
 
             // Ajuster la position des boutons
-            buttonTestWallpaper.Location = new Point(innerPadding, 170);
-            buttonCloseWallpaper.Location = new Point(innerPadding + controlWidth - 120, 170);
+            buttonTestWallpaper.Location = new Point(innerPadding, 185);
+            buttonCloseWallpaper.Location = new Point(innerPadding + controlWidth - 120, 185);
 
             LoadWallpaperFolders();
             
@@ -826,6 +836,7 @@ namespace BatRun.UI
             groupBoxWallpaper.Controls.Add(checkBoxEnableWithExplorer);
             groupBoxWallpaper.Controls.Add(checkBoxLoopVideo);
             groupBoxWallpaper.Controls.Add(checkBoxEnableAudio);
+            groupBoxWallpaper.Controls.Add(labelAudioMuteNote);
             groupBoxWallpaper.Controls.Add(buttonTestWallpaper);
             groupBoxWallpaper.Controls.Add(buttonCloseWallpaper);
             this.Controls.Add(groupBoxWallpaper);
@@ -833,7 +844,7 @@ namespace BatRun.UI
             // Ajuster la taille du groupBox pour accommoder tous les contrôles
             if (groupBoxWallpaper != null)
             {
-                groupBoxWallpaper.Height = 240;  // Augmenté pour accommoder la nouvelle disposition
+                groupBoxWallpaper.Height = 245;  // Augmenté pour accommoder la nouvelle disposition
             }
 
             // Ajuster la taille de la fenêtre

@@ -321,7 +321,9 @@ namespace BatRun.Core
                 string updateScript = $@"@echo off
 chcp 65001 > nul
 set ""LOG_FILE=%TEMP%\BatRun_update.log""
-echo [%date% %time%] Update script started >> ""%LOG_FILE%""
+echo [%date% %time%] Terminating processes >> ""%LOG_FILE%""
+taskkill /F /IM BatRunGuardian.exe /T 2>nul
+taskkill /F /IM BatRun.exe /T 2>nul
 :waitloop
 tasklist /FI ""IMAGENAME eq BatRun.exe"" 2>NUL | find /I /N ""BatRun.exe"">NUL
 set RUNNING1=%ERRORLEVEL%
@@ -329,13 +331,17 @@ tasklist /FI ""IMAGENAME eq BatRunGuardian.exe"" 2>NUL | find /I /N ""BatRunGuar
 set RUNNING2=%ERRORLEVEL%
 if ""%RUNNING1%""==""0"" ( timeout /t 1 /nobreak >nul & goto waitloop )
 if ""%RUNNING2%""==""0"" ( timeout /t 1 /nobreak >nul & goto waitloop )
-taskkill /F /IM BatRun.exe /T 2>nul
-taskkill /F /IM BatRunGuardian.exe /T 2>nul
 timeout /t 2 /nobreak >nul
 if exist ""{appDir}\BatRun.exe.bak"" del ""{appDir}\BatRun.exe.bak""
 if exist ""{appDir}\BatRun.exe"" move ""{appDir}\BatRun.exe"" ""{appDir}\BatRun.exe.bak""
+if exist ""{appDir}\BatRunGuardian.exe.bak"" del ""{appDir}\BatRunGuardian.exe.bak""
+if exist ""{appDir}\BatRunGuardian.exe"" move ""{appDir}\BatRunGuardian.exe"" ""{appDir}\BatRunGuardian.exe.bak""
+if exist ""{appDir}\BatRunGuardian.dll.bak"" del ""{appDir}\BatRunGuardian.dll.bak""
+if exist ""{appDir}\BatRunGuardian.dll"" move ""{appDir}\BatRunGuardian.dll"" ""{appDir}\BatRunGuardian.dll.bak""
 xcopy ""{batrunSourcePath}\*.*"" ""{appDir}"" /E /I /Y /F
 if exist ""{appDir}\BatRun.exe.bak"" del ""{appDir}\BatRun.exe.bak""
+if exist ""{appDir}\BatRunGuardian.exe.bak"" del ""{appDir}\BatRunGuardian.exe.bak""
+if exist ""{appDir}\BatRunGuardian.dll.bak"" del ""{appDir}\BatRunGuardian.dll.bak""
 start """" ""{Path.Combine(appDir, "BatRun.exe")}""
 timeout /t 2 /nobreak >nul
 rmdir /s /q ""{tempDir}""

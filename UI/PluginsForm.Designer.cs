@@ -39,7 +39,7 @@ namespace BatRun.UI
             this.mainLayout.Padding = new System.Windows.Forms.Padding(15);
             this.mainLayout.RowCount = 1;
             this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.mainLayout.Size = new System.Drawing.Size(600, 620);
+            this.mainLayout.Size = new System.Drawing.Size(620, 650);
             this.mainLayout.TabIndex = 0;
             // 
             // btnClose
@@ -48,10 +48,10 @@ namespace BatRun.UI
             this.btnClose.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnClose.FlatAppearance.BorderSize = 0;
             this.btnClose.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClose.Location = new System.Drawing.Point(0, 620);
+            this.btnClose.Location = new System.Drawing.Point(0, 650);
             this.btnClose.Margin = new System.Windows.Forms.Padding(15);
             this.btnClose.Name = "btnClose";
-            this.btnClose.Size = new System.Drawing.Size(600, 30);
+            this.btnClose.Size = new System.Drawing.Size(620, 30);
             this.btnClose.TabIndex = 1;
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = false;
@@ -62,7 +62,7 @@ namespace BatRun.UI
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
-            this.ClientSize = new System.Drawing.Size(600, 650);
+            this.ClientSize = new System.Drawing.Size(620, 680);
             this.Controls.Add(this.mainLayout);
             this.Controls.Add(this.btnClose);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);

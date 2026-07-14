@@ -10,7 +10,19 @@ ________________________________________________________________________________
 <img width="786" height="543" alt="image" src="https://github.com/user-attachments/assets/903374b4-4f0e-4219-8213-4f077c937084" />
 _____________________________________________________________________________________________________________________________________________________
 
-## ✨ (BatRun 3.0.0) 
+## ✨ (BatRun 3.1.0)
+
+- **Plugin Management & Integration**: Introduces a dedicated Plugin Management interface inside BatRun. Users can directly browse, download, install, configure (`⚙️ CONFIG`), reveal files (`📁 REVEAL`), or uninstall plugins fetched dynamically from the GitHub releases API.
+- **Wallpaper default configuration & video choice**: For demonstration purposes of this pre-existing feature, it is now activated by default on fresh installations and during configuration migration from v3.0.0 and below (configures a default loading video, enables with Windows Explorer, enables audio, and loops video).
+- **Wallpaper Loop Video Mute**: Audio of loop videos is now muted starting from the second loop to avoid audio repetition annoyance. An informative comment has been added in the UI.
+- **Updater robustness**: Proactively kills `BatRunGuardian.exe` and `BatRun.exe` before updating, and implements backup/cleanup for `BatRunGuardian.exe` and `BatRunGuardian.dll` to prevent Windows file lock issues.
+  *(⚠️ **Note for upgrading from v3.0.0 or lower**: If the updater gets stuck or loops infinitely, please manually stop the `BatRunGuardian.exe` process via the Windows Task Manager to allow the script to complete. From v3.1.0 onwards, this termination is handled automatically.)*
+- **Collapsible Sections**: Header sections ("MAIN PROJECTS" and "EXPERIMENTAL") in the plugins list are now collapsible with header indicators (▶ / ▼) and are collapsed by default at startup.
+- **Releases Versioning**: Groups GitHub releases to display only the single latest version of each plugin (handling `📥 INSTALL`, `🔄 UPDATE` or `✅ INSTALLED` dynamically).
+- **Dynamic Plugin Configuration Editor (`⚙️ CONFIG`)**: Launches plugin executable to generate `.ini` if missing before opening the editing form, and preserves original file formatting/comments.
+- **Uninstall Paths**: Cleans leading slashes in relative paths to fix `Path.Combine` ignoring target directories during uninstallation.
+
+## (BatRun 3.0.0) 
 
 - Arcade Mode (A silly idea, but I'm sharing it ^^ as it's part of BatRun) 
 *This mode originally started as a personal project to simply lock my arcade cabinet without my authorization. It eventually evolved into an alternative credit management system to control front-end usage... If the cabinet is set to freeplay on all games, added credits are managed as gameplay time. A web page is also available to administer it from a browser, where you can see the live game in progress, as well as game history and play time.*

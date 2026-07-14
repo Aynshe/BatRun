@@ -1,7 +1,13 @@
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WinForms;
 
@@ -31,6 +37,8 @@ namespace BatRun.Core
         private bool isDragging = false;
         private Point dragStartPoint;
         private int snapDistance = 20; // Distance d'aimantation en pixels
+        private bool firstPlayCompleted = false;
+        private long videoLength = 0;
 
         // Ajouter un gestionnaire d'instances statique
         private static readonly List<WallpaperManager> activeInstances = new List<WallpaperManager>();
@@ -643,6 +651,33 @@ namespace BatRun.Core
                 // Gérer le volume en fonction du paramètre EnableAudio
                 bool enableAudio = config.ReadBool("Wallpaper", "EnableAudio", false);
                 mediaPlayer.Volume = enableAudio ? 100 : 0;
+                mediaPlayer.Mute = !enableAudio; // S'assurer que le Mute est désactivé si l'audio est activé
+
+                // Mute audio starting from the second loop if LoopVideo is true
+                if (loopVideo && enableAudio)
+                {
+                    firstPlayCompleted = false;
+                    videoLength = 0;
+
+                    mediaPlayer.LengthChanged += (s, e) =>
+                    {
+                        if (videoLength == 0)
+                        {
+                            videoLength = e.Length;
+                            logger.LogInfo($"[Wallpaper] Video length detected: {videoLength}ms");
+                        }
+                    };
+
+                    mediaPlayer.TimeChanged += (s, e) =>
+                    {
+                        if (!firstPlayCompleted && videoLength > 0 && e.Time >= videoLength - 500)
+                        {
+                            firstPlayCompleted = true;
+                            mediaPlayer.Mute = true;
+                            logger.LogInfo($"[Wallpaper] Muting audio at time {e.Time}ms of {videoLength}ms (loop 2 start)");
+                        }
+                    };
+                }
                 
                 mediaPlayer.EnableHardwareDecoding = true;
             }
@@ -799,47 +834,6 @@ namespace BatRun.Core
                 emulationStationMonitorTimer?.Stop();
                 emulationStationMonitorTimer = null;
 
-                // Cleanup GIF resources
-                CleanupGifResources();
-
-                // Afficher toutes les fenêtres masquées et nettoyer la configuration
-                applicationManager?.CleanupOnExit();
-
-                // Arrêter le MediaPlayer actif
-                StopActiveMediaPlayer();
-
-                // Nettoyage des composants dans un ordre spécifique
-                if (media != null)
-                {
-                    media.Dispose();
-                    media = null;
-                }
-
-                if (videoView != null)
-                {
-                    if (videoView.MediaPlayer != null)
-                    {
-                        videoView.MediaPlayer = null;
-                    }
-                    videoView.Dispose();
-                    videoView = null;
-                }
-
-                if (mediaPlayer != null)
-                {
-                    mediaPlayer.Dispose();
-                    mediaPlayer = null;
-                }
-
-                if (libVLC != null)
-                {
-                    // The lifecycle of libVLC is now managed by VlcManager
-                    // Core.Initialize(null); // This is not needed anymore
-                    // libVLC.Dispose();
-                    libVLC = null;
-                }
-
-                // Nettoyer le PictureBox et l'image du GIF
                 if (pictureBox != null)
                 {
                     if (pictureBox.Image != null)
@@ -1243,5 +1237,4 @@ namespace BatRun.Core
             }
         }
     }
-} 
-
+}
