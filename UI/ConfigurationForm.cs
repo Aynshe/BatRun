@@ -29,7 +29,6 @@ namespace BatRun.UI
 
         private ComboBox? comboBoxWallpaper;
         private GroupBox? groupBoxWallpaper;
-        private CheckBox? checkBoxEnableWithExplorer;
         private ComboBox? comboBoxWallpaperFolder;
         private Button? buttonESLoadingConfig;
 
@@ -224,11 +223,8 @@ namespace BatRun.UI
                     }
                 }
 
-                // Charger l'état de EnableWithExplorer
-                if (checkBoxEnableWithExplorer != null)
-                {
-                    checkBoxEnableWithExplorer.Checked = config.ReadBool("Wallpaper", "EnableWithExplorer", false);
-                }
+                // EN: EnableWithExplorer removed from UI — wallpaper always shown when active
+                // FR: EnableWithExplorer retiré de l'UI — le wallpaper s'affiche toujours quand actif
 
                 // Charger la méthode de démarrage
                 string startupMethod = "Disabled";
@@ -644,33 +640,22 @@ namespace BatRun.UI
                 FlatStyle = FlatStyle.Flat
             };
 
-            // Checkbox pour activer le wallpaper même avec explorer.exe
-            checkBoxEnableWithExplorer = new CheckBox
-            {
-                Text = LocalizedStrings.GetString("Enable wallpaper even with Explorer running"),
-                Location = new Point(innerPadding, 60),
-                AutoSize = true,
-                BackColor = Color.FromArgb(45, 45, 48),
-                ForeColor = Color.White,
-                Checked = config.ReadBool("Wallpaper", "EnableWithExplorer", false)
-            };
-
-            // Ajouter une checkbox pour la lecture en boucle des vidéos
+            // EN: Loop video checkbox / FR: Checkbox lecture en boucle des vidéos
             var checkBoxLoopVideo = new CheckBox
             {
                 Text = LocalizedStrings.GetString("Loop video wallpapers"),
-                Location = new Point(innerPadding, 85),
+                Location = new Point(innerPadding, 60),
                 AutoSize = true,
                 BackColor = Color.FromArgb(45, 45, 48),
                 ForeColor = Color.White,
                 Checked = config.ReadBool("Wallpaper", "LoopVideo", true)
             };
 
-            // Ajouter une checkbox pour activer/désactiver l'audio des vidéos
+            // EN: Audio enable checkbox / FR: Checkbox activation audio
             var checkBoxEnableAudio = new CheckBox
             {
                 Text = LocalizedStrings.GetString("Enable video audio"),
-                Location = new Point(innerPadding, 110),
+                Location = new Point(innerPadding, 85),
                 AutoSize = true,
                 BackColor = Color.FromArgb(45, 45, 48),
                 ForeColor = Color.White,
@@ -696,41 +681,22 @@ namespace BatRun.UI
                 config.WriteValue("Wallpaper", "LoopVideo", checkBoxLoopVideo.Checked.ToString());
             };
 
-            // Ajouter un gestionnaire d'événements pour le changement d'état
-            checkBoxEnableWithExplorer.CheckedChanged += (s, e) =>
-            {
-                config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
-                
-                var wallpaperManager = new WallpaperManager(config, logger, program);
-                if (Process.GetProcessesByName("explorer").Length > 0)
-                {
-                    if (checkBoxEnableWithExplorer.Checked)
-                    {
-                        wallpaperManager.ShowWallpaper(forceShow: true);
-                    }
-                    else
-                    {
-                        wallpaperManager.CloseWallpaper();
-                    }
-                }
-            };
-
-            // Bouton de test
+            // EN: Test wallpaper button / FR: Bouton de test du wallpaper
             var buttonTestWallpaper = new Button
             {
                 Text = LocalizedStrings.GetString("Test Wallpaper"),
-                Location = new Point(innerPadding, 90),
+                Location = new Point(innerPadding, 115),
                 Size = new Size(controlWidth, 30),
                 BackColor = Color.FromArgb(45, 45, 48),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat
             };
 
-            // Nouveau bouton pour fermer le wallpaper
+            // EN: Close wallpaper button / FR: Bouton pour fermer le wallpaper
             var buttonCloseWallpaper = new Button
             {
                 Text = LocalizedStrings.GetString("Close Wallpaper"),
-                Location = new Point(innerPadding + controlWidth - 120, 90),
+                Location = new Point(innerPadding + controlWidth - 120, 115),
                 Size = new Size(120, 30),
                 BackColor = Color.FromArgb(45, 45, 48),
                 ForeColor = Color.White,
@@ -741,13 +707,14 @@ namespace BatRun.UI
             {
                 try
                 {
-                    // D'abord tuer VLC comme le fait le bouton Kill VLC
+                    // EN: Stop VLC first, then reload wallpaper
+                    // FR: Arrêter VLC d'abord, puis recharger le wallpaper
                     WallpaperManager.StopActiveMediaPlayer();
                     WallpaperManager.CleanupAllInstances();
                     GC.Collect(2, GCCollectionMode.Forced, true);
                     GC.WaitForPendingFinalizers();
 
-                    // Ensuite, vérifier et charger le nouveau fond d'écran
+                    // EN: Check wallpaper selection / FR: Vérifier la sélection du wallpaper
                     if (comboBoxWallpaper?.SelectedItem == null)
                     {
                         MessageBox.Show(
@@ -761,11 +728,12 @@ namespace BatRun.UI
 
                     string selectedWallpaper = comboBoxWallpaper.SelectedItem.ToString() ?? "None";
                     
-                    // Sauvegarder la configuration
+                    // EN: Save configuration and force show wallpaper
+                    // FR: Sauvegarder la configuration et forcer l'affichage du wallpaper
                     config.WriteValue("Wallpaper", "Selected", selectedWallpaper);
-                    config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString());
 
-                    // Créer une nouvelle instance et afficher le fond d'écran
+                    // EN: Create a new instance and display the wallpaper (force show)
+                    // FR: Créer une nouvelle instance et afficher le fond d'écran (forcer l'affichage)
                     var wallpaperManager = new WallpaperManager(config, logger, program);
                     wallpaperManager.ShowWallpaper(forceShow: true);
                 }
@@ -807,33 +775,28 @@ namespace BatRun.UI
                 }
             };
 
-            // Ajuster la position de la comboBox des wallpapers
+            // EN: Position comboBox wallpaper / FR: Positionner la comboBox wallpaper
             if (comboBoxWallpaper != null)
             {
                 comboBoxWallpaper.Location = new Point(innerPadding, 60);
             }
 
-            // Ajuster la position des autres contrôles
-            if (checkBoxEnableWithExplorer != null)
-            {
-                checkBoxEnableWithExplorer.Location = new Point(innerPadding, 90);
-            }
+            // EN: Adjust positions of remaining controls (no EnableWithExplorer checkbox)
+            // FR: Ajuster les positions des contrôles restants (sans checkbox EnableWithExplorer)
+            checkBoxLoopVideo.Location = new Point(innerPadding, 90);
+            checkBoxEnableAudio.Location = new Point(innerPadding, 115);
+            labelAudioMuteNote.Location = new Point(innerPadding + 20, 135);
 
-            // Ajuster la position des checkboxes
-            checkBoxLoopVideo.Location = new Point(innerPadding, 115);
-            checkBoxEnableAudio.Location = new Point(innerPadding, 140);
-            labelAudioMuteNote.Location = new Point(innerPadding + 20, 160);
-
-            // Ajuster la position des boutons
-            buttonTestWallpaper.Location = new Point(innerPadding, 185);
-            buttonCloseWallpaper.Location = new Point(innerPadding + controlWidth - 120, 185);
+            // EN: Adjust buttons position / FR: Ajuster la position des boutons
+            buttonTestWallpaper.Location = new Point(innerPadding, 160);
+            buttonCloseWallpaper.Location = new Point(innerPadding + controlWidth - 120, 160);
 
             LoadWallpaperFolders();
             
-            // Ajouter les contrôles au groupBox
+            // EN: Add controls to groupBox (EnableWithExplorer removed — wallpaper always shown)
+            // FR: Ajouter les contrôles au groupBox (EnableWithExplorer retiré — wallpaper toujours affiché)
             groupBoxWallpaper.Controls.Add(comboBoxWallpaperFolder);
             groupBoxWallpaper.Controls.Add(comboBoxWallpaper);
-            groupBoxWallpaper.Controls.Add(checkBoxEnableWithExplorer);
             groupBoxWallpaper.Controls.Add(checkBoxLoopVideo);
             groupBoxWallpaper.Controls.Add(checkBoxEnableAudio);
             groupBoxWallpaper.Controls.Add(labelAudioMuteNote);
@@ -841,10 +804,11 @@ namespace BatRun.UI
             groupBoxWallpaper.Controls.Add(buttonCloseWallpaper);
             this.Controls.Add(groupBoxWallpaper);
 
-            // Ajuster la taille du groupBox pour accommoder tous les contrôles
+            // EN: Adjust groupBox height (smaller without EnableWithExplorer checkbox)
+            // FR: Ajuster la hauteur du groupBox (plus petit sans la checkbox EnableWithExplorer)
             if (groupBoxWallpaper != null)
             {
-                groupBoxWallpaper.Height = 245;  // Augmenté pour accommoder la nouvelle disposition
+                groupBoxWallpaper.Height = 215;
             }
 
             // Ajuster la taille de la fenêtre
@@ -1287,10 +1251,8 @@ start ""BatRun_Focus_ES"" ""%Focus_BatRun_path%\BatRun.exe"" -ES_System_select";
                 config.WriteValue("Wallpaper", "SelectedFolder", selectedFolder);
                 config.WriteValue("Wallpaper", "IsActive", (selectedWallpaper != "None").ToString().ToLower());
 
-                if (checkBoxEnableWithExplorer != null)
-                {
-                    config.WriteValue("Wallpaper", "EnableWithExplorer", checkBoxEnableWithExplorer.Checked.ToString().ToLower());
-                }
+                // EN: EnableWithExplorer no longer driven by UI — kept in config for WallpaperManager compatibility
+                // FR: EnableWithExplorer n'est plus piloté par l'UI — conservé en config pour compatibilité WallpaperManager
 
                 HandleStartupMethod();
 

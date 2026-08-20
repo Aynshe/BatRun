@@ -515,17 +515,109 @@ namespace BatRun.UI
                 configForm?.UpdateStartupState(cb.Checked);
                 var result = MessageBox.Show(cb.Checked ? LocalizedStrings.GetString("This action will configure BatRun as a custom shell.") : LocalizedStrings.GetString("This action will restore the default Windows Explorer shell."), LocalizedStrings.GetString("Confirmation"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (result != DialogResult.Yes) { cb.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged; cb.Checked = !cb.Checked; cb.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged; return; }
-                
-                string psScript = Path.Combine(Path.GetTempPath(), "ConfigureShell.ps1");
-                var sb = new StringBuilder();
-                sb.AppendLine("$userSID = [System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value");
-                sb.AppendLine("$regPath = \"Registry::HKEY_USERS\\$userSID\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\"");
-                if (cb.Checked) { sb.AppendLine("if (!(Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }"); sb.AppendLine($"Set-ItemProperty -Path $regPath -Name 'Shell' -Value '{Application.ExecutablePath}' -Type String"); }
-                else { sb.AppendLine("if (Test-Path $regPath) { Remove-ItemProperty -Path $regPath -Name 'Shell' -ErrorAction SilentlyContinue }"); }
-                File.WriteAllText(psScript, sb.ToString());
-                Process.Start(new ProcessStartInfo { FileName = "powershell.exe", Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{psScript}\"", Verb = "runas", UseShellExecute = true })?.WaitForExit();
+
+                // EN: Execute shell registry change via -EncodedCommand (Base64) to avoid WDAC/Defender
+                //     blocking of .ps1 files from %TEMP% on Windows 11. Compatible with Windows 10.
+                // FR: Changement registre via -EncodedCommand (Base64) pour éviter le blocage WDAC/Defender
+                //     des fichiers .ps1 depuis %TEMP% sur Windows 11. Compatible Windows 10.
+                ExecuteShellPolicyScript(cb.Checked);
             }
             catch (Exception ex) { MessageBox.Show(ex.Message); cb.CheckedChanged -= WindowsPolicyCheckBox_CheckedChanged; cb.Checked = !cb.Checked; cb.CheckedChanged += WindowsPolicyCheckBox_CheckedChanged; }
+        }
+
+        // EN: Builds and executes the PowerShell command to configure/remove the custom shell registry key.
+        //     Uses -EncodedCommand (UTF-16LE Base64) instead of -File to bypass Windows 11 WDAC/Defender
+        //     restrictions on scripts loaded from %TEMP%. Creates a system restore point beforehand.
+        // FR: Construit et exécute la commande PowerShell pour configurer/supprimer la clé registre shell.
+        //     Utilise -EncodedCommand (Base64 UTF-16LE) au lieu de -File pour contourner les restrictions
+        //     WDAC/Defender de Windows 11 sur les scripts depuis %TEMP%. Crée un point de restauration avant.
+        private void ExecuteShellPolicyScript(bool enable)
+        {
+            var sb = new StringBuilder();
+
+            // EN: Step 1 — System restore point (best-effort, ignored if unavailable)
+            // FR: Étape 1 — Point de restauration système (best-effort, ignoré si non disponible)
+            sb.AppendLine("try {");
+            sb.AppendLine("    Enable-ComputerRestore -Drive $env:SystemDrive -ErrorAction SilentlyContinue | Out-Null");
+            sb.AppendLine("    Checkpoint-Computer -Description 'BatRun_ShellConfig' -RestorePointType 'MODIFY_SETTINGS' -ErrorAction SilentlyContinue | Out-Null");
+            sb.AppendLine("} catch {}");
+            
+            // EN: Clear errors so they don't trigger a non-zero exit code on script end
+            // FR: Nettoyer les erreurs pour ne pas déclencher d'exit code non-nul
+            sb.AppendLine("$Error.Clear()");
+
+            // EN: Step 2 — Registry modification via HKEY_USERS\<SID> path
+            // FR: Étape 2 — Modification du registre via HKEY_USERS\<SID>
+            sb.AppendLine("try {");
+            string currentUserSid = System.Security.Principal.WindowsIdentity.GetCurrent().User?.Value ?? "";
+            sb.AppendLine($"$userSID = '{currentUserSid}'");
+            sb.AppendLine("$regPath = \"Registry::HKEY_USERS\\$userSID\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\"");
+
+            if (enable)
+            {
+                sb.AppendLine("if (!(Test-Path $regPath)) { New-Item -Path $regPath -Force | Out-Null }");
+                // EN: Use single quotes to avoid variable expansion in the exe path
+                // FR: Guillemets simples pour éviter l'expansion de variables dans le chemin exe
+                string exePath = Application.ExecutablePath.Replace("'", "''");
+                sb.AppendLine($"Set-ItemProperty -Path $regPath -Name 'Shell' -Value '{exePath}' -Type String -ErrorAction Stop");
+            }
+            else
+            {
+                sb.AppendLine("if (Test-Path $regPath) {");
+                sb.AppendLine("    $shellProp = Get-ItemProperty -Path $regPath -Name 'Shell' -ErrorAction SilentlyContinue");
+                sb.AppendLine("    if ($shellProp) { Remove-ItemProperty -Path $regPath -Name 'Shell' -ErrorAction Stop }");
+                sb.AppendLine("}");
+            }
+            sb.AppendLine("exit 0");
+            sb.AppendLine("} catch { exit 1 }");
+
+            // EN: Encode the script as UTF-16LE Base64 (-EncodedCommand requirement on all PS versions)
+            // FR: Encoder le script en Base64 UTF-16LE (requis par -EncodedCommand sur toutes versions PS)
+            string scriptContent = sb.ToString();
+            byte[] utf16leBytes = System.Text.Encoding.Unicode.GetBytes(scriptContent);
+            string encodedCommand = Convert.ToBase64String(utf16leBytes);
+
+            logger.LogInfo($"[ShellConfig] Executing shell policy script (enable={enable}) via -EncodedCommand");
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand {encodedCommand}",
+                Verb = "runas",
+                UseShellExecute = true,
+                // EN: Normal window so UAC prompt is visible and any error is shown
+                // FR: Fenêtre normale pour que la demande UAC et les erreurs éventuelles soient visibles
+                WindowStyle = ProcessWindowStyle.Normal
+            };
+
+            try
+            {
+                using var proc = Process.Start(psi);
+                proc?.WaitForExit();
+
+                int exitCode = proc?.ExitCode ?? -1;
+                if (exitCode != 0)
+                {
+                    logger.LogError($"[ShellConfig] PowerShell exited with code {exitCode}");
+                    MessageBox.Show(
+                        $"{LocalizedStrings.GetString("Shell configuration script failed")} (exit code {exitCode}).\n{LocalizedStrings.GetString("Check BatRun.log for details.")}",
+                        LocalizedStrings.GetString("Error"),
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+                else
+                {
+                    logger.LogInfo("[ShellConfig] Shell policy script executed successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // EN: Typically thrown when the user cancels the UAC prompt
+                // FR: Généralement levé quand l'utilisateur annule la demande UAC
+                logger.LogError($"[ShellConfig] Failed to start PowerShell for shell policy: {ex.Message}", ex);
+                throw; // EN: Re-throw so caller reverts the checkbox / FR: Relancer pour que l'appelant annule la checkbox
+            }
         }
 
         private void CancelButton_Click(object? sender, EventArgs e) => this.Close();

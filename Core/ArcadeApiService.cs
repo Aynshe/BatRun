@@ -157,6 +157,30 @@ namespace BatRun.Core
             }
         }
 
+        private async Task<string> ReadHttpBodyAsync(StreamReader reader, int contentLength)
+        {
+            if (contentLength <= 0) return "";
+            char[] buffer = new char[4096];
+            StringBuilder sb = new StringBuilder();
+            int totalBytes = 0;
+            
+            while (totalBytes < contentLength)
+            {
+                // EN: We can safely request (contentLength - totalBytes) characters because 1 char >= 1 byte in UTF-8.
+                // FR: On peut demander (contentLength - totalBytes) caractères en toute sécurité car 1 char >= 1 byte.
+                int charsToRead = contentLength - totalBytes;
+                if (charsToRead > buffer.Length) charsToRead = buffer.Length;
+                
+                int charsRead = await reader.ReadAsync(buffer, 0, charsToRead);
+                if (charsRead == 0) break; // EOF or connection closed
+                
+                string chunk = new string(buffer, 0, charsRead);
+                sb.Append(chunk);
+                totalBytes += Encoding.UTF8.GetByteCount(chunk);
+            }
+            return sb.ToString();
+        }
+
         private async Task ListenAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested && _listener != null)
@@ -416,13 +440,7 @@ namespace BatRun.Core
                     {
                         IPAddress connectIp = (client.Client.RemoteEndPoint as IPEndPoint)?.Address ?? IPAddress.Loopback;
                         _manager.ReloadPublicSettings();
-                        string connectBody = "";
-                        if (contentLength > 0)
-                        {
-                            char[] buf = new char[contentLength];
-                            await reader.ReadBlockAsync(buf, 0, contentLength);
-                            connectBody = new string(buf);
-                        }
+                        string connectBody = await ReadHttpBodyAsync(reader, contentLength);
                         var formFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                         foreach (var pair in connectBody.Split('&'))
                         {
@@ -527,24 +545,12 @@ namespace BatRun.Core
                     }
                     else if (path == "/api/action" && method == "POST")
                     {
-                        string body = "";
-                        if (contentLength > 0)
-                        {
-                            char[] buffer = new char[contentLength];
-                            await reader.ReadBlockAsync(buffer, 0, contentLength);
-                            body = new string(buffer);
-                        }
+                        string body = await ReadHttpBodyAsync(reader, contentLength);
                         await HandleActionAsync(stream, body);
                     }
                     else if (path.StartsWith("/api/relay") || path.StartsWith("/stream-relay/"))
                     {
-                        string body = "";
-                        if (contentLength > 0)
-                        {
-                            char[] buffer = new char[contentLength];
-                            await reader.ReadBlockAsync(buffer, 0, contentLength);
-                            body = new string(buffer);
-                        }
+                        string body = await ReadHttpBodyAsync(reader, contentLength);
                         await HandleRelayAsync(stream, method, rawPath, body, rangeHeader, headers);
                     }
                     else if (path == "/api/es/status" && method == "GET")
@@ -573,13 +579,7 @@ namespace BatRun.Core
                     }
                     else if (path.StartsWith("/api/public") || path.StartsWith("/api/admin") || path.StartsWith("/api/host"))
                     {
-                        string body = "";
-                        if (contentLength > 0)
-                        {
-                            char[] buffer = new char[contentLength];
-                            await reader.ReadBlockAsync(buffer, 0, contentLength);
-                            body = new string(buffer);
-                        }
+                        string body = await ReadHttpBodyAsync(reader, contentLength);
                         
                         if (path.StartsWith("/api/public") || path.StartsWith("/api/host")) 
                         {

@@ -44,7 +44,7 @@ namespace BatRun.Core
         private WallpaperManager? wallpaperManager;
         public ArcadeManager? ArcadeManager => _arcadeManager;
 
-        public const string APP_VERSION = "3.1.0";
+        public const string APP_VERSION = "3.2.0";
 
         private bool hideESLoading;
         private bool arcadeMode;
@@ -187,11 +187,21 @@ namespace BatRun.Core
                 else if (!isRunning && wasRunning)
                 {
                     _arcadeManager?.NotifyEmulationStationState(false);
-                    // EN: Only restore wallpaper if the arcade overlay is NOT showing an ES CLOSED alert
-                    // FR: Ne restaurer le wallpaper que si l'overlay arcade ne montre PAS une alerte ES CLOSED
-                    if (_arcadeManager?.IsLocked == true && !_arcadeManager.IsEsClosedAlertActive)
+                    // EN: Restore wallpaper after ES exits — covers BOTH arcade and non-arcade modes.
+                    //     Key insight: NotifyEmulationStationState(false) sets IsEsClosedAlertActive=true
+                    //     immediately, so checking !IsEsClosedAlertActive here was ALWAYS false in arcade
+                    //     mode, meaning ShowWallpaperWindow() was NEVER called. Fixed by removing that
+                    //     condition and using EnsureWallpaperVisible() which recreates the window if
+                    //     needed (hidden form loses HWND_BOTTOM Z-order after Hide+Show; recreation fixes it).
+                    // FR: Restaurer le wallpaper après la sortie d'ES — couvre mode arcade ET non-arcade.
+                    //     Insight clé : NotifyEmulationStationState(false) positionne IsEsClosedAlertActive=true
+                    //     immédiatement, donc !IsEsClosedAlertActive était TOUJOURS false en mode arcade,
+                    //     ce qui empêchait ShowWallpaperWindow() d'être appelé. Corrigé en supprimant cette
+                    //     condition et en utilisant EnsureWallpaperVisible() qui recrée la fenêtre si
+                    //     nécessaire (une form cachée perd son Z-order HWND_BOTTOM après Hide+Show).
+                    if (wallpaperManager != null)
                     {
-                        wallpaperManager?.ShowWallpaperWindow();
+                        wallpaperManager.EnsureWallpaperVisible();
                     }
                 }
 
@@ -1220,8 +1230,6 @@ namespace BatRun.Core
             {
                 wallpaperTimer.Stop(); // Ensure it only runs once
 
-                bool isExplorerRunning = Process.GetProcessesByName("explorer").Length > 0;
-                bool enableWithExplorer = config?.ReadBool("Wallpaper", "EnableWithExplorer", false) ?? false;
                 string selectedWallpaper = config?.ReadValue("Wallpaper", "Selected", "None") ?? "None";
 
                 if (selectedWallpaper != "None")
@@ -1229,10 +1237,17 @@ namespace BatRun.Core
                     config?.WriteValue("Wallpaper", "IsActive", "true");
                     if (wallpaperManager != null)
                     {
-                        if (!isExplorerRunning || enableWithExplorer)
-                        {
-                            wallpaperManager.ShowWallpaper();
-                        }
+                        // EN: Always call ShowWallpaper() when a wallpaper is configured.
+                        //     The method itself handles the enableWithExplorer/forceShow logic.
+                        //     The external guard (isExplorerRunning && !enableWithExplorer) was
+                        //     using default=false, inconsistent with ShowWallpaper()'s default=true,
+                        //     causing the wallpaper to never show when explorer.exe was running.
+                        // FR: Toujours appeler ShowWallpaper() si un wallpaper est configuré.
+                        //     La méthode gère elle-même la logique enableWithExplorer/forceShow.
+                        //     Le garde externe (isExplorerRunning && !enableWithExplorer) utilisait
+                        //     default=false, incohérent avec le default=true de ShowWallpaper(),
+                        //     ce qui empêchait le wallpaper de s'afficher quand explorer.exe tournait.
+                        wallpaperManager.ShowWallpaper();
                     }
                 }
                 else

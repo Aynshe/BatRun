@@ -665,6 +665,32 @@ namespace BatRun.UI
             if (_logger == null) return;
             string retrobatRoot = GetRetrobatRoot();
 
+            // EN: If updating an existing plugin, close any running executables to prevent file lock errors.
+            // FR: Si on met à jour un plugin existant, fermer tous les exécutables en cours pour éviter les erreurs de verrouillage de fichier.
+            string targetPluginDir = Path.Combine(retrobatRoot, "plugins", pluginName);
+            if (Directory.Exists(targetPluginDir))
+            {
+                try
+                {
+                    var exeFiles = Directory.GetFiles(targetPluginDir, "*.exe", SearchOption.AllDirectories);
+                    foreach (var exeFile in exeFiles)
+                    {
+                        string exeName = Path.GetFileNameWithoutExtension(exeFile);
+                        var processes = Process.GetProcessesByName(exeName);
+                        foreach (var process in processes)
+                        {
+                            _logger.LogInfo($"[Install/Update] Terminating running plugin process: {exeName} (PID: {process.Id})");
+                            process.Kill(true);
+                            process.WaitForExit(2000);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"[Install/Update] Error attempting to terminate plugin processes for {pluginName}", ex);
+                }
+            }
+
             try
             {
                 string archiveFile = await PluginManager.DownloadAssetAsync(_logger, asset.BrowserDownloadUrl, asset.Name, percent =>
@@ -719,7 +745,7 @@ namespace BatRun.UI
             string retrobatRoot = GetRetrobatRoot();
 
             // Safety Process check loop
-            while (PluginManager.IsPluginRunning(pluginName))
+            while (PluginManager.IsPluginRunning(pluginName, retrobatRoot))
             {
                 var result = MessageBox.Show(
                     "The plugin executable is currently running. Would you like to terminate the task automatically, or close it manually before retrying?",
@@ -729,7 +755,7 @@ namespace BatRun.UI
 
                 if (result == DialogResult.Yes)
                 {
-                    PluginManager.TerminatePluginProcess(pluginName);
+                    PluginManager.TerminatePluginProcess(pluginName, retrobatRoot);
                     Thread.Sleep(800); // Wait for termination
                 }
                 else if (result == DialogResult.No)

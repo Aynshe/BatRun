@@ -151,14 +151,9 @@ namespace BatRun.Core
         {
             try
             {
-                bool enableWithExplorer = config.ReadBool("Wallpaper", "EnableWithExplorer", false);
-                bool shouldShow = !IsExplorerRunning() || forceShow || enableWithExplorer;
 
-                logger.LogInfo($"ShowWallpaper called - Explorer running: {IsExplorerRunning()}, Force show: {forceShow}, Enable with Explorer: {enableWithExplorer}, Should show: {shouldShow}");
 
-                if (shouldShow)
-                {
-                    CloseWallpaper();
+                CloseWallpaper();
 
                     string wallpaperPath;
                     string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
@@ -593,11 +588,6 @@ namespace BatRun.Core
 
                     wallpaperForm.Show();
                     logger.LogInfo($"Wallpaper displayed: {wallpaperPath}");
-                }
-                else
-                {
-                    logger.LogInfo("Wallpaper not shown due to conditions not met");
-                }
             }
             catch (Exception ex)
             {
@@ -922,12 +912,28 @@ namespace BatRun.Core
             {
                 if (!isMediaPaused)
                 {
+                    // EN: Mark paused immediately — VLC may report IsPlaying==false during a
+                    //     transient state (buffering, loop boundary) which would leave isMediaPaused=false
+                    //     and cause ResumeMedia() to silently skip the resume later.
+                    // FR: Marquer en pause immédiatement — VLC peut retourner IsPlaying==false pendant
+                    //     un état transitoire (buffering, boucle) ce qui laisserait isMediaPaused=false
+                    //     et empêcherait ResumeMedia() de reprendre la lecture.
+                    isMediaPaused = true;
+
                     // Pause vidéo MP4
-                    if (mediaPlayer?.IsPlaying == true)
+                    if (mediaPlayer != null)
                     {
-                        mediaPlayer.Pause();
-                        isMediaPaused = true;
-                        logger.LogInfo("Media playback paused");
+                        try
+                        {
+                            // EN: Use SetPause(true) instead of Pause() because Pause() is a toggle
+                            // FR: Utiliser SetPause(true) au lieu de Pause() car Pause() bascule l'état (toggle)
+                            mediaPlayer.SetPause(true);
+                            logger.LogInfo("Media playback paused");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError($"[Wallpaper] PauseMedia: error pausing VLC player: {ex.Message}", ex);
+                        }
                     }
 
                     // Pause GIF
@@ -952,7 +958,6 @@ namespace BatRun.Core
                             pictureBox.Image = blackBackground;
                             
                             isGifPaused = true;
-                            isMediaPaused = true;
                             logger.LogInfo("GIF animation paused and replaced with black background");
                         }
                     }
@@ -966,12 +971,32 @@ namespace BatRun.Core
             {
                 if (isMediaPaused && !IsEmulationStationRunning())
                 {
-                    // Reprise vidéo MP4
-                    if (mediaPlayer != null && !mediaPlayer.IsPlaying)
+                    // EN: Reset flag first so a concurrent PauseMedia() call can re-pause if needed
+                    // FR: Réinitialiser le flag en premier pour qu'un PauseMedia() concurrent puisse re-pauser
+                    isMediaPaused = false;
+
+                    // EN: Resume MP4 — do NOT guard on IsPlaying: VLC Play() is idempotent and VLC
+                    //     can briefly report IsPlaying==false between loops or after a Pause() that
+                    //     was called while VLC was in a transient state. Without this, the video
+                    //     silently stays paused even though the user expects it to resume.
+                    // FR: Reprise MP4 — ne PAS vérifier IsPlaying : VLC Play() est idempotent et VLC
+                    //     peut brièvement retourner IsPlaying==false entre deux boucles ou après un
+                    //     Pause() appelé durant un état transitoire. Sans ça, la vidéo reste en pause
+                    //     silencieusement alors que l'utilisateur s'attend à ce qu'elle reprenne.
+                    if (mediaPlayer != null)
                     {
-                        mediaPlayer.Play();
-                        isMediaPaused = false;
-                        logger.LogInfo("Media playback resumed");
+                        try
+                        {
+                            // EN: Use SetPause(false) to reliably resume instead of Play()
+                            // FR: Utiliser SetPause(false) pour reprendre de façon fiable
+                            mediaPlayer.SetPause(false);
+                            mediaPlayer.Play(); // Safety call in case it was stopped, but SetPause is primary
+                            logger.LogInfo("Media playback resumed");
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError($"[Wallpaper] ResumeMedia: error resuming VLC player: {ex.Message}", ex);
+                        }
                     }
 
                     // Reprise GIF
@@ -993,7 +1018,6 @@ namespace BatRun.Core
                             ImageAnimator.Animate(pictureBox.Image, frameChangedHandler);
                             
                             isGifPaused = false;
-                            isMediaPaused = false;
                             logger.LogInfo("GIF animation restored and resumed");
                         }
                         catch (Exception ex)
@@ -1210,16 +1234,76 @@ namespace BatRun.Core
             }
         }
 
-        // EN: Restore the wallpaper window visibility
-        // FR: Rend le wallpaper à nouveau visible
+        // EN: Ensures the wallpaper is visible after EmulationStation exits.
+        // If the wallpaperForm was destroyed (null or disposed — common when explorer.exe is absent),
+        // this recreates it via ShowWallpaper(). Otherwise it simply calls ShowWallpaperWindow().
+        // FR: S'assure que le wallpaper est visible après la sortie d'EmulationStation.
+        // Si wallpaperForm a été détruite (null ou disposed — fréquent sans explorer.exe),
+        // cela le recrée via ShowWallpaper(). Sinon, appelle simplement ShowWallpaperWindow().
+        public void EnsureWallpaperVisible()
+        {
+            try
+            {
+                // EN: Only recreate if null or disposed. If just hidden (!Visible), ShowWallpaperWindow()
+                //     is enough and correctly re-applies HWND_BOTTOM. Recreating the form while ArcadeOverlay
+                //     is TopMost causes Windows to put the new window behind the desktop (WorkerW), breaking visibility.
+                // FR: Ne recréer que si null ou disposed. Si juste cachée (!Visible), ShowWallpaperWindow()
+                //     suffit et ré-applique HWND_BOTTOM. Recréer la form pendant que ArcadeOverlay est
+                //     TopMost pousse Windows à placer la nouvelle fenêtre sous le bureau, la rendant invisible.
+                bool needsRecreation = wallpaperForm == null || wallpaperForm.IsDisposed;
+                
+                if (needsRecreation)
+                {
+                    string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+                    if (selectedWallpaper != "None")
+                    {
+                        logger.LogInfo("[Wallpaper] EnsureWallpaperVisible: wallpaperForm is null/disposed, recreating...");
+                        ShowWallpaper();
+                    }
+                }
+                else
+                {
+                    logger.LogInfo("[Wallpaper] EnsureWallpaperVisible: wallpaperForm exists, showing.");
+                    ShowWallpaperWindow();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"[Wallpaper] EnsureWallpaperVisible error: {ex.Message}", ex);
+            }
+        }
+
+        // EN: Restore the wallpaper window visibility and re-apply HWND_BOTTOM Z-order.
+        //     After Hide()+Show(), Windows does NOT preserve the HWND_BOTTOM position —
+        //     the window re-enters the normal Z-order stack and gets covered by Explorer windows.
+        //     We must call SetWindowPos(HWND_BOTTOM) again after Show() to fix this.
+        // FR: Restaure la visibilité du wallpaper et re-applique le Z-order HWND_BOTTOM.
+        //     Après Hide()+Show(), Windows ne conserve PAS la position HWND_BOTTOM —
+        //     la fenêtre revient dans la pile Z-order normale et est couverte par Explorer.
+        //     On doit rappeler SetWindowPos(HWND_BOTTOM) après Show() pour corriger ça.
         public void ShowWallpaperWindow()
         {
             if (wallpaperForm != null && !wallpaperForm.IsDisposed)
             {
                 if (wallpaperForm.InvokeRequired)
-                    wallpaperForm.Invoke(new Action(() => wallpaperForm.Show()));
+                {
+                    wallpaperForm.Invoke(new Action(() =>
+                    {
+                        wallpaperForm.Show();
+                        // EN: Re-apply HWND_BOTTOM after Show() — Z-order is lost after Hide/Show cycle
+                        // FR: Re-appliquer HWND_BOTTOM après Show() — le Z-order est perdu après Hide/Show
+                        SetWindowPos(wallpaperForm.Handle, HWND_BOTTOM, 0, 0, 0, 0,
+                            SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                    }));
+                }
                 else
+                {
                     wallpaperForm.Show();
+                    // EN: Re-apply HWND_BOTTOM after Show() — Z-order is lost after Hide/Show cycle
+                    // FR: Re-appliquer HWND_BOTTOM après Show() — le Z-order est perdu après Hide/Show
+                    SetWindowPos(wallpaperForm.Handle, HWND_BOTTOM, 0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                }
             }
         }
 

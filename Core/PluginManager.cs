@@ -303,14 +303,30 @@ namespace BatRun.Core
             return fullPath;
         }
 
-        // EN: Check if the plugin executable is running.
-        // FR: Vérifie si l'exécutable du plugin est en cours d'exécution.
-        public static bool IsPluginRunning(string pluginName)
+        // EN: Check if the plugin executable is running (checks exact plugin name and any .exe in its folder).
+        // FR: Vérifie si l'exécutable du plugin est en cours d'exécution (nom exact et tout .exe dans son dossier).
+        public static bool IsPluginRunning(string pluginName, string retrobatRoot)
         {
             try
             {
+                // 1. Check exact plugin name
                 var processes = Process.GetProcessesByName(pluginName);
-                return processes.Length > 0 && !processes[0].HasExited;
+                if (processes.Length > 0 && !processes[0].HasExited) return true;
+
+                // 2. Check all .exe files in the plugin directory
+                string pluginDir = Path.Combine(retrobatRoot, "plugins", pluginName);
+                if (Directory.Exists(pluginDir))
+                {
+                    var exeFiles = Directory.GetFiles(pluginDir, "*.exe", SearchOption.AllDirectories);
+                    foreach (var exe in exeFiles)
+                    {
+                        string exeName = Path.GetFileNameWithoutExtension(exe);
+                        var p = Process.GetProcessesByName(exeName);
+                        if (p.Length > 0 && !p[0].HasExited) return true;
+                    }
+                }
+                
+                return false;
             }
             catch
             {
@@ -318,21 +334,38 @@ namespace BatRun.Core
             }
         }
 
-        // EN: Automatically terminate the plugin processes.
-        // FR: Arrête automatiquement les processus du plugin.
-        public static void TerminatePluginProcess(string pluginName)
+        // EN: Automatically terminate the plugin processes (checks exact plugin name and any .exe in its folder).
+        // FR: Arrête automatiquement les processus du plugin (nom exact et tout .exe dans son dossier).
+        public static void TerminatePluginProcess(string pluginName, string retrobatRoot)
         {
             try
             {
+                // 1. Terminate exact plugin name
                 var processes = Process.GetProcessesByName(pluginName);
                 foreach (var process in processes)
                 {
                     process.Kill(true);
                 }
+
+                // 2. Terminate all .exe files in the plugin directory
+                string pluginDir = Path.Combine(retrobatRoot, "plugins", pluginName);
+                if (Directory.Exists(pluginDir))
+                {
+                    var exeFiles = Directory.GetFiles(pluginDir, "*.exe", SearchOption.AllDirectories);
+                    foreach (var exe in exeFiles)
+                    {
+                        string exeName = Path.GetFileNameWithoutExtension(exe);
+                        var pList = Process.GetProcessesByName(exeName);
+                        foreach (var process in pList)
+                        {
+                            process.Kill(true);
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error terminating process {pluginName}: {ex.Message}");
+                Debug.WriteLine($"Error terminating processes for {pluginName}: {ex.Message}");
             }
         }
 

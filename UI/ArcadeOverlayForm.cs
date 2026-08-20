@@ -63,6 +63,12 @@ namespace BatRun.UI
         const int WS_EX_LAYERED = 0x80000;
         private bool _preventActivation = false;
 
+        // EN: Set to true when BatRun is programmatically closing the overlay (e.g. after RetroBat exits).
+        //     This bypasses the OnFormClosing cancel guard and stops the sticky-focus timer immediately.
+        // FR: Mis à true quand BatRun ferme l'overlay programmatiquement (ex: après la fermeture de RetroBat).
+        //     Cela court-circuite le guard d'annulation dans OnFormClosing et stoppe immédiatement le timer.
+        private volatile bool _isShuttingDown = false;
+
         public ArcadeOverlayForm(double opacity = 0.85, ArcadeManager? manager = null)
         {
             _baseOpacity = opacity;
@@ -78,7 +84,25 @@ namespace BatRun.UI
             this.ShowInTaskbar = false;
             this.StartPosition = FormStartPosition.Manual;
             this.BackColor = Color.FromArgb(1, 1, 1);
-            this.Opacity = Math.Min(0.99, _baseOpacity);
+            
+            // EN: If a wallpaper is configured, make the overlay background fully transparent 
+            //     so the video/image can be seen instead of a dark grey screen.
+            // FR: Si un wallpaper est configuré, rendre le fond de l'overlay transparent
+            //     pour qu'on puisse voir la vidéo/l'image au lieu de l'écran gris.
+            string configPath = Path.Combine(AppContext.BaseDirectory, "config.ini");
+            var config = new BatRun.Utils.IniFile(configPath);
+            string selectedWallpaper = config.ReadValue("Wallpaper", "Selected", "None");
+            
+            if (selectedWallpaper != "None")
+            {
+                this.TransparencyKey = this.BackColor;
+                this.Opacity = 1.0; // TransparencyKey requires Opacity 1.0 to work perfectly
+            }
+            else
+            {
+                this.Opacity = Math.Min(0.99, _baseOpacity);
+            }
+
             this.Bounds = Screen.PrimaryScreen!.Bounds;
             
             _stickyFocusTimer = new System.Windows.Forms.Timer();
@@ -93,6 +117,12 @@ namespace BatRun.UI
 
         private void StickyFocusTimer_Tick(object? sender, EventArgs e)
         {
+            // EN: GUARD — stop immediately if the form is being shut down or disposed.
+            //     This prevents Win32 calls on invalid handles when RetroBat exits.
+            // FR: GARDE — stopper immédiatement si la form est en cours de fermeture ou disposed.
+            //     Évite les appels Win32 sur des handles invalides quand RetroBat se ferme.
+            if (_isShuttingDown || this.IsDisposed) return;
+
             // EN: Use cached File.Exists to avoid disk I/O every 250ms
             // FR: Utiliser le cache File.Exists pour éviter un accès disque à chaque tick
             bool isGuardianActive = GetCachedGuardianLockState();
@@ -132,21 +162,34 @@ namespace BatRun.UI
                         }
                     }
 
-                    if (!skipRestore && gameHwnd != IntPtr.Zero && NativeMethods.IsWindow(gameHwnd) && NativeMethods.IsIconic(gameHwnd))
+                    // EN: Wrap Win32 calls in try/catch — gameHwnd may become invalid between
+                    //     the null check and the actual API call when the game process exits.
+                    // FR: Wrapper les appels Win32 en try/catch — gameHwnd peut devenir invalide entre
+                    //     la vérification null et l'appel API si le process jeu se termine entre-temps.
+                    try
                     {
-                        NativeMethods.ShowWindowAsync(gameHwnd, NativeMethods.SW_RESTORE);
-                        
-                        // EN: Only activate if the user is supposed to be playing or in the final countdown
-                        if (isSessionActive || closing)
+                        if (!skipRestore && gameHwnd != IntPtr.Zero && NativeMethods.IsWindow(gameHwnd) && NativeMethods.IsIconic(gameHwnd))
                         {
-                            NativeMethods.SetForegroundWindow(gameHwnd);
+                            NativeMethods.ShowWindowAsync(gameHwnd, NativeMethods.SW_RESTORE);
+                            
+                            // EN: Only activate if the user is supposed to be playing or in the final countdown
+                            if (isSessionActive || closing)
+                            {
+                                NativeMethods.SetForegroundWindow(gameHwnd);
+                            }
+                            else
+                            {
+                                // EN: For INSERT COIN, ensure it's restored behind BatRun without taking focus
+                                NativeMethods.SetWindowPos(gameHwnd, (IntPtr)1, 0, 0, 0, 0, // HWND_BOTTOM
+                                    NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE);
+                            }
                         }
-                        else
-                        {
-                            // EN: For INSERT COIN, ensure it's restored behind BatRun without taking focus
-                            NativeMethods.SetWindowPos(gameHwnd, (IntPtr)1, 0, 0, 0, 0, // HWND_BOTTOM
-                                NativeMethods.SWP_NOMOVE | NativeMethods.SWP_NOSIZE | NativeMethods.SWP_NOACTIVATE);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // EN: Game handle became invalid — log and continue normally
+                        // FR: Le handle du jeu est devenu invalide — logger et continuer
+                        System.Diagnostics.Debug.WriteLine($"[ArcadeOverlay] Win32 call on dead game handle: {ex.Message}");
                     }
                 }
                 
@@ -770,8 +813,50 @@ namespace BatRun.UI
             base.WndProc(ref m);
         }
 
+        // EN: Safely closes the overlay from BatRun code (not from user action).
+        //     Stops the sticky-focus timer first to prevent Win32 calls on dead handles,
+        //     then sets _isShuttingDown so OnFormClosing lets the close proceed.
+        // FR: Ferme l'overlay en toute sécurité depuis le code BatRun (pas depuis l'utilisateur).
+        //     Stoppe d'abord le timer pour éviter les appels Win32 sur des handles morts,
+        //     puis positionne _isShuttingDown pour que OnFormClosing laisse la fermeture se faire.
+        public void SafeClose()
+        {
+            if (this.IsDisposed) return;
+            _isShuttingDown = true;
+
+            // EN: Stop timers on the UI thread to avoid a race with Tick
+            // FR: Stopper les timers sur le thread UI pour éviter une race avec Tick
+            if (this.InvokeRequired)
+            {
+                try
+                {
+                    this.Invoke(new Action(() =>
+                    {
+                        _stickyFocusTimer?.Stop();
+                        _messageTimer?.Stop();
+                        if (!this.IsDisposed) this.Close();
+                    }));
+                }
+                catch { /* Form may already be disposed */ }
+            }
+            else
+            {
+                _stickyFocusTimer?.Stop();
+                _messageTimer?.Stop();
+                if (!this.IsDisposed) this.Close();
+            }
+        }
+
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            // EN: If BatRun is programmatically shutting down the overlay, always allow the close.
+            // FR: Si BatRun ferme l'overlay programmatiquement, toujours autoriser la fermeture.
+            if (_isShuttingDown)
+            {
+                base.OnFormClosing(e);
+                return;
+            }
+
             if (_manager != null && _manager.IsLocked && !_manager.IsInternalClosing)
             {
                 if (e.CloseReason == CloseReason.UserClosing || e.CloseReason == CloseReason.TaskManagerClosing)

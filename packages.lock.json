@@ -4,11 +4,11 @@
     "net10.0-windows7.0": {
       "LibVLCSharp.WinForms": {
         "type": "Direct",
-        "requested": "[3.9.6, )",
-        "resolved": "3.9.6",
-        "contentHash": "k6yqQRVzRSY6Tt2tPkq31x46aEpjPDTwhy2n/v251nbqQxMQZqdWHlbnnEXfHYI77pIDVpyRXIcUknoZFlXCXQ==",
+        "requested": "[3.10.1, )",
+        "resolved": "3.10.1",
+        "contentHash": "KOA4S7GqhIqxfnRdvHH6XGvoPbFFqi1DE/MWauvWNywc/gn8HOjaqq3Tf5rqL/QahZ4bCp/mNOlK0gcWN+g7kg==",
         "dependencies": {
-          "LibVLCSharp": "3.9.6"
+          "LibVLCSharp": "3.10.1"
         }
       },
       "Microsoft.NET.ILLink.Tasks": {
@@ -60,14 +60,14 @@
       },
       "VideoLAN.LibVLC.Windows": {
         "type": "Direct",
-        "requested": "[3.0.23, )",
-        "resolved": "3.0.23",
-        "contentHash": "O/Elo/AxXutSJ/3Z0lIuXEm9tr1iVmUYcws4WB1X9zHgGcAHBBFk29u9B7GX8mxLLMx9e1A6n3h6C0WyTk3KeQ=="
+        "requested": "[3.0.23.1, )",
+        "resolved": "3.0.23.1",
+        "contentHash": "yTGNrzj+Q/t72VNKK0d64jZ+8BGu5Vcp2nxpZ2ll350LkRWKSwqShGpZWcVxXVP8TiMbeGML09+Jzz3hNsIcqA=="
       },
       "LibVLCSharp": {
         "type": "Transitive",
-        "resolved": "3.9.6",
-        "contentHash": "MVkeFzsA5nGi/G94CluNif9BQPVkVPv0cikm63YBc8U+AQY8DJTsPp/6YZMM9J5IUBMHLWzQBbT/Iwhp6sc6oA=="
+        "resolved": "3.10.1",
+        "contentHash": "6iSrYMk6RU8fyftdXrfR1TW3xpR/WhEmliORuWvAu2N05wECb8k2hykWiU53/1zqx616v/qUlDbJJyqv78MDkQ=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
